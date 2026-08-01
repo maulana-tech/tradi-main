@@ -1,0 +1,40 @@
+{
+  "name": "agents",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PrivateOTC Compound Engineering layer — autonomous agents",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "market-maker": "tsx src/market-maker/index.ts",
+    "rfq-sweeper": "tsx src/rfq-sweeper/index.ts",
+    "strategy-coach": "tsx src/strategy-coach/index.ts",
+    "settlement-monitor": "tsx src/settlement-monitor/index.ts",
+    "seed": "tsx src/seed/index.ts",
+    "seed-multi": "tsx src/seed/seed-multi.ts",
+    "seed-bids": "tsx src/seed/seed-bids.ts",
+    "seed-30d": "tsx src/seed/seed-30d-demo.ts",
+    "seed-check": "tsx src/seed/check-balances.ts",
+    "seed-settled": "tsx src/seed/seed-settled-examples.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "viem": "^2.21.55",
+    "@iexec-nox/handle": "latest",
+    "ai": "^6.0.0",
+    "@vercel/kv": "^3.0.0",
+    "zod": "^3.24.1",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4",
+    "@vitest/coverage-v8": "^3.2.4"
+  }
+}

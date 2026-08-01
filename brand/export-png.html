@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tradi-Nox — Logo PNG export</title>
+<style>
+  :root { color-scheme: dark; }
+  body { background:#0e0e0e; color:#e5e2e1;
+         font-family: 'Space Grotesk', ui-sans-serif, system-ui;
+         display:flex; flex-direction:column; align-items:center; gap:24px; padding:40px 20px; margin:0; }
+  h1 { letter-spacing:6px; color:#00ff41; font-weight:700; margin:0; }
+  small { color:#71717a; }
+  .wrap { display:flex; gap:48px; flex-wrap:wrap; justify-content:center; max-width:1200px; }
+  .card { display:flex; flex-direction:column; align-items:center; gap:14px;
+          padding:24px; border:1px solid #2d2d2d; background:#131313; }
+  .preview { background:#131313; border:1px solid #27272a; display:block; }
+  button { background:#00ff41; color:#002203; border:none;
+           padding:12px 26px; font-weight:700; cursor:pointer;
+           letter-spacing:2px; font-family:inherit; transition:background .15s; }
+  button:hover { background:#00e639; }
+  button:active { transform:translateY(1px); }
+  .status { color:#84967e; font-size:12px; min-height:16px; letter-spacing:1px; }
+  details { color:#71717a; max-width:720px; }
+  details summary { cursor:pointer; padding:8px 0; }
+  pre { background:#09090b; padding:16px; overflow-x:auto; border:1px solid #2d2d2d;
+        font-family:'JetBrains Mono', ui-monospace, monospace; font-size:11px; line-height:1.6; }
+</style>
+</head>
+<body>
+  <h1>TRADI-NOX &mdash; LOGO EXPORT</h1>
+  <small>Click a button &rarr; PNG drops into your Downloads folder. No server needed.</small>
+
+  <div class="wrap">
+    <div class="card">
+      <img id="preview-square" class="preview" width="240" height="240" alt="Tradi-Nox logo">
+      <button data-id="square">DOWNLOAD 480x480 PNG</button>
+      <div class="status" data-status="square">Use this for the BUIDL logo field.</div>
+    </div>
+
+    <div class="card">
+      <img id="preview-icon" class="preview" width="120" height="120" alt="Tradi-Nox icon">
+      <button data-id="icon">DOWNLOAD 256x256 ICON PNG</button>
+      <div class="status" data-status="icon">Simplified favicon-friendly variant.</div>
+    </div>
+
+    <div class="card">
+      <img id="preview-wordmark" class="preview" width="480" height="192" alt="Tradi-Nox wordmark">
+      <button data-id="wordmark">DOWNLOAD 1200x480 PNG</button>
+      <div class="status" data-status="wordmark">Banner / cover image use.</div>
+    </div>
+  </div>
+
+  <details>
+    <summary>Why this works on file:// (and the previous version did not)</summary>
+    <pre>The previous version called fetch('tradi-nox-logo-480.svg') from a file://
+URL. Chromium blocks that as CORS even though it is the same folder.
+
+This version inlines the SVG markup directly as a JS string, encodes
+it as a data: URL, and loads it into an Image / canvas pipeline.
+Zero network calls, zero server, zero CORS.</pre>
+  </details>
+
+<script>
+  // Inline SVG sources (no fetch, CORS-safe)
+  const SVG = {
+    square: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" width="480" height="480">
+<rect width="480" height="480" fill="#131313"/>
+<polygon points="240,30 450,240 240,450 30,240" fill="none" stroke="#00ff41" stroke-width="2" opacity="0.10"/>
+<polygon points="240,52 428,240 240,428 52,240" fill="none" stroke="#00ff41" stroke-width="10" stroke-linejoin="miter"/>
+<polygon points="240,116 364,240 240,364 116,240" fill="none" stroke="#00ff41" stroke-width="1.5" opacity="0.32"/>
+<rect x="78" y="218" width="324" height="44" fill="#00ff41"/>
+<rect x="118" y="232" width="62" height="16" fill="#131313"/>
+<rect x="208" y="232" width="62" height="16" fill="#131313"/>
+<rect x="298" y="232" width="62" height="16" fill="#131313"/>
+<circle cx="392" cy="240" r="3" fill="#131313"/>
+</svg>`,
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" width="480" height="480">
+<rect width="480" height="480" fill="#131313"/>
+<polygon points="240,52 428,240 240,428 52,240" fill="none" stroke="#00ff41" stroke-width="14" stroke-linejoin="miter"/>
+<rect x="78" y="218" width="324" height="44" fill="#00ff41"/>
+</svg>`,
+    wordmark: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" width="1200" height="480">
+<rect width="1200" height="480" fill="#131313"/>
+<g transform="translate(60 60) scale(0.75)">
+  <polygon points="240,52 428,240 240,428 52,240" fill="none" stroke="#00ff41" stroke-width="10" stroke-linejoin="miter"/>
+  <polygon points="240,116 364,240 240,364 116,240" fill="none" stroke="#00ff41" stroke-width="1.5" opacity="0.32"/>
+  <rect x="78" y="218" width="324" height="44" fill="#00ff41"/>
+  <rect x="118" y="232" width="62" height="16" fill="#131313"/>
+  <rect x="208" y="232" width="62" height="16" fill="#131313"/>
+  <rect x="298" y="232" width="62" height="16" fill="#131313"/>
+</g>
+<text x="500" y="262" font-family="'Space Grotesk', ui-monospace, monospace" font-size="160" font-weight="700" letter-spacing="6" fill="#00ff41">TRADI-NOX</text>
+<text x="503" y="312" font-family="'Space Grotesk', ui-sans-serif, sans-serif" font-size="20" letter-spacing="10" fill="#84967e">CONFIDENTIAL &middot; OTC &middot; DESK</text>
+<g opacity="0.5">
+  <rect x="503" y="338" width="240" height="2" fill="#00ff41" opacity="0.4"/>
+  <text x="503" y="362" font-family="'Space Grotesk', ui-monospace, monospace" font-size="12" letter-spacing="4" fill="#71717a">BUILT ON IEXEC NOX &middot; ARBITRUM</text>
+</g>
+</svg>`,
+  };
+
+  const SIZES = {
+    square:   { w: 480,  h: 480,  filename: "tradi-nox-logo-480.png" },
+    icon:     { w: 256,  h: 256,  filename: "tradi-nox-icon-256.png" },
+    wordmark: { w: 1200, h: 480,  filename: "tradi-nox-wordmark-1200x480.png" },
+  };
+
+  function svgToDataUrl(svg) {
+    const encoded = encodeURIComponent(svg).replace(/'/g, "%27").replace(/"/g, "%22");
+    return `data:image/svg+xml;charset=utf-8,${encoded}`;
+  }
+
+  // Set previews via <img src=data:...> — no innerHTML
+  for (const id of Object.keys(SVG)) {
+    document.getElementById(`preview-${id}`).src = svgToDataUrl(SVG[id]);
+  }
+
+  function setStatus(id, msg, ok = true) {
+    const el = document.querySelector(`[data-status="${id}"]`);
+    if (!el) return;
+    el.textContent = msg;
+    el.style.color = ok ? "#00ff41" : "#ffb4ab";
+  }
+
+  function exportPng(id) {
+    const { w, h, filename } = SIZES[id];
+    setStatus(id, "Rendering...");
+
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#131313";
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          setStatus(id, "toBlob() failed", false);
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        setStatus(id, `Saved ${filename}`);
+      }, "image/png");
+    };
+    img.onerror = () => setStatus(id, "Image load failed - see console", false);
+    img.src = svgToDataUrl(SVG[id]);
+  }
+
+  document.querySelectorAll("button[data-id]").forEach((btn) => {
+    btn.addEventListener("click", () => exportPng(btn.dataset.id));
+  });
+</script>
+</body>
+</html>

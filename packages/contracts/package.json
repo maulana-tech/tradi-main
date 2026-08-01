@@ -1,0 +1,18 @@
+{
+  "name": "contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PrivateOTC Solidity contracts — confidential OTC desk with Vickrey RFQ pricing",
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test -vvv",
+    "test:gas": "forge test --gas-report",
+    "deploy:sepolia": "forge script script/Deploy.s.sol --rpc-url $ARBITRUM_SEPOLIA_RPC_URL --private-key $PRIVATE_KEY --broadcast --verify",
+    "deploy:local": "forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --private-key $PRIVATE_KEY --broadcast",
+    "fmt": "forge fmt",
+    "lint": "forge fmt --check"
+  },
+  "dependencies": {
+    "@iexec-nox/nox-protocol-contracts": "^0.2.4"
+  }
+}

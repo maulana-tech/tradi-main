@@ -1,0 +1,15 @@
+{
+  "filter_paths": "lib|test|node_modules|@iexec-nox|@openzeppelin|encrypted-types|forge-std",
+  "exclude_low": false,
+  "exclude_medium": false,
+  "exclude_high": false,
+  "exclude_optimization": true,
+  "exclude_informational": true,
+  "solc_remaps": [
+    "forge-std/=lib/forge-std/src/",
+    "@iexec-nox/=../../node_modules/@iexec-nox/",
+    "@openzeppelin/contracts/=../../node_modules/@openzeppelin/contracts/",
+    "@openzeppelin/contracts-upgradeable/=../../node_modules/@openzeppelin/contracts-upgradeable/",
+    "encrypted-types/=../../node_modules/encrypted-types/"
+  ]
+}

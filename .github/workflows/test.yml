@@ -1,0 +1,179 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts:
+    name: Solidity (forge)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install workspace deps (for @iexec-nox imports)
+        run: pnpm install --frozen-lockfile
+
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Build
+        working-directory: packages/contracts
+        run: forge build --sizes
+
+      - name: Local unit tests (no fork)
+        working-directory: packages/contracts
+        run: forge test --match-contract 'PrivateOTCTest$|VickreyAlgorithmTest' -vv
+
+      - name: Gas snapshot regression check
+        working-directory: packages/contracts
+        run: forge snapshot --check --match-contract 'PrivateOTCTest$|VickreyAlgorithmTest' --tolerance 5
+
+      - name: Solidity coverage (local tests only)
+        working-directory: packages/contracts
+        run: forge coverage --no-match-contract 'Fork|Invariant' --report lcov
+        continue-on-error: true
+
+      - name: Upload Solidity coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/contracts/lcov.info
+          flags: contracts
+          fail_ci_if_error: false
+
+      - name: Slither static analysis
+        uses: crytic/slither-action@v0.4.0
+        continue-on-error: true
+        with:
+          target: packages/contracts/src/
+          slither-config: packages/contracts/slither.config.json
+          fail-on: medium
+
+      - name: Fork tests against Arbitrum Sepolia
+        if: ${{ env.ARBITRUM_SEPOLIA_RPC_URL != '' }}
+        working-directory: packages/contracts
+        env:
+          ARBITRUM_SEPOLIA_RPC_URL: ${{ secrets.ARBITRUM_SEPOLIA_RPC_URL }}
+        run: forge test --fork-url $ARBITRUM_SEPOLIA_RPC_URL --match-contract 'PrivateOTCForkTest|TradiNoxCTokenReceiverForkTest|PrivateOTCInvariantForkTest' -vv
+
+  web:
+    name: Web (vitest + tsc + build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        working-directory: packages/web
+        run: pnpm type-check
+
+      - name: Tests with coverage (100% threshold)
+        working-directory: packages/web
+        run: pnpm test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/web/coverage/coverage-final.json
+          flags: web
+          fail_ci_if_error: false
+
+      - name: Production build
+        working-directory: packages/web
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID }}
+          NEXT_PUBLIC_PRIVATE_OTC_ADDRESS: "0x0000000000000000000000000000000000000000"
+          NEXT_PUBLIC_CUSDC_ADDRESS: "0x0000000000000000000000000000000000000000"
+          NEXT_PUBLIC_CETH_ADDRESS: "0x0000000000000000000000000000000000000000"
+
+  mcp-server:
+    name: MCP server (vitest + tsc)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        working-directory: packages/mcp-server
+        run: pnpm exec tsc --noEmit
+
+      - name: Tests with coverage
+        working-directory: packages/mcp-server
+        run: pnpm test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/mcp-server/coverage/coverage-final.json
+          flags: mcp-server
+          fail_ci_if_error: false
+
+  agents:
+    name: Agents (tsc)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        working-directory: packages/agents
+        run: pnpm exec tsc --noEmit
+
+      - name: Tests with coverage (if present)
+        working-directory: packages/agents
+        run: pnpm test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/agents/coverage/coverage-final.json
+          flags: agents
+          fail_ci_if_error: false

@@ -1,0 +1,13 @@
+{
+  "name": "private-otc",
+  "version": "0.1.0",
+  "description": "Slash commands to interact with PrivateOTC confidential OTC desk on iExec Nox",
+  "author": "PrivateOTC team",
+  "homepage": "https://github.com/your-org/private-otc",
+  "mcpServers": {
+    "private-otc": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/../packages/mcp-server/dist/index.js"]
+    }
+  }
+}

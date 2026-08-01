@@ -1,0 +1,54 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.pnpm-debug.log*
+
+# Foundry (scoped to contracts package only — `lib/` elsewhere is normal app code)
+packages/contracts/out/
+packages/contracts/cache/
+packages/contracts/broadcast/
+packages/contracts/lib/
+
+# Next.js
+.next/
+.vercel
+build/
+
+# Env
+.env
+.env.local
+.env*.local
+.env.production
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Deployments (keep mainnet, ignore local)
+packages/contracts/deployments/local/
+packages/contracts/deployments/anvil/
+
+# Misc
+.turbo
+
+.vercel
