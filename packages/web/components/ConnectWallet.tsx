@@ -33,6 +33,12 @@ export function ConnectWallet() {
     return () => document.removeEventListener("mousedown", h);
   }, []);
 
+  useEffect(() => {
+    if (!open) return;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
   if (isConnected && address) {
     return (
       <div ref={ref} className="relative">
@@ -77,14 +83,16 @@ export function ConnectWallet() {
       </button>
 
       {open && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center"
-          onClick={() => setOpen(false)}
-        >
+        <>
           <div
-            className="slide-up w-full max-w-sm overflow-hidden rounded-t-2xl border border-[--color-border] bg-[--color-surface] shadow-2xl sm:rounded-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
+            className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm"
+            onClick={() => setOpen(false)}
+          />
+          <div className="fixed inset-0 z-[61] flex items-end justify-center p-4 sm:items-center">
+            <div
+              className="slide-up w-full max-w-sm overflow-hidden rounded-t-2xl border border-[--color-border] bg-[--color-surface] shadow-2xl sm:rounded-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
             <div className="flex items-center justify-between border-b border-[--color-border] px-5 py-4">
               <h3 className="text-sm font-semibold text-[--color-foreground]">
                 Connect Wallet
@@ -131,7 +139,8 @@ export function ConnectWallet() {
               </p>
             </div>
           </div>
-        </div>
+          </div>
+        </>
       )}
     </>
   );
