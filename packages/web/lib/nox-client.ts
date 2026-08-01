@@ -17,6 +17,12 @@ import type { Hex } from "viem";
 import { useMemo } from "react";
 import { useWalletClient } from "wagmi";
 
+const NOX_CONFIG = {
+  gatewayUrl: "https://gateway-testnets.noxprotocol.dev" as const,
+  smartContractAddress: "0x24Ef36Ec5b626D7DCD09a98F3083c2758F0F77bF" as `0x${string}`,
+  subgraphUrl: "https://thegraph.ethereum-sepolia-testnet.noxprotocol.io/api/subgraphs/id/9CsccKwvgYFo72zZeU4k4wj2NEBLdWhVE3EUandgmzgo" as const,
+};
+
 /**
  * Encrypt a uint256 value off-chain. Returns the encrypted handle + proof
  * that should be passed verbatim to a Nox-enabled contract function expecting
@@ -89,7 +95,7 @@ export function useNoxClient(): {
     return async () => {
       if (!walletClient) return null;
       if (!cached) {
-        cached = createViemHandleClient(walletClient);
+        cached = createViemHandleClient(walletClient, NOX_CONFIG);
       }
       return cached;
     };
