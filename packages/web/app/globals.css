@@ -2,42 +2,42 @@
 
 @theme {
   /* ─────────── Brand ─────────── */
-  --color-primary: #00ff41;
-  --color-primary-fg: #0a0a0f;
-  --color-primary-soft: rgba(0, 255, 65, 0.1);
-  --color-primary-border: rgba(0, 255, 65, 0.2);
+  --color-primary: #124d1c;
+  --color-primary-fg: #ffeed6;
+  --color-primary-soft: rgba(18, 77, 28, 0.06);
+  --color-primary-border: rgba(18, 77, 28, 0.15);
 
   /* ─────────── Surfaces ─────────── */
-  --color-bg: #0a0a0f;
-  --color-surface: #111116;
-  --color-surface-low: #0f0f14;
-  --color-border: #1a1a24;
-  --color-border-soft: #14141c;
+  --color-bg: #fafaf7;
+  --color-surface: #ffffff;
+  --color-surface-low: #f5f4f0;
+  --color-border: #e4e2dc;
+  --color-border-soft: #d1cfc9;
 
   /* ─────────── Text ─────────── */
-  --color-foreground: #ffffff;
-  --color-text: #e0e0e0;
-  --color-text-secondary: #a0a0a0;
-  --color-text-muted: #666666;
+  --color-foreground: #1c1c1a;
+  --color-text: #2a2a27;
+  --color-text-secondary: #6b6b65;
+  --color-text-muted: #9c9c94;
 
   /* ─────────── Accent (cream) ─────────── */
-  --color-accent: #00ff41;
-  --color-accent-fg: #0a0a0f;
+  --color-accent: #ffeed6;
+  --color-accent-fg: #124d1c;
 
   /* ─────────── Status ─────────── */
-  --color-success: #00ff41;
-  --color-warning: #eab308;
-  --color-danger: #ef4444;
+  --color-success: #124d1c;
+  --color-warning: #b8860b;
+  --color-danger: #c0392b;
 
   /* ─────────── Typography ─────────── */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SF Mono", monospace;
+  --font-sans: var(--font-lato), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-lato), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", monospace;
 
   /* ─────────── Radii ─────────── */
-  --radius-default: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
+  --radius-default: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
 }
 
 * {

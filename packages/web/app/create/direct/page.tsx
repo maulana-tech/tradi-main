@@ -353,7 +353,7 @@ function Select({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="tradi-nox-input appearance-none pr-10"
+        className="tradi-nox-input appearance-none pr-10 cursor-pointer"
       >
         {options.map((o) => (
           <option key={o.symbol} value={o.symbol}>
@@ -361,7 +361,7 @@ function Select({
           </option>
         ))}
       </select>
-      <span className="material-symbols-outlined pointer-events-none absolute right-3 top-3 text-[--color-text-muted]">
+      <span className="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[--color-text-muted]">
         expand_more
       </span>
     </div>
@@ -378,7 +378,7 @@ function NumberInput({
   suffix: string;
 }) {
   return (
-    <div className="flex border border-[--color-border] bg-[--color-bg] focus-within:border-[--color-primary]">
+    <div className="flex items-center w-full rounded-[var(--radius-default)] border border-[--color-border] bg-[--color-surface] focus-within:border-[--color-primary] focus-within:shadow-[0_0_0_3px_var(--color-primary-soft)] overflow-hidden transition-colors">
       <input
         type="number"
         step="any"
@@ -386,12 +386,14 @@ function NumberInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="0.00"
-        className="flex-1 bg-transparent px-3 py-2 font-mono text-sm focus:outline-none"
+        className="flex-1 bg-transparent px-[0.875rem] py-[0.625rem] font-mono text-sm focus:outline-none min-w-0"
         data-numeric
       />
-      <span className="grid place-items-center px-3 text-label-caps text-[--color-text-muted]">
-        {suffix}
-      </span>
+      <div className="flex shrink-0 self-stretch items-center border-l border-[--color-border] bg-[--color-surface-low] px-3">
+        <span className="text-label-caps text-[--color-text-muted]">
+          {suffix}
+        </span>
+      </div>
     </div>
   );
 }
