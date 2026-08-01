@@ -61,16 +61,16 @@ export default function DirectOtcPage() {
   return (
     <AppShell>
       <PageHeader
-        icon="swap_horiz"
-        title="Direct OTC"
-        subtitle="Bilateral settlement with encrypted amounts"
+        icon="lock"
+        title="Limit Order"
+        subtitle="Set your price with a hidden minimum"
         action={
           <div className="flex border border-[--color-border] bg-[--color-surface-low] p-1">
             <span className="text-label-caps flex items-center gap-1.5 bg-[--color-primary] px-4 py-2 text-[--color-primary-fg]">
               <span className="material-symbols-outlined text-base">
-                swap_horiz
+                lock
               </span>
-              Direct
+              Limit
             </span>
             <a
               href="/create/rfq"
