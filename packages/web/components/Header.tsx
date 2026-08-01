@@ -8,7 +8,7 @@ import { TradiNoxLogo } from "./TradiNoxLogo";
 
 export function Header() {
   return (
-    <nav className="fixed left-0 top-0 z-50 flex h-14 w-full items-center justify-between bg-[--color-surface] px-4 lg:px-5">
+    <nav className="fixed left-0 top-0 z-50 flex h-14 w-full items-center justify-between border-b border-[--color-border] bg-[--color-surface]/95 px-4 backdrop-blur-md lg:px-5">
       <Link
         href={"/" as Route}
         className="flex shrink-0 items-center gap-2 transition-opacity hover:opacity-80"

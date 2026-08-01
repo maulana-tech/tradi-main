@@ -161,7 +161,7 @@ export default function HomePage() {
               </a>
               <span className="hidden sm:inline">·</span>
               <a
-                href="https://github.com/PugarHuda/tradi-nox"
+                href="https://github.com/maulana-tech/tradi-main"
                 target="_blank"
                 rel="noreferrer"
                 className="transition-colors hover:text-[--color-primary]"
@@ -212,7 +212,7 @@ export default function HomePage() {
               <p className="text-label-caps mb-4">Resources</p>
               <div className="space-y-2 text-sm">
                 <FooterLink
-                  href="https://github.com/PugarHuda/tradi-nox"
+                  href="https://github.com/maulana-tech/tradi-main"
                   label="GitHub"
                 />
                 <FooterLink

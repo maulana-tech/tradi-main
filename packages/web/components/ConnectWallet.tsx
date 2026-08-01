@@ -4,6 +4,20 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { useState, useRef, useEffect } from "react";
 import { shortAddress } from "@/lib/utils";
 
+const WALLET_ICONS: Record<string, { bg: string; fg: string; icon: string }> = {
+  injected: { bg: "#f0fdf4", fg: "#16a34a", icon: "account_balance_wallet" },
+  metaMask: { bg: "#fef3c7", fg: "#d97706", icon: "account_balance_wallet" },
+  walletConnect: { bg: "#ede9fe", fg: "#7c3aed", icon: "account_balance_wallet" },
+};
+
+function getWalletStyle(name: string) {
+  const lower = name.toLowerCase();
+  if (lower.includes("rabby")) return { bg: "#dbeafe", fg: "#2563eb", icon: "smart_wallet" };
+  if (lower.includes("metamask")) return WALLET_ICONS.metaMask;
+  if (lower.includes("walletconnect")) return WALLET_ICONS.walletConnect;
+  return WALLET_ICONS.injected;
+}
+
 export function ConnectWallet() {
   const { address, isConnected } = useAccount();
   const { connect, connectors, isPending } = useConnect();
@@ -24,19 +38,25 @@ export function ConnectWallet() {
       <div ref={ref} className="relative">
         <button
           onClick={() => setOpen((v) => !v)}
-          className="flex items-center gap-2 rounded-md border border-[--color-border] bg-[--color-surface] px-3 py-1.5 text-sm font-medium text-[--color-foreground]"
+          className="flex items-center gap-2 rounded-lg border border-[--color-border] bg-[--color-surface-low] px-3 py-1.5 text-xs font-medium text-[--color-foreground] transition-colors hover:bg-[--color-border]/50"
         >
-          <span className="h-1.5 w-1.5 rounded-full bg-[--color-primary]" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[--color-primary] animate-pulse" />
           {shortAddress(address, 4)}
+          <span className="material-symbols-outlined text-sm">expand_more</span>
         </button>
         {open && (
-          <div className="slide-down absolute right-0 top-full z-50 mt-1 w-44 overflow-hidden rounded-md border border-[--color-border] bg-[--color-surface] shadow-lg">
-            <div className="border-b border-[--color-border] px-3 py-2">
-              <p className="font-mono text-xs text-[--color-text]">{shortAddress(address, 8)}</p>
+          <div className="slide-down absolute right-0 top-full z-50 mt-1 w-52 overflow-hidden rounded-xl border border-[--color-border] bg-[--color-surface] shadow-xl">
+            <div className="border-b border-[--color-border] px-4 py-3">
+              <p className="text-[10px] font-medium uppercase tracking-wider text-[--color-text-muted]">
+                Connected
+              </p>
+              <p className="mt-1 font-mono text-xs text-[--color-text]">
+                {shortAddress(address, 8)}
+              </p>
             </div>
             <button
               onClick={() => { disconnect(); setOpen(false); }}
-              className="w-full px-3 py-2 text-left text-sm text-[--color-danger] hover:bg-[--color-surface-low]"
+              className="w-full px-4 py-3 text-left text-sm font-medium text-[--color-danger] transition-colors hover:bg-red-50"
             >
               Disconnect
             </button>
@@ -51,34 +71,64 @@ export function ConnectWallet() {
       <button
         onClick={() => setOpen(true)}
         disabled={isPending}
-        className="rounded-md bg-[--color-primary] px-4 py-1.5 text-xs font-semibold text-[--color-primary-fg] hover:bg-[#1a6b2e] disabled:opacity-50"
+        className="rounded-lg bg-[--color-primary] px-3 py-1.5 text-xs font-semibold text-[--color-primary-fg] transition-colors hover:bg-[#1a6b2e] disabled:opacity-50"
       >
-        {isPending ? "Connecting…" : "Connect Wallet"}
+        {isPending ? "Connecting…" : "Connect"}
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)}>
-          <div className="slide-down w-full max-w-sm overflow-hidden rounded-xl border border-[--color-border] bg-[--color-surface] shadow-xl" onClick={e => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className="slide-up w-full max-w-sm overflow-hidden rounded-t-2xl border border-[--color-border] bg-[--color-surface] shadow-2xl sm:rounded-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-[--color-border] px-5 py-4">
-              <h3 className="text-sm font-semibold text-[--color-foreground]">Connect Wallet</h3>
-              <button onClick={() => setOpen(false)} className="text-[--color-text-muted] hover:text-[--color-foreground]">
+              <h3 className="text-sm font-semibold text-[--color-foreground]">
+                Connect Wallet
+              </h3>
+              <button
+                onClick={() => setOpen(false)}
+                className="grid h-8 w-8 place-items-center rounded-lg text-[--color-text-muted] transition-colors hover:bg-[--color-surface-low] hover:text-[--color-foreground]"
+              >
                 <span className="material-symbols-outlined text-lg">close</span>
               </button>
             </div>
-            <div className="flex flex-col gap-1 p-3">
-              {connectors.map(c => (
-                <button
-                  key={c.uid}
-                  onClick={() => { connect({ connector: c }); setOpen(false); }}
-                  disabled={isPending}
-                  className="flex items-center gap-3 rounded-lg px-4 py-3 text-left text-sm font-medium text-[--color-foreground] hover:bg-[--color-surface-low] disabled:opacity-50"
-                >
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-orange-100">
-                    <span className="material-symbols-outlined text-lg text-orange-600">account_balance_wallet</span>
-                  </span>
-                  {c.name}
-                </button>
-              ))}
+            <div className="flex flex-col gap-1.5 p-3">
+              {connectors.map((c) => {
+                const style = getWalletStyle(c.name);
+                return (
+                  <button
+                    key={c.uid}
+                    onClick={() => {
+                      connect({ connector: c });
+                      setOpen(false);
+                    }}
+                    disabled={isPending}
+                    className="flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-left text-sm font-medium text-[--color-foreground] transition-colors hover:bg-[--color-surface-low] active:scale-[0.98] disabled:opacity-50"
+                  >
+                    <span
+                      className="grid h-10 w-10 shrink-0 place-items-center rounded-xl"
+                      style={{ background: style.bg }}
+                    >
+                      <span
+                        className="material-symbols-outlined text-xl"
+                        style={{ color: style.fg }}
+                      >
+                        {style.icon}
+                      </span>
+                    </span>
+                    {c.name}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="border-t border-[--color-border] px-5 py-3">
+              <p className="text-center text-[11px] text-[--color-text-muted]">
+                By connecting, you agree to the Terms of Service
+              </p>
             </div>
           </div>
         </div>

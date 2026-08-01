@@ -7,14 +7,17 @@ import { useAccount } from "wagmi";
 import { Header } from "./Header";
 import { NetworkGuard } from "./NetworkGuard";
 import { BalanceWidget } from "./BalanceWidget";
+import { BottomNav } from "./BottomNav";
 import { shortAddress } from "@/lib/utils";
 
 type NavItem = { href: Route; label: string; icon: string };
 
 const NAV: NavItem[] = [
-  { href: "/intents", label: "Intents", icon: "grid_view" },
-  { href: "/create", label: "Create", icon: "swap_horiz" },
-  { href: "/activity" as Route, label: "Activity", icon: "history" },
+  { href: "/intents", label: "Order Book", icon: "grid_view" },
+  { href: "/create", label: "New Order", icon: "add_circle" },
+  { href: "/history" as Route, label: "History", icon: "history" },
+  { href: "/analytics" as Route, label: "Analytics", icon: "analytics" },
+  { href: "/prices" as Route, label: "Prices", icon: "candlestick_chart" },
   { href: "/portfolio", label: "Portfolio", icon: "account_balance_wallet" },
   { href: "/faucet", label: "Faucet", icon: "water_drop" },
 ];
@@ -70,7 +73,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               Docs
             </a>
             <a
-              href="https://github.com/PugarHuda/tradi-nox"
+              href="https://github.com/maulana-tech/tradi-main"
               target="_blank"
               rel="noreferrer"
               className="text-xs text-[--color-text-muted] hover:text-[--color-primary]"
@@ -90,10 +93,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <NetworkGuard />
       </div>
 
-      <main className="w-full pb-16 pt-4 lg:ml-56">
-        <div className="mx-auto max-w-[960px] px-6">{children}</div>
+      <main className="w-full pb-20 pt-4 md:pb-16 lg:ml-56">
+        <div className="mx-auto max-w-[960px] px-4 sm:px-6">{children}</div>
       </main>
 
+      <BottomNav />
       <BalanceWidget />
     </>
   );

@@ -1,6 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480">
-  <rect width="480" height="480" fill="#131313"/>
-  <polygon points="240,52 428,240 240,428 52,240"
-           fill="none" stroke="#00ff41" stroke-width="14" stroke-linejoin="miter"/>
-  <rect x="78" y="218" width="324" height="44" fill="#00ff41"/>
+  <rect width="480" height="480" fill="#fafaf7"/>
+  <!-- Top row: two circles -->
+  <circle cx="160" cy="140" r="90" fill="#124d1c"/>
+  <circle cx="320" cy="140" r="90" fill="#124d1c"/>
+  <!-- Bottom row: three overlapping circles -->
+  <circle cx="120" cy="360" r="140" fill="#124d1c"/>
+  <circle cx="240" cy="360" r="140" fill="#124d1c"/>
+  <circle cx="360" cy="360" r="140" fill="#124d1c"/>
 </svg>

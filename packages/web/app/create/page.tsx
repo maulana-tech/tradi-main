@@ -9,16 +9,16 @@ export default function CreatePage() {
     <AppShell>
       <PageHeader
         icon="add_circle"
-        title="Create Intent"
-        subtitle="Choose execution mode"
+        title="New Order"
+        subtitle="Choose order type"
       />
 
       <div className="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
         <ModeCard
           href="/create/direct"
-          title="Direct OTC"
-          description="Atomic bilateral settlement with a known counterparty. Specify a hidden minimum buy price; the first qualifying taker fills."
-          icon="swap_horiz"
+          title="Limit Order"
+          description="Set your price with a hidden minimum. First qualifying taker fills atomically. Amounts stay encrypted until settlement."
+          icon="lock"
           stats={[
             { label: "Latency", value: "< 5s" },
             { label: "Privacy", value: "End-to-end" },

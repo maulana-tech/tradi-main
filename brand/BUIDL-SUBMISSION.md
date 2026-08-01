@@ -17,7 +17,7 @@ This file mirrors the [DoraHacks BUIDL page](https://dorahacks.io/hackathon/vibe
 | 🌐 Live demo | https://private-otc.vercel.app |
 | 🎥 Demo video | https://youtu.be/_tMBT32r_kQ |
 | 🐦 Twitter post | https://x.com/BangDropID/status/2050295042296984047 |
-| 💻 GitHub | https://github.com/PugarHuda/tradi-nox |
+| 💻 GitHub | https://github.com/maulana-tech/tradi-main |
 | 📡 Network | Arbitrum Sepolia (chain id `421614`) |
 
 ## 🏷️ Tracks
@@ -132,7 +132,7 @@ The branch (real vs zero) lives entirely inside encrypted handles. The on-chain 
 ## 👤 Team
 
 **Pugar Huda Mantoro** — solo builder
-GitHub: https://github.com/PugarHuda
+GitHub: https://github.com/maulana-tech
 
 ## 📄 License
 
@@ -181,4 +181,4 @@ MIT
 
 Fonts: **Space Grotesk** (display + mono) · **Inter** (body)
 
-Logo source: `brand/tradi-nox-logo-480.svg` · Export 480×480 PNG via `brand/export-png.html`
+Logo source: `brand/tradi-nox-icon-simple.svg`

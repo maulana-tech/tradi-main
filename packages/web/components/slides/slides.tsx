@@ -345,7 +345,7 @@ got                    = 100   ← BUG`}
         <div className="mt-10 grid grid-cols-1 gap-3 font-mono text-xs md:grid-cols-3 fade-up fade-up-2">
           {[
             { k: "Demo", v: "private-otc.vercel.app" },
-            { k: "Source", v: "github.com/PugarHuda/tradi-nox" },
+            { k: "Source", v: "github.com/maulana-tech/tradi-main" },
             { k: "BUIDL", v: "dorahacks.io · iexec-vibe-coding" },
           ].map((c) => (
             <div

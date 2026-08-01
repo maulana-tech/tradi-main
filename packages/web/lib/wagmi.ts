@@ -1,17 +1,18 @@
+"use client";
+
 import { http, createConfig } from "wagmi";
 import { sepolia, arbitrumSepolia, arbitrum } from "wagmi/chains";
 import { injected } from "wagmi/connectors";
 
 export const wagmiConfig = createConfig({
   chains: [sepolia, arbitrumSepolia, arbitrum],
-  connectors: [
-    injected({ shimDisconnect: true }),
-  ],
+  connectors: [injected()],
   transports: {
     [sepolia.id]: http(),
     [arbitrumSepolia.id]: http(),
     [arbitrum.id]: http(),
   },
+  ssr: true,
 });
 
 export const PRIVATE_OTC_ADDRESS =

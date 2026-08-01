@@ -1,6 +1,6 @@
 # Tradi-Nox
 
-[![Tests](https://github.com/PugarHuda/tradi-nox/actions/workflows/test.yml/badge.svg)](https://github.com/PugarHuda/tradi-nox/actions/workflows/test.yml)
+[![Tests](https://github.com/maulana-tech/tradi-main/actions/workflows/test.yml/badge.svg)](https://github.com/maulana-tech/tradi-main/actions/workflows/test.yml)
 
 > **Your trade. Their guess. Nobody knows.**
 
@@ -15,7 +15,7 @@ Submission for the [iExec Vibe Coding Challenge](https://dorahacks.io/hackathon/
 | 🚀 **Live demo** | https://private-otc.vercel.app |
 | 🎥 **Demo video** | https://youtu.be/_tMBT32r_kQ |
 | 🐦 **Twitter post** | https://x.com/BangDropID/status/2050295042296984047 |
-| 📦 **Source** | https://github.com/PugarHuda/tradi-nox |
+| 📦 **Source** | https://github.com/maulana-tech/tradi-main |
 | 📡 **Network** | Arbitrum Sepolia (chain id `421614`) |
 | 🔑 **Stack** | Next.js 16 · Solidity 0.8.27 · iExec Nox · MCP |
 
@@ -137,7 +137,7 @@ tradi-nox/
 ### Install
 
 ```bash
-git clone https://github.com/PugarHuda/tradi-nox.git
+git clone https://github.com/maulana-tech/tradi-main.git
 cd tradi-nox
 pnpm install
 cp .env.example .env
