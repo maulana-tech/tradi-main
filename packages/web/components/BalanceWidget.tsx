@@ -111,7 +111,7 @@ export function BalanceWidget() {
     return (
       <button
         onClick={() => setCollapsed(false)}
-        className="pointer-events-auto fixed bottom-20 left-4 z-40 grid h-10 w-10 place-items-center rounded-xl border border-[--color-border] bg-[--color-surface] text-[--color-primary] shadow-lg transition hover:shadow-xl md:bottom-4"
+        className="pointer-events-auto fixed bottom-20 left-4 z-40 grid h-10 w-10 place-items-center rounded-xl border border-[--color-border] bg-[--color-surface] text-[--color-primary] shadow-lg transition hover:shadow-xl md:bottom-4 md:left-60"
         aria-label="Show balance widget"
       >
         <span className="material-symbols-outlined text-base">
@@ -125,7 +125,7 @@ export function BalanceWidget() {
     <aside
       role="complementary"
       aria-label="Confidential balances"
-      className="pointer-events-auto fixed bottom-20 left-4 z-40 w-56 rounded-xl border border-[--color-border] bg-[--color-surface] shadow-lg md:bottom-4"
+      className="pointer-events-auto fixed bottom-20 left-4 z-40 w-56 rounded-xl border border-[--color-border] bg-[--color-surface] shadow-lg md:bottom-4 md:left-60"
     >
       <header className="flex items-center justify-between border-b border-[--color-border] px-3 py-2">
         <p className="text-label-caps flex items-center gap-1.5 text-[--color-primary]">
