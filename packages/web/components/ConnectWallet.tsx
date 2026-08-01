@@ -85,7 +85,7 @@ export function ConnectWallet() {
       {open && (
         <>
           <div
-            className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
           <div className="fixed inset-0 z-[61] flex items-end justify-center p-4 sm:items-center">
