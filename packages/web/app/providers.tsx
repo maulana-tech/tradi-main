@@ -1,22 +1,42 @@
 "use client";
 
+import "@rainbow-me/rainbowkit/styles.css";
+
+import { darkTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { WagmiProvider } from "wagmi";
-import { useEffect, useState } from "react";
 import { wagmiConfig } from "@/lib/wagmi";
 import { ToastProvider } from "@/components/Toast";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient());
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const queryClient = useMemo(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 30_000,
+            refetchOnWindowFocus: false,
+          },
+        },
+      }),
+    [],
+  );
 
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <ToastProvider>
-          {mounted ? children : <div style={{ visibility: "hidden" }}>{children}</div>}
-        </ToastProvider>
+        <RainbowKitProvider
+          modalSize="compact"
+          theme={darkTheme({
+            accentColor: "#124d1c",
+            accentColorForeground: "#ffeed6",
+            borderRadius: "medium",
+            fontStack: "system",
+          })}
+        >
+          <ToastProvider>{children}</ToastProvider>
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

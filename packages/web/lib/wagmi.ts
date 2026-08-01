@@ -1,17 +1,15 @@
 "use client";
 
-import { http, createConfig } from "wagmi";
+import { getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { sepolia, arbitrumSepolia, arbitrum } from "wagmi/chains";
-import { injected } from "wagmi/connectors";
 
-export const wagmiConfig = createConfig({
+const projectId =
+  process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "97aaa300062a00e51e177bc4ffc268c9";
+
+export const wagmiConfig = getDefaultConfig({
+  appName: "Tradi-Nox",
+  projectId,
   chains: [sepolia, arbitrumSepolia, arbitrum],
-  connectors: [injected()],
-  transports: {
-    [sepolia.id]: http(),
-    [arbitrumSepolia.id]: http(),
-    [arbitrum.id]: http(),
-  },
   ssr: true,
 });
 
