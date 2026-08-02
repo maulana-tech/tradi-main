@@ -8,8 +8,8 @@ import { LatestIntentPreview } from "@/components/LatestIntentPreview";
 import { TradiNoxLogo } from "@/components/TradiNoxLogo";
 import { Icon } from "@/components/Icon";
 import { ButtonLink } from "@/components/ui/Button";
+import { PRIVATE_OTC_ADDRESS } from "@/lib/wagmi";
 
-const PRIVATE_OTC_ADDRESS = (process.env.NEXT_PUBLIC_PRIVATE_OTC_ADDRESS ?? "0x0") as `0x${string}`;
 const EXPLORER = "https://eth-sepolia.blockscout.com/address";
 
 const PRODUCT_CHOICES = [
