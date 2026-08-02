@@ -34,6 +34,7 @@ import {
 import { createIntentTool } from "./tools/createIntent.js";
 import { browseIntentsTool } from "./tools/browseIntents.js";
 import { decryptBalanceTool } from "./tools/decryptBalance.js";
+import { keeperhubRelayTool } from "./tools/keeperhubRelay.js";
 
 const server = new Server(
   {
@@ -49,7 +50,12 @@ const server = new Server(
   }
 );
 
-const tools = [createIntentTool, browseIntentsTool, decryptBalanceTool];
+const tools = [
+  createIntentTool,
+  browseIntentsTool,
+  decryptBalanceTool,
+  keeperhubRelayTool,
+];
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: tools.map((t) => ({
