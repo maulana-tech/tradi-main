@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "viem": "^2.21.55",
+    "ethers": "^6.13.0",
     "@iexec-nox/handle": "latest",
     "ai": "^6.0.0",
     "@vercel/kv": "^3.0.0",
