@@ -7,7 +7,10 @@ import { EmptyState } from "@/components/EmptyState";
 import { Skeleton, SkeletonRow } from "@/components/Skeleton";
 import { Card } from "@/components/ui/Card";
 import { Badge, Status } from "@/components/ui/Badge";
+import { Icon } from "@/components/Icon";
 import { useTradeHistory, tokenName, type TradeRow } from "@/lib/hooks/useTradeHistory";
+import { getKeeperHubAudit, type KeeperHubAuditLog } from "@/lib/hooks/useKeeperHubAudit";
+import { AuditLogDrawer } from "@/components/AuditLogDrawer";
 import { shortAddress } from "@/lib/utils";
 
 type StatusFilter = "all" | "open" | "filled" | "cancelled";
@@ -17,6 +20,8 @@ export default function HistoryPage() {
   const { rows, isLoading } = useTradeHistory();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [pairFilter, setPairFilter] = useState<PairFilter>("all");
+  const [selectedAudit, setSelectedAudit] = useState<KeeperHubAuditLog | null>(null);
+
   const filtered = rows.filter((row) => {
     const targetStatus = { all: -1, open: 0, filled: 1, cancelled: 2 }[statusFilter];
     if (targetStatus >= 0 && row.status !== targetStatus) return false;
@@ -26,7 +31,12 @@ export default function HistoryPage() {
 
   return (
     <AppShell>
-      <PageHeader icon="history" title="Activity" subtitle="Follow every intent from creation through settlement." />
+      <AuditLogDrawer
+        isOpen={Boolean(selectedAudit)}
+        onClose={() => setSelectedAudit(null)}
+        audit={selectedAudit}
+      />
+      <PageHeader icon="history" title="Activity" subtitle="Follow every intent from creation through settlement with KeeperHub execution logs." />
       <Card className="mb-5 p-4">
         <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
           <Filter label="Status" value={statusFilter} onChange={(value) => setStatusFilter(value as StatusFilter)} options={[['all','All statuses'],['open','Open'],['filled','Filled'],['cancelled','Cancelled']]} />
@@ -41,32 +51,83 @@ export default function HistoryPage() {
         <Card className="overflow-hidden">
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-[760px] text-left">
-              <thead className="border-b border-[var(--color-border)] bg-[var(--color-surface-low)] text-xs text-[var(--color-text-muted)]"><tr><Th>ID</Th><Th>Pair</Th><Th>Mode</Th><Th>Status</Th><Th>Maker</Th><Th>Taker</Th><Th>Created</Th></tr></thead>
-              <tbody className="divide-y divide-[var(--color-border)]">{filtered.map((row) => <HistoryRow key={row.id.toString()} row={row} />)}</tbody>
+              <thead className="border-b border-[var(--color-border)] bg-[var(--color-surface-low)] text-xs text-[var(--color-text-muted)]">
+                <tr>
+                  <Th>ID</Th>
+                  <Th>Pair</Th>
+                  <Th>Mode</Th>
+                  <Th>Status</Th>
+                  <Th>Execution Layer</Th>
+                  <Th>Maker</Th>
+                  <Th>Taker</Th>
+                  <Th>Created</Th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--color-border)]">
+                {filtered.map((row) => (
+                  <HistoryRow key={row.id.toString()} row={row} onSelectAudit={setSelectedAudit} />
+                ))}
+              </tbody>
             </table>
           </div>
-          <ul className="divide-y divide-[var(--color-border)] md:hidden">{filtered.map((row) => <HistoryCard key={row.id.toString()} row={row} />)}</ul>
+          <ul className="divide-y divide-[var(--color-border)] md:hidden">
+            {filtered.map((row) => (
+              <HistoryCard key={row.id.toString()} row={row} onSelectAudit={setSelectedAudit} />
+            ))}
+          </ul>
         </Card>
       )}
     </AppShell>
   );
 }
 
-function HistoryRow({ row }: { row: TradeRow }) {
+function HistoryRow({ row, onSelectAudit }: { row: TradeRow; onSelectAudit: (audit: KeeperHubAuditLog) => void }) {
+  const audit = getKeeperHubAudit(row.id);
   return (
     <tr className="transition-colors duration-150 hover:bg-[var(--color-surface-low)]">
-      <Td mono>#{row.id.toString()}</Td><Td>{pairLabel(row)}</Td><Td><Badge tone={row.mode === 1 ? "primary" : "neutral"}>{row.mode === 1 ? "Sealed RFQ" : "Direct"}</Badge></Td><Td><RowStatus status={row.status} /></Td><Td mono>{shortAddress(row.maker)}</Td><Td mono>{row.taker === "—" ? "—" : shortAddress(row.taker)}</Td><Td>{formatDate(row.createdAt)}</Td>
+      <Td mono>#{row.id.toString()}</Td>
+      <Td>{pairLabel(row)}</Td>
+      <Td><Badge tone={row.mode === 1 ? "primary" : "neutral"}>{row.mode === 1 ? "Sealed RFQ" : "Direct"}</Badge></Td>
+      <Td><RowStatus status={row.status} /></Td>
+      <Td>
+        <button
+          onClick={() => onSelectAudit(audit)}
+          className="inline-flex items-center gap-1 rounded border border-[var(--color-border)] px-2 py-0.5 font-mono text-xs text-[var(--color-primary-text)] hover:border-[var(--color-primary-text)]"
+        >
+          <Icon name="shield" className="size-3" />
+          {audit.routedVia}
+        </button>
+      </Td>
+      <Td mono>{shortAddress(row.maker)}</Td>
+      <Td mono>{row.taker === "—" ? "—" : shortAddress(row.taker)}</Td>
+      <Td>{formatDate(row.createdAt)}</Td>
     </tr>
   );
 }
 
-function HistoryCard({ row }: { row: TradeRow }) {
+function HistoryCard({ row, onSelectAudit }: { row: TradeRow; onSelectAudit: (audit: KeeperHubAuditLog) => void }) {
+  const audit = getKeeperHubAudit(row.id);
   return (
     <li className="p-5">
-      <div className="flex items-center justify-between gap-3"><span className="font-mono text-xs tabular-nums text-[var(--color-text-muted)]">Intent #{row.id.toString()}</span><RowStatus status={row.status} /></div>
+      <div className="flex items-center justify-between gap-3">
+        <span className="font-mono text-xs tabular-nums text-[var(--color-text-muted)]">Intent #{row.id.toString()}</span>
+        <RowStatus status={row.status} />
+      </div>
       <p className="mt-5 font-display text-xl font-medium text-white">{pairLabel(row)}</p>
-      <div className="mt-4 flex items-center justify-between gap-3"><Badge tone={row.mode === 1 ? "primary" : "neutral"}>{row.mode === 1 ? "Sealed RFQ" : "Direct"}</Badge><span className="text-xs text-[var(--color-text-muted)]">{formatDate(row.createdAt)}</span></div>
-      <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-[var(--color-border)] pt-4"><Address label="Maker" value={row.maker} /><Address label="Taker" value={row.taker} /></dl>
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <Badge tone={row.mode === 1 ? "primary" : "neutral"}>{row.mode === 1 ? "Sealed RFQ" : "Direct"}</Badge>
+        <button
+          onClick={() => onSelectAudit(audit)}
+          className="inline-flex items-center gap-1 rounded border border-[var(--color-border)] px-2 py-0.5 font-mono text-xs text-[var(--color-primary-text)]"
+        >
+          <Icon name="shield" className="size-3" />
+          {audit.routedVia}
+        </button>
+      </div>
+      <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-[var(--color-border)] pt-4">
+        <Address label="Maker" value={row.maker} />
+        <Address label="Taker" value={row.taker} />
+      </dl>
     </li>
   );
 }
