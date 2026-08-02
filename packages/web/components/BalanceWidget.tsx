@@ -7,6 +7,7 @@ import type { Hex } from "viem";
 import { CUSDC_ADDRESS, CETH_ADDRESS } from "@/lib/wagmi";
 import { useNoxClient, decryptUint256 } from "@/lib/nox-client";
 import { useToast } from "./Toast";
+import { Icon } from "./Icon";
 
 const ERC7984_BAL_ABI = [
   {
@@ -45,7 +46,7 @@ export function BalanceWidget() {
 
   const [revealed, setRevealed] = useState<Record<string, bigint>>({});
   const [decrypting, setDecrypting] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   const balances = useReadContracts({
     contracts: TOKENS.map((t) => ({
@@ -111,12 +112,11 @@ export function BalanceWidget() {
     return (
       <button
         onClick={() => setCollapsed(false)}
-        className="pointer-events-auto fixed bottom-20 left-4 z-40 grid h-10 w-10 place-items-center rounded-xl border border-[--color-border] bg-[--color-surface] text-[--color-primary] shadow-lg transition hover:shadow-xl md:bottom-4 md:left-60"
+        type="button"
+        className="pointer-events-auto fixed bottom-4 left-4 z-30 hidden size-11 place-items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-primary-text)] shadow-lg transition-colors duration-150 hover:border-[var(--color-primary)] md:grid lg:left-[272px]"
         aria-label="Show balance widget"
       >
-        <span className="material-symbols-outlined text-base">
-          account_balance_wallet
-        </span>
+        <Icon name="account_balance_wallet" className="size-[18px]" />
       </button>
     );
   }
@@ -125,28 +125,24 @@ export function BalanceWidget() {
     <aside
       role="complementary"
       aria-label="Confidential balances"
-      className="pointer-events-auto fixed bottom-20 left-4 z-40 w-56 rounded-xl border border-[--color-border] bg-[--color-surface] shadow-lg md:bottom-4 md:left-60"
+      className="pointer-events-auto fixed bottom-4 left-4 z-30 hidden w-64 rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-lg md:block lg:left-[304px]"
     >
-      <header className="flex items-center justify-between border-b border-[--color-border] px-3 py-2">
-        <p className="text-label-caps flex items-center gap-1.5 text-[--color-primary]">
-          <span
-            className="material-symbols-outlined text-sm"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            account_balance_wallet
-          </span>
+      <header className="flex items-center justify-between border-b border-[var(--color-border)] px-3 py-2">
+        <p className="flex items-center gap-2 text-xs font-semibold text-white">
+          <Icon name="account_balance_wallet" className="size-4 text-[var(--color-primary-text)]" />
           Confidential Balance
         </p>
         <button
+          type="button"
           onClick={() => setCollapsed(true)}
-          className="text-[--color-text-muted] transition hover:text-[--color-text]"
+          className="grid size-11 place-items-center rounded-full text-[var(--color-text-muted)] transition-colors duration-150 hover:bg-[var(--color-surface-raised)] hover:text-white"
           aria-label="Collapse"
         >
-          <span className="material-symbols-outlined text-sm">close</span>
+          <Icon name="close" className="size-4" />
         </button>
       </header>
 
-      <ul className="divide-y divide-[--color-border]">
+      <ul className="divide-y divide-[var(--color-border)]">
         {TOKENS.map((tok, i) => {
           const handle = balances.data?.[i];
           const handleHex =
@@ -158,27 +154,27 @@ export function BalanceWidget() {
 
           return (
             <li key={tok.symbol} className="flex items-center justify-between px-3 py-2">
-              <span className="font-mono text-[11px] text-[--color-text-secondary]">
+              <span className="font-mono text-xs text-[var(--color-text-secondary)]">
                 {tok.symbol}
               </span>
               {plain !== undefined ? (
                 <span
-                  className="font-mono text-xs text-[--color-primary]"
+                  className="font-mono text-xs tabular-nums text-white"
                   data-numeric
                 >
                   {format(plain, tok.decimals)}
                 </span>
               ) : isZeroHandle ? (
-                <span className="font-mono text-[10px] text-[--color-text-muted]">
+                <span className="text-xs text-[var(--color-text-muted)]">
                   not minted
                 </span>
               ) : !handleHex ? (
-                <span className="font-mono text-[10px] text-[--color-text-muted]">
+                <span className="text-xs text-[var(--color-text-muted)]">
                   loading…
                 </span>
               ) : (
                 <span
-                  className="font-mono text-[11px] tracking-wider text-[--color-text-muted]"
+                  className="font-mono text-xs text-[var(--color-text-muted)]"
                   title={handleHex}
                 >
                   •••••
@@ -189,33 +185,31 @@ export function BalanceWidget() {
         })}
       </ul>
 
-      <footer className="flex gap-1 border-t border-[--color-border] p-2">
+      <footer className="flex gap-1 border-t border-[var(--color-border)] p-2">
         <button
+          type="button"
           onClick={handleReveal}
           disabled={decrypting || !noxReady}
-          className="text-label-caps flex flex-1 items-center justify-center gap-1 border border-[--color-border] px-2 py-1.5 text-[10px] text-[--color-text-secondary] transition hover:border-[--color-primary] hover:text-[--color-primary] disabled:opacity-40"
+          className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[var(--color-border)] px-3 text-xs font-semibold text-[var(--color-text-secondary)] transition-colors duration-150 hover:border-[var(--color-primary)] hover:text-white disabled:opacity-40"
         >
-          <span
-            className={`material-symbols-outlined text-xs ${decrypting ? "animate-spin" : ""}`}
-          >
-            {decrypting ? "sync" : Object.keys(revealed).length > 0 ? "visibility_off" : "visibility"}
-          </span>
+          <Icon name={decrypting ? "sync" : Object.keys(revealed).length > 0 ? "visibility_off" : "visibility"} className={`size-4 ${decrypting ? "animate-spin" : ""}`} />
           {decrypting
-            ? "DECRYPTING"
+              ? "Decrypting"
             : Object.keys(revealed).length > 0
-              ? "RE-DECRYPT"
-              : "REVEAL"}
+              ? "Decrypt again"
+              : "Reveal"}
         </button>
         <button
+          type="button"
           onClick={() => {
             setRevealed({});
             balances.refetch();
           }}
-          className="text-label-caps flex items-center justify-center border border-[--color-border] px-2 py-1.5 text-[--color-text-muted] transition hover:border-[--color-primary] hover:text-[--color-primary]"
+          className="grid size-11 place-items-center rounded-full border border-[var(--color-border)] text-[var(--color-text-muted)] transition-colors duration-150 hover:border-[var(--color-primary)] hover:text-white"
           title="Refresh handles from chain"
           aria-label="Refresh balance"
         >
-          <span className="material-symbols-outlined text-xs">refresh</span>
+          <Icon name="refresh" className="size-4" />
         </button>
       </footer>
     </aside>

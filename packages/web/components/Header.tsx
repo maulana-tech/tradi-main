@@ -3,26 +3,56 @@
 import Link from "next/link";
 import type { Route } from "next";
 import { ConnectWallet } from "./ConnectWallet";
-import { MobileMenu } from "./MobileMenu";
+import { NetworkBadge } from "./NetworkBadge";
 import { TradiNoxLogo } from "./TradiNoxLogo";
+import { Icon } from "./Icon";
+import { usePathname } from "next/navigation";
+
+const LANDING_LINKS = [
+  { href: "#products", label: "Products" },
+  { href: "#how-it-works", label: "How it works" },
+  { href: "#trust", label: "Trust" },
+];
 
 export function Header() {
+  const pathname = usePathname();
+  const isLanding = pathname === "/";
+
   return (
-    <nav className="fixed left-0 top-0 z-50 flex h-14 w-full items-center justify-between border-b border-[--color-border] bg-[--color-surface]/95 px-4 backdrop-blur-md lg:px-5">
+    <header className="fixed inset-x-0 top-0 z-40 flex h-20 items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-bg)] px-5 sm:px-10">
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <Link
         href={"/" as Route}
-        className="flex shrink-0 items-center gap-2 transition-opacity hover:opacity-80"
+        aria-label="Tradi-Nox home"
+        className="flex min-h-11 shrink-0 items-center gap-3 rounded-full text-white transition-opacity duration-150 hover:opacity-80 motion-reduce:transition-none"
       >
-        <TradiNoxLogo size={18} className="text-[--color-primary]" />
-        <span className="text-sm font-bold tracking-tight text-[--color-primary]">
-          Tradi-Nox
+        <span className="grid size-10 place-items-center rounded-full bg-[var(--color-primary)] text-white">
+          <TradiNoxLogo size={20} />
         </span>
+        <span className="font-display text-base font-normal">Tradi-Nox</span>
       </Link>
 
-      <div className="flex items-center gap-2">
+      {isLanding ? (
+        <nav aria-label="Landing page" className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 lg:flex">
+          {LANDING_LINKS.map((item) => (
+            <a key={item.href} href={item.href} className="flex min-h-11 items-center text-sm text-[var(--color-text-secondary)] transition-colors duration-150 hover:text-white motion-reduce:transition-none">
+              {item.label}
+            </a>
+          ))}
+        </nav>
+      ) : null}
+
+      <div className="flex items-center gap-2 sm:gap-3">
+        <NetworkBadge />
+        <Link
+          href={"/create" as Route}
+          className="hidden min-h-11 items-center gap-2 rounded-full bg-[var(--color-primary)] px-5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-[var(--color-primary-hover)] active:opacity-80 sm:inline-flex motion-reduce:transition-none"
+        >
+          <Icon name="add" className="size-4" />
+          Create trade
+        </Link>
         <ConnectWallet />
-        <MobileMenu />
       </div>
-    </nav>
+    </header>
   );
 }

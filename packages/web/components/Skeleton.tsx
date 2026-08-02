@@ -5,7 +5,7 @@ export function Skeleton({
   className?: string;
   variant?: "block" | "text" | "circle";
 }) {
-  const base = "animate-pulse bg-[--color-surface-low] rounded";
+  const base = "animate-pulse bg-[var(--color-surface-low)]";
   const shape =
     variant === "circle"
       ? "rounded-full"
@@ -13,12 +13,12 @@ export function Skeleton({
         ? "h-3 rounded"
         : "rounded";
 
-  return <div className={`${base} ${shape} ${className}`} />;
+  return <div aria-hidden="true" className={cn(base, shape, className)} />;
 }
 
 export function SkeletonRow() {
   return (
-    <tr className="border-b border-[--color-border]">
+    <tr className="border-b border-[var(--color-border)]">
       <td className="px-4 py-3">
         <Skeleton className="h-4 w-20" />
       </td>
@@ -53,7 +53,7 @@ export function SkeletonRow() {
 
 export function SkeletonCard() {
   return (
-    <div className="rounded-lg border border-[--color-border] bg-[--color-surface] space-y-3 p-5">
+    <div className="space-y-3 rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
       <Skeleton className="h-4 w-32" />
       <Skeleton className="h-10 w-full" />
       <Skeleton className="h-10 w-full" />
@@ -61,3 +61,4 @@ export function SkeletonCard() {
     </div>
   );
 }
+import { cn } from "@/lib/utils";

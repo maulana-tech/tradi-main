@@ -1,3 +1,5 @@
+import { Icon } from "./Icon";
+
 const SYMBOL_GLYPH: Record<string, { glyph: string; tone: "primary" | "neutral" }> = {
   cUSDC: { glyph: "$", tone: "neutral" },
   cETH: { glyph: "Ξ", tone: "primary" },
@@ -6,56 +8,18 @@ const SYMBOL_GLYPH: Record<string, { glyph: string; tone: "primary" | "neutral" 
   ETH: { glyph: "Ξ", tone: "primary" },
 };
 
-export function TokenIcon({
-  symbol,
-  size = "md",
-}: {
-  symbol: string;
-  size?: "sm" | "md" | "lg";
-}) {
-  const cfg = SYMBOL_GLYPH[symbol] ?? { glyph: symbol[0]?.toUpperCase() ?? "?", tone: "neutral" };
-
-  const dims = {
-    sm: "h-7 w-7 text-xs",
-    md: "h-10 w-10 text-base",
-    lg: "h-14 w-14 text-2xl",
-  }[size];
-
-  const toneClass =
-    cfg.tone === "primary"
-      ? "border-[--color-primary]/40 bg-[--color-primary]/10 text-[--color-primary]"
-      : "border-[--color-border] bg-[--color-surface-low] text-[--color-text]";
-
+export function TokenIcon({ symbol, size = "md" }: { symbol: string; size?: "sm" | "md" | "lg" }) {
+  const config = SYMBOL_GLYPH[symbol] ?? { glyph: symbol[0]?.toUpperCase() ?? "?", tone: "neutral" };
+  const dimensions = { sm: "size-7 text-xs", md: "size-10 text-base", lg: "size-14 text-2xl" }[size];
+  const tone = config.tone === "primary" ? "border-[var(--color-primary-border)] bg-[var(--color-primary-soft)] text-[var(--color-primary-text)]" : "border-[var(--color-border)] bg-[var(--color-surface-low)] text-white";
   return (
-    <div
-      className={`relative grid place-items-center border ${toneClass} ${dims} font-display font-bold`}
-    >
-      {cfg.glyph}
-      {symbol.startsWith("c") && (
-        <span className="absolute -right-1 -top-1 grid h-3.5 w-3.5 place-items-center border border-[--color-primary]/60 bg-[--color-bg] font-mono text-[8px] text-[--color-primary]">
-          c
-        </span>
-      )}
-    </div>
+    <span aria-label={symbol} className={`relative grid shrink-0 place-items-center rounded-full border ${tone} ${dimensions} font-display font-semibold`}>
+      {config.glyph}
+      {symbol.startsWith("c") ? <span className="absolute -right-1 -top-1 grid size-4 place-items-center rounded-full border border-[var(--color-primary-border)] bg-[var(--color-bg)] font-mono text-xs text-[var(--color-primary-text)]">c</span> : null}
+    </span>
   );
 }
 
-export function PairIcon({
-  from,
-  to,
-  size = "md",
-}: {
-  from: string;
-  to: string;
-  size?: "sm" | "md";
-}) {
-  return (
-    <div className="flex items-center gap-2">
-      <TokenIcon symbol={from} size={size} />
-      <span className="material-symbols-outlined text-[--color-primary]">
-        arrow_forward
-      </span>
-      <TokenIcon symbol={to} size={size} />
-    </div>
-  );
+export function PairIcon({ from, to, size = "md" }: { from: string; to: string; size?: "sm" | "md" }) {
+  return <div className="flex items-center gap-2"><TokenIcon symbol={from} size={size} /><Icon name="arrow_forward" className="size-4 text-[var(--color-primary-text)]" /><TokenIcon symbol={to} size={size} /></div>;
 }

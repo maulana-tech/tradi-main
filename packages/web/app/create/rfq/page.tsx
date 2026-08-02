@@ -6,9 +6,13 @@ import type { Route } from "next";
 import { useAccount } from "wagmi";
 import { parseUnits } from "viem";
 import { AppShell } from "@/components/AppShell";
-import { PageHeader, SectionHeader } from "@/components/PageHeader";
-import { HelpHint } from "@/components/Tooltip";
+import { PageHeader } from "@/components/PageHeader";
 import { OperatorAuth } from "@/components/OperatorAuth";
+import { Icon } from "@/components/Icon";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Field, SelectField } from "@/components/ui/Field";
+import { TransactionProgress, type TransactionStep } from "@/components/ui/TransactionProgress";
 import { useCreateRfq } from "@/lib/hooks/useOtcWrites";
 import { useSetOperator } from "@/lib/hooks/useSetOperator";
 import { CUSDC_ADDRESS, CETH_ADDRESS } from "@/lib/wagmi";
@@ -19,300 +23,160 @@ const TOKENS = [
 ];
 
 const WINDOW_PRESETS = [
-  { label: "30M", seconds: 30 * 60 },
-  { label: "1H", seconds: 3600 },
-  { label: "6H", seconds: 6 * 3600 },
-  { label: "1D", seconds: 86400 },
+  { label: "30 minutes", short: "30M", seconds: 30 * 60 },
+  { label: "1 hour", short: "1H", seconds: 3600 },
+  { label: "6 hours", short: "6H", seconds: 6 * 3600 },
+  { label: "1 day", short: "1D", seconds: 86400 },
 ];
 
 export default function RfqCreatePage() {
   const { address } = useAccount();
   const { submit, step, error, intentId, txHash } = useCreateRfq();
-
   const [sellSymbol, setSellSymbol] = useState("cETH");
   const [buySymbol, setBuySymbol] = useState("cUSDC");
   const [sellAmount, setSellAmount] = useState("");
   const [deadline, setDeadline] = useState(3600);
 
-  const sellTok = TOKENS.find((t) => t.symbol === sellSymbol)!;
-  const buyTok = TOKENS.find((t) => t.symbol === buySymbol)!;
+  const sellToken = TOKENS.find((token) => token.symbol === sellSymbol)!;
+  const buyToken = TOKENS.find((token) => token.symbol === buySymbol)!;
+  const sellTokenAuth = useSetOperator(sellToken.address, address);
+  const busy = step === "encrypting" || step === "signing" || step === "confirming";
+  const selectedWindow = WINDOW_PRESETS.find((preset) => preset.seconds === deadline)?.label ?? "Custom";
 
-  // Maker authorizes sellToken — winner of the auction can't settle if this
-  // is missing (revealRFQWinner reverts at _settleAtomic).
-  const sellTokenAuth = useSetOperator(sellTok.address, address);
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function onSubmit(event: React.FormEvent) {
+    event.preventDefault();
     await submit({
-      sellToken: sellTok.address,
-      buyToken: buyTok.address,
-      sellAmount: parseUnits(sellAmount || "0", sellTok.decimals),
+      sellToken: sellToken.address,
+      buyToken: buyToken.address,
+      sellAmount: parseUnits(sellAmount || "0", sellToken.decimals),
       biddingDeadlineSeconds: deadline,
     });
   }
 
-  const busy =
-    step === "encrypting" || step === "signing" || step === "confirming";
-
   return (
     <AppShell>
       <PageHeader
-        icon="hub"
-        title="RFQ Auction"
-        subtitle="Sealed-bid Vickrey auction with encrypted bids"
-        action={
-          <div className="flex border border-[--color-border] bg-[--color-surface-low] p-1">
-            <Link
-              href={"/create/direct" as Route}
-              className="text-label-caps flex items-center gap-1.5 px-4 py-2 text-[--color-text-muted] hover:text-[--color-text]"
-            >
-              <span className="material-symbols-outlined text-base">
-                swap_horiz
-              </span>
-              Direct
-            </Link>
-            <span className="text-label-caps flex items-center gap-1.5 bg-[--color-primary] px-4 py-2 text-[--color-primary-fg]">
-              <span className="material-symbols-outlined text-base">hub</span>
-              RFQ
-            </span>
-          </div>
-        }
+        icon="gavel"
+        title="Open a sealed RFQ"
+        subtitle="Collect encrypted bids and settle at the second-highest price."
+        action={<ModeSwitch />}
       />
 
-
-      <div className="grid grid-cols-12 gap-6">
-        <section className="col-span-12 lg:col-span-7">
-          <div className="glass-card p-6">
-            <SectionHeader icon="gavel" title="Open Auction" />
-
-            <div className="mb-6">
-              <OperatorAuth
-                token={sellTok.address}
-                account={address}
-                symbol={sellTok.symbol}
-                reason={`When you reveal the winning bidder, settlement debits ${sellTok.symbol} from your wallet to them. Tradi-Nox needs operator permission first — without it, reveal will revert.`}
-              />
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <form onSubmit={onSubmit} className="space-y-6">
+          <Card className="p-5 sm:p-6">
+            <StepHeading number="1" title="Assets and amount" description="Bidders see the pair, while your trade size stays encrypted." />
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <SelectField label="You sell" value={sellSymbol} onChange={(event) => setSellSymbol(event.target.value)}>
+                {TOKENS.map((token) => <option key={token.symbol}>{token.symbol}</option>)}
+              </SelectField>
+              <SelectField label="You receive" value={buySymbol} onChange={(event) => setBuySymbol(event.target.value)}>
+                {TOKENS.map((token) => <option key={token.symbol}>{token.symbol}</option>)}
+              </SelectField>
             </div>
+            <div className="mt-5">
+              <Field label="Sell amount" type="number" min="0" step="any" required value={sellAmount} onChange={(event) => setSellAmount(event.target.value)} placeholder="0.00" suffix={sellToken.symbol} inputMode="decimal" hint="Encrypted before your wallet signs the RFQ transaction." />
+            </div>
+          </Card>
 
-            <form onSubmit={onSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-label-caps text-[--color-text-muted]">
-                    Sell Token
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={sellSymbol}
-                      onChange={(e) => setSellSymbol(e.target.value)}
-                      className="tradi-nox-input appearance-none pr-10"
-                    >
-                      {TOKENS.map((t) => (
-                        <option key={t.symbol} value={t.symbol}>
-                          {t.symbol}
-                        </option>
-                      ))}
-                    </select>
-                    <span className="material-symbols-outlined pointer-events-none absolute right-3 top-3 text-[--color-text-muted]">
-                      expand_more
-                    </span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-label-caps text-[--color-text-muted]">
-                    Buy Token
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={buySymbol}
-                      onChange={(e) => setBuySymbol(e.target.value)}
-                      className="tradi-nox-input appearance-none pr-10"
-                    >
-                      {TOKENS.map((t) => (
-                        <option key={t.symbol} value={t.symbol}>
-                          {t.symbol}
-                        </option>
-                      ))}
-                    </select>
-                    <span className="material-symbols-outlined pointer-events-none absolute right-3 top-3 text-[--color-text-muted]">
-                      expand_more
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-label-caps text-[--color-text-muted]">
-                    Sell Amount
-                  </label>
-                  <span className="font-mono text-[9px] uppercase text-[--color-primary]">
-                    ENCRYPTED
-                  </span>
-                </div>
-                <div className="flex border border-[--color-border] bg-[--color-bg] focus-within:border-[--color-primary]">
-                  <input
-                    type="number"
-                    step="any"
-                    min="0"
-                    value={sellAmount}
-                    onChange={(e) => setSellAmount(e.target.value)}
-                    placeholder="0.00"
-                    className="flex-1 bg-transparent px-3 py-2 font-mono text-sm focus:outline-none"
-                    data-numeric
-                  />
-                  <span className="grid place-items-center px-3 text-label-caps text-[--color-text-muted]">
-                    {sellTok.symbol}
-                  </span>
-                </div>
-                <p className="font-mono text-[10px] text-[--color-text-muted]">
-                  Takers see the asset pair — not the size
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-label-caps text-[--color-text-muted]">
-                  Bidding Window
-                </label>
-                <div className="flex gap-2">
-                  {WINDOW_PRESETS.map((p) => (
-                    <button
-                      key={p.seconds}
-                      type="button"
-                      onClick={() => setDeadline(p.seconds)}
-                      className={`text-label-caps border px-4 py-2 transition-all ${
-                        deadline === p.seconds
-                          ? "border-[--color-primary] bg-[--color-primary]/10 text-[--color-primary]"
-                          : "border-[--color-border] text-[--color-text-muted] hover:border-[--color-primary]/40"
-                      }`}
-                    >
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {error && (
-                <div className="border border-[--color-danger] bg-[--color-danger]/10 p-3 text-sm text-[--color-danger]">
-                  {error}
-                </div>
-              )}
-
-              {step === "done" && intentId !== null && (
-                <div className="border border-[--color-primary] bg-[--color-primary]/10 p-3 text-sm">
-                  <span className="text-[--color-primary]">
-                    RFQ #{intentId.toString()} opened.
-                  </span>{" "}
-                  <Link
-                    href={`/rfq/${intentId.toString()}` as Route}
-                    className="underline"
+          <Card className="p-5 sm:p-6">
+            <StepHeading number="2" title="Bidding window" description="Choose how long counterparties have to submit sealed bids." />
+            <fieldset className="mt-6">
+              <legend className="sr-only">Bidding window</legend>
+              <div className="grid grid-cols-4 gap-2">
+                {WINDOW_PRESETS.map((preset) => (
+                  <button
+                    key={preset.seconds}
+                    type="button"
+                    aria-pressed={deadline === preset.seconds}
+                    onClick={() => setDeadline(preset.seconds)}
+                    className={`min-h-11 rounded-full border px-3 text-sm font-semibold transition-colors duration-150 ${deadline === preset.seconds ? "border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-white" : "border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)] hover:text-white"}`}
                   >
-                    View RFQ →
-                  </Link>{" "}
-                  ·{" "}
-                  <a
-                    href={`https://sepolia.arbiscan.io/tx/${txHash}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="underline"
-                  >
-                    Tx
-                  </a>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={busy || step === "done" || !sellTokenAuth.isOperator}
-                title={
-                  step === "done"
-                    ? "Already broadcast — see the link above to view the RFQ"
-                    : !sellTokenAuth.isOperator && address
-                      ? `Authorize Tradi-Nox for ${sellTok.symbol} above first`
-                      : undefined
-                }
-                className="tradi-nox-btn-primary flex w-full items-center justify-center gap-2 py-4 text-sm"
-              >
-                <span
-                  className={`material-symbols-outlined text-base ${
-                    busy ? "animate-spin" : ""
-                  }`}
-                >
-                  {step === "encrypting" && "enhanced_encryption"}
-                  {step === "signing" && "draw"}
-                  {step === "confirming" && "sync"}
-                  {(step === "idle" || step === "error") && "gavel"}
-                  {step === "done" && "check_circle"}
-                </span>
-                {step === "encrypting" && "Encrypting…"}
-                {step === "signing" && "Confirm in wallet…"}
-                {step === "confirming" && "Opening on-chain…"}
-                {(step === "idle" || step === "error") &&
-                  (!sellTokenAuth.isOperator && address
-                    ? `Authorize ${sellTok.symbol} first`
-                    : "Open Auction")}
-                {step === "done" && "Auction opened"}
-              </button>
-            </form>
-          </div>
-        </section>
-
-        <aside className="col-span-12 space-y-4 lg:col-span-5">
-          <div className="glass-card border-l-2 border-l-[--color-primary] p-6">
-            <div className="mb-3 flex items-center gap-3">
-              <span
-                className="material-symbols-outlined text-[--color-primary]"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                verified
-              </span>
-              <p className="text-label-caps flex items-center gap-1.5 text-[--color-primary]">
-                Vickrey Auction
-                <HelpHint content="Nobel-winning sealed-bid auction. Highest bidder wins but pays the second-highest price. Mathematically optimal: bidders' best strategy is to bid their true valuation. No incentive to lie." />
-              </p>
-            </div>
-            <p className="text-sm text-[--color-text]">
-              Highest sealed bid wins. Winner pays{" "}
-              <span className="font-mono text-[--color-primary]">
-                second-highest
-              </span>{" "}
-              price.
-            </p>
-            <p className="mt-3 text-sm text-[--color-text]">
-              Mathematically optimal for sellers — bidders are incentivized to
-              bid their true valuation.
-            </p>
-          </div>
-
-          <div className="glass-card p-0 overflow-hidden">
-            <div className="flex items-center justify-between border-b border-[--color-border] bg-[--color-surface-low]/50 px-4 py-2">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-[--color-text-muted]">
-                  code
-                </span>
-                <span className="text-xs text-[--color-text-secondary]">
-                  Vickrey algorithm
-                </span>
+                    {preset.short}
+                  </button>
+                ))}
               </div>
+            </fieldset>
+          </Card>
+
+          <Card className="p-5 sm:p-6">
+            <StepHeading number="3" title="Prepare settlement" description="Authorize the contract before bidders commit funds." />
+            <div className="mt-6">
+              <OperatorAuth token={sellToken.address} account={address} symbol={sellToken.symbol} reason={`When the winning bid is revealed, atomic settlement debits ${sellToken.symbol} from your wallet. Authorize Tradi-Nox now so the winner cannot be blocked later.`} />
             </div>
-            <div className="p-4">
-              <pre className="overflow-x-auto font-mono text-[11px] leading-relaxed text-[--color-text-secondary]">
-                <code>{`for (uint i = 1; i < bids.length; i++) {
-  ebool isHigher = Nox.gt(candidate, highest);
-  second  = Nox.select(isHigher, highest, second);
-  highest = Nox.select(isHigher, candidate, highest);
-}
-priceToPay = second;  // encrypted`}</code>
-              </pre>
-              <p className="mt-3 flex items-center gap-1.5 text-[10px] text-[--color-text-muted]">
-                <span className="material-symbols-outlined text-xs text-[--color-primary]">
-                  info
-                </span>
-                All comparisons run inside encrypted handles. Max 10 bidders.
-              </p>
-            </div>
-          </div>
+          </Card>
+
+          <Card className="p-5 sm:p-6">
+            <StepHeading number="4" title="Review and open RFQ" description="Your wallet signs the encrypted size, then opens the bidding window on-chain." />
+            <dl className="mt-6 grid gap-4 rounded-2xl bg-[var(--color-surface-low)] p-4 sm:grid-cols-2">
+              <Review label="Pair" value={`${sellToken.symbol} → ${buyToken.symbol}`} />
+              <Review label="Encrypted size" value={`${sellAmount || "0"} ${sellToken.symbol}`} />
+              <Review label="Bidding window" value={selectedWindow} />
+              <Review label="Settlement price" value="Second-highest sealed bid" />
+            </dl>
+
+            {error ? <div role="alert" aria-live="assertive" className="mt-5 rounded-2xl border border-[var(--color-danger)]/40 bg-[var(--color-danger-soft)] p-4 text-sm text-[var(--color-danger-text)]">{error} Review the fields and try again.</div> : null}
+            {step === "done" && intentId !== null ? (
+              <div role="status" className="mt-5 rounded-2xl border border-[var(--color-success)]/40 bg-[var(--color-success-soft)] p-4 text-sm text-[var(--color-success-text)]">
+                RFQ #{intentId.toString()} is accepting bids. <Link href={`/rfq/${intentId}` as Route} className="font-semibold underline underline-offset-4">View RFQ</Link>{" · "}<a href={`https://sepolia.arbiscan.io/tx/${txHash}`} target="_blank" rel="noreferrer" className="font-semibold underline underline-offset-4">Transaction</a>
+              </div>
+            ) : null}
+
+            <Button type="submit" className="mt-5 w-full" size="lg" loading={busy} loadingLabel={step === "encrypting" ? "Encrypting size…" : step === "signing" ? "Confirm in your wallet…" : "Opening RFQ on-chain…"} disabled={step === "done" || !sellTokenAuth.isOperator}>
+              {!address ? "Connect wallet to continue" : !sellTokenAuth.isOperator ? `Authorize ${sellToken.symbol} first` : "Open sealed RFQ"}
+            </Button>
+          </Card>
+        </form>
+
+        <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+          <Card className="p-5 sm:p-6">
+            <h2 className="font-display text-lg font-medium text-white">Transaction progress</h2>
+            <p className="mt-2 text-sm text-pretty text-[var(--color-text-secondary)]">Sensitive size data is encrypted before the wallet transaction begins.</p>
+            <div className="mt-6"><TransactionProgress steps={buildProgress(step)} /></div>
+          </Card>
+          <Card className="p-5">
+            <h2 className="flex items-center gap-3 text-sm font-semibold text-white"><Icon name="verified" className="size-5 text-[var(--color-primary-text)]" />Vickrey pricing</h2>
+            <p className="mt-3 text-sm leading-6 text-pretty text-[var(--color-text-secondary)]">The highest bidder wins but pays the second-highest bid. Bidders are encouraged to submit what the trade is really worth to them.</p>
+            <details className="mt-4 border-t border-[var(--color-border)] pt-4">
+              <summary className="min-h-11 content-center text-sm font-semibold text-white">How encrypted selection works</summary>
+              <p className="pb-2 text-sm leading-6 text-pretty text-[var(--color-text-secondary)]">The contract compares Nox encrypted handles without revealing individual bids. RFQs are capped at 10 bidders to keep settlement gas predictable.</p>
+            </details>
+          </Card>
         </aside>
       </div>
     </AppShell>
   );
+}
+
+function ModeSwitch() {
+  return (
+    <div className="flex rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] p-1">
+      <Link href={"/create/direct" as Route} className="inline-flex min-h-11 items-center rounded-full px-4 text-sm font-semibold text-[var(--color-text-secondary)]">Direct</Link>
+      <Link href={"/create/rfq" as Route} aria-current="page" className="inline-flex min-h-11 items-center rounded-full bg-[var(--color-primary)] px-4 text-sm font-semibold text-white">RFQ</Link>
+    </div>
+  );
+}
+
+function StepHeading({ number, title, description }: { number: string; title: string; description: string }) {
+  return <div className="flex items-start gap-3"><span className="w-8 shrink-0 pt-0.5 font-mono text-sm tabular-nums text-[var(--color-primary-text)]">0{number}</span><div><h2 className="font-display text-lg font-medium text-white">{title}</h2><p className="mt-1 text-sm text-pretty text-[var(--color-text-secondary)]">{description}</p></div></div>;
+}
+
+function Review({ label, value }: { label: string; value: string }) {
+  return <div><dt className="text-xs text-[var(--color-text-muted)]">{label}</dt><dd className="mt-1 text-sm text-white">{value}</dd></div>;
+}
+
+function buildProgress(step: string): TransactionStep[] {
+  const order = ["encrypting", "signing", "confirming", "done"];
+  const current = order.indexOf(step);
+  const stateFor = (index: number): TransactionStep["state"] => {
+    if (step === "error" && index === 0) return "error";
+    if (step === "done" || current > index) return "complete";
+    if (current === index) return "active";
+    return "pending";
+  };
+  return [
+    { label: "Encrypt trade size", description: "Create the Nox encrypted handle.", state: stateFor(0) },
+    { label: "Approve in wallet", description: "Review the RFQ transaction.", state: stateFor(1) },
+    { label: "Open bidding", description: "Wait for on-chain confirmation.", state: stateFor(2) },
+  ];
 }

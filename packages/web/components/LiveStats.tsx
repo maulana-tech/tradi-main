@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useReadContract, useBlockNumber } from "wagmi";
 import { privateOtcAbi } from "@/lib/abi/privateOtc";
 import { PRIVATE_OTC_ADDRESS } from "@/lib/wagmi";
@@ -14,57 +14,32 @@ export function LiveStats() {
     functionName: "nextIntentId",
   });
 
-  const [animKey, setAnimKey] = useState(0);
-  const [prevValue, setPrevValue] = useState<bigint | undefined>();
-
   useEffect(() => {
-    if (blockNumber) refetch();
+    if (blockNumber) void refetch();
   }, [blockNumber, refetch]);
-
-  useEffect(() => {
-    if (nextIntentId !== undefined && nextIntentId !== prevValue) {
-      if (prevValue !== undefined) setAnimKey((k) => k + 1);
-      setPrevValue(nextIntentId as bigint);
-    }
-  }, [nextIntentId, prevValue]);
 
   const total = nextIntentId ? Number(nextIntentId) : 0;
 
   return (
-    <div className="mx-auto mt-12 grid max-w-2xl grid-cols-2 gap-3 md:grid-cols-4">
-      <Stat label="On-chain intents" value={total.toString()} animKey={animKey} live />
-      <Stat label="Encryption" value="Nox TEE" />
-      <Stat label="Chain" value="11155111" />
-      <Stat label="Block time" value="~250ms" />
-    </div>
+    <dl className="mt-12 grid min-w-0 max-w-2xl grid-cols-1 gap-5 border-t border-[var(--color-border)] pt-6 sm:grid-cols-3 sm:gap-6">
+      <Stat label="On-chain intents" value={total.toString()} />
+      <Stat label="Privacy layer" value="Nox TEE" />
+      <Stat label="Network" value="Sepolia" />
+    </dl>
   );
 }
 
 function Stat({
   label,
   value,
-  animKey,
-  live,
 }: {
   label: string;
   value: string;
-  animKey?: number;
-  live?: boolean;
 }) {
   return (
-    <div className="rounded-lg bg-[--color-primary]/5 p-4 text-center">
-      <div className="flex items-center justify-center gap-1.5">
-        <p className="text-xs text-[--color-text-muted]">{label}</p>
-        {live && (
-          <span className="h-1.5 w-1.5 rounded-full bg-[--color-primary] pulse-soft" />
-        )}
-      </div>
-      <p
-        key={animKey}
-        className="mt-1 text-xl font-bold text-[--color-primary] count-enter"
-      >
-        {value}
-      </p>
+    <div className="min-w-0">
+      <dt className="text-xs text-[var(--color-text-muted)]">{label}</dt>
+      <dd className="mt-1 font-mono text-sm font-medium tabular-nums text-white sm:text-base">{value}</dd>
     </div>
   );
 }

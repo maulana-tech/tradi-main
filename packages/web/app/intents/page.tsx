@@ -2,15 +2,19 @@
 
 import Link from "next/link";
 import type { Route } from "next";
-import { Suspense, useState, useMemo, useEffect } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAccount } from "wagmi";
 import { AppShell } from "@/components/AppShell";
-import { PageHeader, SectionHeader } from "@/components/PageHeader";
+import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { TokenIcon } from "@/components/TokenIcon";
-import { SkeletonRow } from "@/components/Skeleton";
-import { useIntents, statusLabel } from "@/lib/hooks/useIntents";
+import { Skeleton, SkeletonRow } from "@/components/Skeleton";
+import { Icon } from "@/components/Icon";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Badge, Status } from "@/components/ui/Badge";
+import { useIntents, statusLabel, type IntentRow } from "@/lib/hooks/useIntents";
 import { shortAddress } from "@/lib/utils";
 import { CUSDC_ADDRESS, CETH_ADDRESS } from "@/lib/wagmi";
 
@@ -22,766 +26,184 @@ const TOKEN_NAMES: Record<string, string> = {
 type ModeFilter = "all" | "direct" | "rfq";
 type StatusFilter = "all" | "open" | "filled" | "cancelled" | "pending";
 type PairFilter = "all" | "ceth-cusdc" | "cusdc-ceth";
-
 const PAGE_SIZE = 10;
 
-const MODE_VALUES: ModeFilter[] = ["all", "direct", "rfq"];
-const STATUS_VALUES: StatusFilter[] = [
-  "all",
-  "open",
-  "pending",
-  "filled",
-  "cancelled",
-];
-const PAIR_VALUES: PairFilter[] = ["all", "ceth-cusdc", "cusdc-ceth"];
-
-function parseEnum<T extends string>(
-  raw: string | null,
-  values: T[],
-  fallback: T,
-): T {
-  return values.includes(raw as T) ? (raw as T) : fallback;
-}
-
-// Wrapper: useSearchParams() requires a Suspense boundary so Next.js can
-// stream the rest of the page during prerender while waiting for the
-// search params to resolve on the client.
 export default function IntentsPage() {
-  return (
-    <Suspense fallback={<IntentsLoadingSkeleton />}>
-      <IntentsPageContent />
-    </Suspense>
-  );
+  return <Suspense fallback={<MarketplaceSkeleton />}><Marketplace /></Suspense>;
 }
 
-function IntentsLoadingSkeleton() {
-  return (
-    <AppShell>
-      <PageHeader
-        icon="grid_view"
-        title="Order Book"
-        subtitle="Browse active intents with encrypted amounts"
-      />
-      <div className="glass-card overflow-hidden">
-        <div className="flex items-center justify-between border-b border-[--color-border] p-4">
-          <div className="flex items-center gap-2 text-xs text-[--color-text-muted]">
-            <span className="material-symbols-outlined animate-spin text-base text-[--color-primary]">
-              sync
-            </span>
-            Loading intents…
-          </div>
-        </div>
-        <table className="w-full">
-          <tbody className="divide-y divide-[--color-border]/50">
-            <SkeletonRow />
-            <SkeletonRow />
-            <SkeletonRow />
-          </tbody>
-        </table>
-      </div>
-    </AppShell>
-  );
-}
-
-function IntentsPageContent() {
+function Marketplace() {
   const { address } = useAccount();
   const { rows, isLoading, error } = useIntents(60);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [mode, setMode] = useState<ModeFilter>(() => parseValue(searchParams.get("mode"), ["all", "direct", "rfq"], "all"));
+  const [status, setStatus] = useState<StatusFilter>(() => parseValue(searchParams.get("status"), ["all", "open", "filled", "cancelled", "pending"], "all"));
+  const [pair, setPair] = useState<PairFilter>(() => parseValue(searchParams.get("pair"), ["all", "ceth-cusdc", "cusdc-ceth"], "all"));
+  const [onlyMine, setOnlyMine] = useState(() => searchParams.get("mine") === "1");
+  const [page, setPage] = useState(() => Math.max(1, Number(searchParams.get("p") ?? 1) || 1));
 
-  // Initialize from URL so /intents?mode=rfq&status=filled&p=2 is shareable.
-  const [modeFilter, setModeFilter] = useState<ModeFilter>(() =>
-    parseEnum(searchParams.get("mode"), MODE_VALUES, "all"),
-  );
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>(() =>
-    parseEnum(searchParams.get("status"), STATUS_VALUES, "all"),
-  );
-  const [pairFilter, setPairFilter] = useState<PairFilter>(() =>
-    parseEnum(searchParams.get("pair"), PAIR_VALUES, "all"),
-  );
-  const [onlyMine, setOnlyMine] = useState(
-    () => searchParams.get("mine") === "1",
-  );
-  const [page, setPage] = useState(() => {
-    const p = Number(searchParams.get("p") ?? "1");
-    return Number.isFinite(p) && p >= 1 ? Math.floor(p) : 1;
-  });
-
-  // Reset to page 1 whenever a filter changes — staying on page 5 after
-  // narrowing the result set to 3 rows would render an empty table.
-  useEffect(() => {
-    setPage(1);
-  }, [modeFilter, statusFilter, pairFilter, onlyMine]);
-
-  // Reflect filter + page state back into the URL so links survive page
-  // reload and browser back/forward keeps the same view. router.replace
-  // avoids pushing a new history entry per filter / pagination click.
+  useEffect(() => { setPage(1); }, [mode, status, pair, onlyMine]);
   useEffect(() => {
     const params = new URLSearchParams();
-    if (modeFilter !== "all") params.set("mode", modeFilter);
-    if (statusFilter !== "all") params.set("status", statusFilter);
-    if (pairFilter !== "all") params.set("pair", pairFilter);
+    if (mode !== "all") params.set("mode", mode);
+    if (status !== "all") params.set("status", status);
+    if (pair !== "all") params.set("pair", pair);
     if (onlyMine) params.set("mine", "1");
     if (page !== 1) params.set("p", String(page));
-    const qs = params.toString();
-    router.replace(qs ? `/intents?${qs}` : "/intents", { scroll: false });
-  }, [modeFilter, statusFilter, pairFilter, onlyMine, page, router]);
+    const query = params.toString();
+    router.replace(query ? `/intents?${query}` : "/intents", { scroll: false });
+  }, [mode, status, pair, onlyMine, page, router]);
 
-  const filtered = useMemo(() => {
-    return rows.filter((r) => {
-      if (modeFilter === "direct" && r.mode !== 0) return false;
-      if (modeFilter === "rfq" && r.mode !== 1) return false;
-
-      if (statusFilter === "open" && r.status !== 0) return false;
-      if (statusFilter === "filled" && r.status !== 1) return false;
-      if (statusFilter === "cancelled" && r.status !== 2) return false;
-      if (statusFilter === "pending" && r.status !== 4) return false;
-
-      if (pairFilter !== "all") {
-        const sell = TOKEN_NAMES[r.sellToken.toLowerCase()] ?? "?";
-        const buy = TOKEN_NAMES[r.buyToken.toLowerCase()] ?? "?";
-        const pairKey = `${sell}-${buy}`.toLowerCase();
-        if (pairFilter === "ceth-cusdc" && pairKey !== "ceth-cusdc")
-          return false;
-        if (pairFilter === "cusdc-ceth" && pairKey !== "cusdc-ceth")
-          return false;
-      }
-
-      if (
-        onlyMine &&
-        address &&
-        r.maker.toLowerCase() !== address.toLowerCase()
-      ) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [rows, modeFilter, statusFilter, pairFilter, onlyMine, address]);
-
-  const clearFilters = () => {
-    setModeFilter("all");
-    setStatusFilter("all");
-    setPairFilter("all");
-    setOnlyMine(false);
-  };
-
-  const activeFilterCount =
-    (modeFilter !== "all" ? 1 : 0) +
-    (statusFilter !== "all" ? 1 : 0) +
-    (pairFilter !== "all" ? 1 : 0) +
-    (onlyMine ? 1 : 0);
+  const filtered = useMemo(() => rows.filter((row) => {
+    if (mode === "direct" && row.mode !== 0) return false;
+    if (mode === "rfq" && row.mode !== 1) return false;
+    if (status === "open" && row.status !== 0) return false;
+    if (status === "filled" && row.status !== 1) return false;
+    if (status === "cancelled" && row.status !== 2) return false;
+    if (status === "pending" && row.status !== 4) return false;
+    if (pair !== "all") {
+      const pairKey = `${tokenName(row.sellToken)}-${tokenName(row.buyToken)}`.toLowerCase();
+      if (pairKey !== pair) return false;
+    }
+    if (onlyMine && address && row.maker.toLowerCase() !== address.toLowerCase()) return false;
+    return true;
+  }), [rows, mode, status, pair, onlyMine, address]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  // Clamp without setState in render — handled by useEffect that resets
-  // on filter change. Any stale page index just produces an empty slice.
   const safePage = Math.min(page, totalPages);
-  const pageRows = filtered.slice(
-    (safePage - 1) * PAGE_SIZE,
-    safePage * PAGE_SIZE,
-  );
+  const visibleRows = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const activeFilters = Number(mode !== "all") + Number(status !== "all") + Number(pair !== "all") + Number(onlyMine);
+  const clearFilters = () => { setMode("all"); setStatus("all"); setPair("all"); setOnlyMine(false); };
 
   return (
     <AppShell>
       <PageHeader
         icon="grid_view"
-        title="Order Book"
-        subtitle="Browse active intents with encrypted amounts"
-        action={
-          <Link href={"/create" as Route}>
-            <button className="tradi-nox-btn-primary flex items-center gap-2 px-5 py-2 text-xs">
-              <span className="material-symbols-outlined text-base">add</span>
-              New Intent
-            </button>
-          </Link>
-        }
+        title="Marketplace"
+        subtitle="Browse direct OTC intents and sealed RFQs without exposing private amounts."
+        action={<ButtonLink href="/create"><Icon name="add" className="size-4" />Create trade</ButtonLink>}
       />
 
-      {!isLoading && rows.length > 0 && (
-        <FilterBar
-          modeFilter={modeFilter}
-          setModeFilter={setModeFilter}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          pairFilter={pairFilter}
-          setPairFilter={setPairFilter}
-          onlyMine={onlyMine}
-          setOnlyMine={setOnlyMine}
-          walletConnected={!!address}
-          totalCount={rows.length}
-          filteredCount={filtered.length}
-          activeFilterCount={activeFilterCount}
-          onClear={clearFilters}
-        />
-      )}
-
-      {isLoading && (
-        <div className="glass-card overflow-hidden">
-          <div className="flex items-center justify-between border-b border-[--color-border] p-4">
-            <div className="flex items-center gap-2 font-mono text-xs text-[--color-text-muted]">
-              <span className="material-symbols-outlined animate-spin text-base text-[--color-primary]">
-                sync
-              </span>
-              FETCHING ON-CHAIN INTENTS
-            </div>
-          </div>
-          <table className="w-full">
-            <tbody className="divide-y divide-[--color-border]/50">
-              <SkeletonRow />
-              <SkeletonRow />
-              <SkeletonRow />
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {error && (
-        <div className="flex items-start gap-3 border border-[--color-danger] bg-[--color-danger]/10 p-3 font-mono text-sm text-[--color-danger]">
-          <span className="material-symbols-outlined text-base">error</span>
-          {error.message}
-        </div>
-      )}
-
-      {!isLoading && rows.length === 0 && (
-        <EmptyState
-          icon="inbox"
-          title="NO ACTIVE INTENTS"
-          body="No one has opened a trade yet on this network"
-          action={
-            <Link href={"/create" as Route}>
-              <button className="tradi-nox-btn-primary flex items-center gap-2 px-5 py-2 text-xs">
-                <span className="material-symbols-outlined text-base">
-                  add
-                </span>
-                Open the first one
+      {!isLoading && rows.length > 0 ? (
+        <Card className="mb-5 p-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto_auto] lg:items-end">
+            <FilterSelect label="Mode" value={mode} onChange={(value) => setMode(value as ModeFilter)} options={[['all','All modes'],['direct','Direct OTC'],['rfq','Sealed RFQ']]} />
+            <FilterSelect label="Status" value={status} onChange={(value) => setStatus(value as StatusFilter)} options={[['all','All statuses'],['open','Open'],['pending','Pending reveal'],['filled','Filled'],['cancelled','Cancelled']]} />
+            <FilterSelect label="Pair" value={pair} onChange={(value) => setPair(value as PairFilter)} options={[['all','All pairs'],['ceth-cusdc','cETH → cUSDC'],['cusdc-ceth','cUSDC → cETH']]} />
+            {address ? (
+              <button type="button" aria-pressed={onlyMine} onClick={() => setOnlyMine((value) => !value)} className={`min-h-11 rounded-full border px-4 text-sm font-semibold transition-colors duration-150 ${onlyMine ? "border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-white" : "border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)] hover:text-white"}`}>
+                My trades
               </button>
-            </Link>
-          }
-        />
-      )}
-
-      {rows.length > 0 && filtered.length === 0 && (
-        <EmptyState
-          icon="filter_alt_off"
-          title="NO INTENTS MATCH THESE FILTERS"
-          body="Try clearing one of the filters to see more results"
-          action={
-            <button
-              onClick={clearFilters}
-              className="tradi-nox-btn-primary flex items-center gap-2 px-5 py-2 text-xs"
-            >
-              <span className="material-symbols-outlined text-base">
-                refresh
-              </span>
-              Clear filters
-            </button>
-          }
-        />
-      )}
-
-      {filtered.length > 0 && (
-        <div className="glass-card flex flex-col overflow-hidden">
-          <div className="flex items-center justify-between border-b border-[--color-border] px-4 py-3">
-            <SectionHeader icon="menu_book" title="Order Book" />
-            <div className="hidden gap-3 lg:flex">
-              <Legend color="bg-emerald-400" label="Open" />
-              <Legend color="bg-amber-400" label="Pending" />
-              <Legend color="bg-gray-400" label="Filled" />
-              <Legend color="bg-orange-500" label="Cancelled" />
-            </div>
+            ) : <span />}
+            {activeFilters > 0 ? <Button type="button" tone="ghost" size="sm" onClick={clearFilters}><Icon name="close" className="size-4" />Clear {activeFilters}</Button> : null}
           </div>
+          <p className="mt-3 text-sm text-[var(--color-text-muted)]" aria-live="polite">Showing {filtered.length} of {rows.length} trades</p>
+        </Card>
+      ) : null}
 
-          <table className="w-full table-fixed text-left">
-            <colgroup>
-              <col className="w-[80px]" />
-              <col className="w-auto" />
-              <col className="w-[88px]" />
-              <col className="w-[112px]" />
-              <col className="w-[120px]" />
-              <col className="w-[100px]" />
-              <col className="w-[80px]" />
-              <col className="w-[88px]" />
-            </colgroup>
-            <thead>
-              <tr className="border-b border-[--color-border] bg-[--color-surface-low]/50">
-                <Th>Intent ID</Th>
-                <Th>Sell → Buy</Th>
-                <Th>Mode</Th>
-                <Th>Maker</Th>
-                <Th>Volume</Th>
-                <Th>Status</Th>
-                <Th>Expires</Th>
-                <Th align="right">Action</Th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[--color-border]/50">
-              {pageRows.map((row) => (
-                <tr
-                  key={row.id.toString()}
-                  className="group transition-colors hover:bg-[--color-surface-low]/20"
-                >
-                  <Td>
-                    <span
-                      className="font-mono text-xs text-[--color-text]"
-                      title={`Intent #${row.id.toString()}`}
-                    >
-                      #{row.id.toString().padStart(4, "0")}
-                    </span>
-                  </Td>
-
-                  <Td>
-                    <PairCell
-                      sell={
-                        TOKEN_NAMES[row.sellToken.toLowerCase()] ?? "?"
-                      }
-                      buy={TOKEN_NAMES[row.buyToken.toLowerCase()] ?? "?"}
-                    />
-                  </Td>
-
-                  <Td>
-                    <ModeBadge mode={row.mode} />
-                  </Td>
-
-                  <Td>
-                    <span
-                      className="flex items-center gap-1 font-mono text-[11px] text-[--color-text-muted]"
-                      title={row.maker}
-                    >
-                      <span className="truncate">
-                        {shortAddress(row.maker, 4)}
-                      </span>
-                      {address &&
-                        row.maker.toLowerCase() ===
-                          address.toLowerCase() && (
-                          <span className="text-label-caps shrink-0 border border-[--color-primary]/40 bg-[--color-primary]/10 px-1 py-0 text-[8px] text-[--color-primary]">
-                            YOU
-                          </span>
-                        )}
-                    </span>
-                  </Td>
-
-                  <Td>
-                    <span
-                      className="flex items-center gap-1 border border-[--color-border] bg-[--color-bg] px-1.5 py-0.5 font-mono text-[10px] text-[--color-text-muted]"
-                      title={row.sellAmountHandle}
-                    >
-                      <span className="material-symbols-outlined shrink-0 text-sm text-[--color-primary]/40">
-                        lock
-                      </span>
-                      <span className="truncate">
-                        {row.sellAmountHandle.slice(0, 8)}…
-                      </span>
-                    </span>
-                  </Td>
-
-                  <Td>
-                    <StatusBadge status={row.status} />
-                  </Td>
-
-                  <Td>
-                    <RelativeTime ts={row.deadline} status={row.status} />
-                  </Td>
-
-                  <Td align="right">
-                    {row.status === 0 && (
-                      <Link
-                        href={
-                          (row.mode === 1
-                            ? `/rfq/${row.id.toString()}`
-                            : `/intents/${row.id.toString()}`) as Route
-                        }
-                        className="text-label-caps inline-flex items-center border border-[--color-border] bg-[--color-surface-low] px-2 py-1 text-[--color-primary] transition-all hover:bg-[--color-primary] hover:text-[--color-primary-fg]"
-                      >
-                        {row.mode === 1 ? "Bid" : "Accept"}
-                      </Link>
-                    )}
-                    {row.status !== 0 && (
-                      <Link
-                        href={
-                          (row.mode === 1
-                            ? `/rfq/${row.id.toString()}`
-                            : `/intents/${row.id.toString()}`) as Route
-                        }
-                        className="text-label-caps text-[--color-text-muted] hover:text-[--color-text]"
-                      >
-                        View
-                      </Link>
-                    )}
-                  </Td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="flex items-center justify-between border-t border-[--color-border] bg-[--color-surface-low]/30 px-4 py-2">
-            <span className="font-mono text-[10px] text-[--color-text-muted]">
-              {filtered.length === 0
-                ? "0 OF 0"
-                : `${(safePage - 1) * PAGE_SIZE + 1}–${Math.min(
-                    safePage * PAGE_SIZE,
-                    filtered.length,
-                  )} OF ${filtered.length}`}
-              {activeFilterCount > 0 ? " · FILTERED" : ""}
-            </span>
-
-            {totalPages > 1 ? (
-              <Pagination
-                page={safePage}
-                totalPages={totalPages}
-                onChange={setPage}
-              />
-            ) : (
-              <div className="text-[10px] text-[--color-text-muted]">
-                Encrypted via Nox
-              </div>
-            )}
-          </div>
+      {isLoading ? <MarketplaceSkeleton bare /> : null}
+      {error ? (
+        <div role="alert" className="rounded-[20px] border border-[var(--color-danger)]/40 bg-[var(--color-danger-soft)] p-5">
+          <div className="flex items-start gap-3"><Icon name="error" className="mt-0.5 size-5 text-[var(--color-danger-text)]" /><div><h2 className="font-semibold text-white">Marketplace data could not load</h2><p className="mt-1 text-sm text-[var(--color-text-secondary)]">{error.message}</p><Button type="button" tone="secondary" size="sm" className="mt-4" onClick={() => window.location.reload()}><Icon name="refresh" className="size-4" />Retry</Button></div></div>
         </div>
-      )}
+      ) : null}
+
+      {!isLoading && !error && rows.length === 0 ? (
+        <EmptyState icon="inbox" title="No private trades yet" body="Create the first direct OTC intent or sealed RFQ on this network." action={<ButtonLink href="/create">Create a trade</ButtonLink>} />
+      ) : null}
+
+      {!isLoading && rows.length > 0 && filtered.length === 0 ? (
+        <EmptyState icon="filter_alt_off" title="No trades match these filters" body="Clear the current filters to return to the full marketplace." action={<Button onClick={clearFilters}>Clear filters</Button>} />
+      ) : null}
+
+      {visibleRows.length > 0 ? (
+        <Card className="overflow-hidden">
+          <div className="hidden overflow-x-auto md:block">
+            <table className="w-full min-w-[820px] text-left">
+              <thead className="border-b border-[var(--color-border)] bg-[var(--color-surface-low)] text-xs text-[var(--color-text-muted)]">
+                <tr><Th>Intent</Th><Th>Pair</Th><Th>Mode</Th><Th>Maker</Th><Th>Private size</Th><Th>Status</Th><Th>Expires</Th><Th><span className="sr-only">Action</span></Th></tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--color-border)]">
+                {visibleRows.map((row) => <DesktopRow key={row.id.toString()} row={row} address={address} />)}
+              </tbody>
+            </table>
+          </div>
+          <ul className="divide-y divide-[var(--color-border)] md:hidden">
+            {visibleRows.map((row) => <MobileCard key={row.id.toString()} row={row} address={address} />)}
+          </ul>
+          <Pagination page={safePage} totalPages={totalPages} setPage={setPage} count={filtered.length} />
+        </Card>
+      ) : null}
     </AppShell>
   );
 }
 
-function Pagination({
-  page,
-  totalPages,
-  onChange,
-}: {
-  page: number;
-  totalPages: number;
-  onChange: (p: number) => void;
-}) {
-  const canPrev = page > 1;
-  const canNext = page < totalPages;
+function DesktopRow({ row, address }: { row: IntentRow; address?: `0x${string}` }) {
+  const href = tradeHref(row);
   return (
-    <div className="flex items-center gap-1">
-      <button
-        onClick={() => canPrev && onChange(page - 1)}
-        disabled={!canPrev}
-        aria-label="Previous page"
-        className="text-label-caps flex items-center gap-1 border border-[--color-border] bg-[--color-bg] px-2 py-1 text-[--color-text-muted] transition-colors hover:border-[--color-primary] hover:text-[--color-primary] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-[--color-border] disabled:hover:text-[--color-text-muted]"
-      >
-        <span className="material-symbols-outlined text-sm">chevron_left</span>
-        Prev
-      </button>
-      <span
-        className="text-[10px] text-[--color-text-muted]"
-        aria-live="polite"
-      >
-        Page {page} <span className="text-[--color-text-muted]">/ {totalPages}</span>
-      </span>
-      <button
-        onClick={() => canNext && onChange(page + 1)}
-        disabled={!canNext}
-        aria-label="Next page"
-        className="text-label-caps flex items-center gap-1 border border-[--color-border] bg-[--color-bg] px-2 py-1 text-[--color-text-muted] transition-colors hover:border-[--color-primary] hover:text-[--color-primary] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-[--color-border] disabled:hover:text-[--color-text-muted]"
-      >
-        Next
-        <span className="material-symbols-outlined text-sm">chevron_right</span>
-      </button>
+    <tr className="transition-colors duration-150 hover:bg-[var(--color-surface-low)]">
+      <Td><span className="font-mono text-sm tabular-nums text-white">#{row.id.toString()}</span></Td>
+      <Td><Pair row={row} /></Td>
+      <Td><Badge tone={row.mode === 1 ? "primary" : "neutral"}>{row.mode === 1 ? "Sealed RFQ" : "Direct"}</Badge></Td>
+      <Td><span className="font-mono text-xs text-[var(--color-text-secondary)]">{shortAddress(row.maker)}{address?.toLowerCase() === row.maker.toLowerCase() ? " · You" : ""}</span></Td>
+      <Td><span className="inline-flex items-center gap-2 font-mono text-xs text-[var(--color-text-secondary)]"><Icon name="lock" className="size-4 text-[var(--color-primary-text)]" />{row.sellAmountHandle.slice(0, 8)}…</span></Td>
+      <Td><TradeStatus status={row.status} /></Td>
+      <Td><RelativeTime deadline={row.deadline} /></Td>
+      <Td><Link href={href} className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold text-white hover:text-[var(--color-primary-text)]">{row.status === 0 ? row.mode === 1 ? "Bid" : "Accept" : "View"}</Link></Td>
+    </tr>
+  );
+}
+
+function MobileCard({ row, address }: { row: IntentRow; address?: `0x${string}` }) {
+  return (
+    <li>
+      <Link href={tradeHref(row)} className="block p-5">
+        <div className="flex items-center justify-between gap-3"><span className="font-mono text-sm tabular-nums text-[var(--color-text-muted)]">Intent #{row.id.toString()}</span><TradeStatus status={row.status} /></div>
+        <div className="mt-5"><Pair row={row} /></div>
+        <div className="mt-5 flex items-end justify-between gap-3"><div><p className="text-xs text-[var(--color-text-muted)]">Maker</p><p className="mt-1 font-mono text-xs text-[var(--color-text-secondary)]">{shortAddress(row.maker)}{address?.toLowerCase() === row.maker.toLowerCase() ? " · You" : ""}</p></div><div className="text-right"><p className="text-xs text-[var(--color-text-muted)]">Expires</p><RelativeTime deadline={row.deadline} /></div></div>
+      </Link>
+    </li>
+  );
+}
+
+function Pair({ row }: { row: IntentRow }) {
+  return <span className="inline-flex items-center gap-2 font-mono text-sm text-white"><TokenIcon symbol={tokenName(row.sellToken)} size="sm" />{tokenName(row.sellToken)}<Icon name="arrow_forward" className="size-4 text-[var(--color-text-muted)]" /><TokenIcon symbol={tokenName(row.buyToken)} size="sm" />{tokenName(row.buyToken)}</span>;
+}
+
+function TradeStatus({ status }: { status: number }) {
+  const label = statusLabel(status);
+  const tone = status === 0 ? "success" : status === 4 ? "warning" : status === 2 ? "danger" : "neutral";
+  return <Status label={label} tone={tone} />;
+}
+
+function RelativeTime({ deadline }: { deadline: bigint }) {
+  const seconds = Number(deadline) - Math.floor(Date.now() / 1000);
+  const label = seconds <= 0 ? "Expired" : seconds < 3600 ? `${Math.max(1, Math.floor(seconds / 60))}m` : seconds < 86400 ? `${Math.floor(seconds / 3600)}h` : `${Math.floor(seconds / 86400)}d`;
+  return <span className="font-mono text-xs tabular-nums text-[var(--color-text-secondary)]" title={new Date(Number(deadline) * 1000).toLocaleString()}>{label}</span>;
+}
+
+function Pagination({ page, totalPages, setPage, count }: { page: number; totalPages: number; setPage: (page: number) => void; count: number }) {
+  return (
+    <div className="flex items-center justify-between border-t border-[var(--color-border)] px-4 py-3">
+      <span className="text-sm text-[var(--color-text-muted)]">{count} result{count === 1 ? "" : "s"}</span>
+      <div className="flex items-center gap-2"><Button tone="ghost" size="icon" aria-label="Previous page" disabled={page <= 1} onClick={() => setPage(page - 1)}><Icon name="chevron_left" className="size-4" /></Button><span className="min-w-16 text-center text-sm tabular-nums text-[var(--color-text-secondary)]" aria-live="polite">{page} / {totalPages}</span><Button tone="ghost" size="icon" aria-label="Next page" disabled={page >= totalPages} onClick={() => setPage(page + 1)}><Icon name="chevron_right" className="size-4" /></Button></div>
     </div>
   );
 }
 
-function FilterBar({
-  modeFilter,
-  setModeFilter,
-  statusFilter,
-  setStatusFilter,
-  pairFilter,
-  setPairFilter,
-  onlyMine,
-  setOnlyMine,
-  walletConnected,
-  totalCount,
-  filteredCount,
-  activeFilterCount,
-  onClear,
-}: {
-  modeFilter: ModeFilter;
-  setModeFilter: (v: ModeFilter) => void;
-  statusFilter: StatusFilter;
-  setStatusFilter: (v: StatusFilter) => void;
-  pairFilter: PairFilter;
-  setPairFilter: (v: PairFilter) => void;
-  onlyMine: boolean;
-  setOnlyMine: (v: boolean) => void;
-  walletConnected: boolean;
-  totalCount: number;
-  filteredCount: number;
-  activeFilterCount: number;
-  onClear: () => void;
-}) {
-  return (
-    <div className="glass-card mb-4 flex flex-wrap items-center gap-2 px-3 py-2">
-      <span className="text-label-caps flex items-center gap-1 text-[--color-text-muted]">
-        <span className="material-symbols-outlined text-sm">filter_alt</span>
-        Filter
-        {activeFilterCount > 0 && (
-          <span className="ml-1 inline-flex h-4 min-w-[1rem] items-center justify-center bg-[--color-primary] px-1 text-[9px] font-bold text-[--color-primary-fg]">
-            {activeFilterCount}
-          </span>
-        )}
-      </span>
-
-      <FilterGroup
-        options={[
-          { value: "all", label: "All Modes" },
-          { value: "direct", label: "Direct" },
-          { value: "rfq", label: "RFQ" },
-        ]}
-        value={modeFilter}
-        onChange={setModeFilter}
-      />
-
-      <FilterGroup
-        options={[
-          { value: "all", label: "All Status" },
-          { value: "open", label: "Open" },
-          { value: "pending", label: "Pending" },
-          { value: "filled", label: "Filled" },
-          { value: "cancelled", label: "Cancelled" },
-        ]}
-        value={statusFilter}
-        onChange={setStatusFilter}
-      />
-
-      <FilterGroup
-        options={[
-          { value: "all", label: "All Pairs" },
-          { value: "ceth-cusdc", label: "cETH→cUSDC" },
-          { value: "cusdc-ceth", label: "cUSDC→cETH" },
-        ]}
-        value={pairFilter}
-        onChange={setPairFilter}
-      />
-
-      {walletConnected && (
-        <button
-          onClick={() => setOnlyMine(!onlyMine)}
-          className={`text-label-caps flex items-center gap-1 border px-2.5 py-1 transition-colors ${
-            onlyMine
-              ? "border-[--color-primary] bg-[--color-primary]/10 text-[--color-primary]"
-              : "border-[--color-border] bg-[--color-bg] text-[--color-text-muted] hover:border-[--color-primary]/40 hover:text-[--color-text]"
-          }`}
-        >
-          <span className="material-symbols-outlined text-sm">
-            {onlyMine ? "check_box" : "check_box_outline_blank"}
-          </span>
-          Mine
-        </button>
-      )}
-
-      <div className="ml-auto flex items-center gap-2">
-        <span className="font-mono text-[10px] text-[--color-text-muted]">
-          {filteredCount}
-          <span className="text-[--color-text-muted]">/{totalCount}</span>
-        </span>
-        {activeFilterCount > 0 && (
-          <button
-            onClick={onClear}
-            className="text-label-caps flex items-center gap-1 border border-[--color-border] px-2 py-1 text-[--color-text-muted] transition-colors hover:border-[--color-danger] hover:text-[--color-danger]"
-            title="Clear all filters"
-          >
-            <span className="material-symbols-outlined text-sm">close</span>
-            Clear
-          </button>
-        )}
-      </div>
-    </div>
-  );
+function FilterSelect({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: [string, string][] }) {
+  return <label className="text-sm font-medium text-white">{label}<select value={value} onChange={(event) => onChange(event.target.value)} className="tradi-nox-input mt-2 min-h-11 py-2 text-sm">{options.map(([optionValue, optionLabel]) => <option key={optionValue} value={optionValue}>{optionLabel}</option>)}</select></label>;
 }
 
-function FilterGroup<T extends string>({
-  options,
-  value,
-  onChange,
-}: {
-  options: { value: T; label: string }[];
-  value: T;
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div className="flex border border-[--color-border] bg-[--color-bg]">
-      {options.map((opt) => (
-        <button
-          key={opt.value}
-          onClick={() => onChange(opt.value)}
-          className={`text-label-caps px-2.5 py-1 transition-colors ${
-            value === opt.value
-              ? "bg-[--color-primary] text-[--color-primary-fg]"
-              : "text-[--color-text-muted] hover:bg-[--color-surface-low] hover:text-[--color-text]"
-          }`}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
-  );
+function MarketplaceSkeleton({ bare = false }: { bare?: boolean }) {
+  const content = <Card className="overflow-hidden"><div className="space-y-4 p-5 md:hidden"><Skeleton className="h-5 w-24" /><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div><table className="hidden w-full md:table"><tbody><SkeletonRow /><SkeletonRow /><SkeletonRow /></tbody></table></Card>;
+  if (bare) return content;
+  return <AppShell><PageHeader icon="grid_view" title="Marketplace" subtitle="Loading private trades…" />{content}</AppShell>;
 }
 
-function PairCell({ sell, buy }: { sell: string; buy: string }) {
-  return (
-    <div className="flex items-center gap-2 whitespace-nowrap">
-      <div
-        className="flex items-center gap-1"
-        title={`Maker is selling ${sell}`}
-      >
-        <span className="text-[8px] font-bold uppercase tracking-wider text-rose-400/80">
-          S
-        </span>
-        <TokenIcon symbol={sell} size="sm" />
-        <span className="font-mono text-xs text-[--color-text]">{sell}</span>
-      </div>
-      <span className="material-symbols-outlined text-base text-[--color-text-muted]">
-        arrow_forward
-      </span>
-      <div
-        className="flex items-center gap-1"
-        title={`Maker wants to receive ${buy}`}
-      >
-        <span className="text-[8px] font-bold uppercase tracking-wider text-emerald-400/80">
-          B
-        </span>
-        <TokenIcon symbol={buy} size="sm" />
-        <span className="font-mono text-xs text-[--color-text]">{buy}</span>
-      </div>
-    </div>
-  );
-}
-
-function Th({
-  children,
-  align,
-}: {
-  children?: React.ReactNode;
-  align?: "right";
-}) {
-  return (
-    <th
-      className={`text-label-caps px-3 py-3 text-[--color-text-muted] ${
-        align === "right" ? "text-right" : ""
-      }`}
-    >
-      {children}
-    </th>
-  );
-}
-
-function Td({
-  children,
-  align,
-}: {
-  children?: React.ReactNode;
-  align?: "right";
-}) {
-  return (
-    <td
-      className={`px-3 py-3 text-sm ${
-        align === "right" ? "text-right" : ""
-      }`}
-    >
-      {children}
-    </td>
-  );
-}
-
-function Legend({ color, label }: { color: string; label: string }) {
-  return (
-    <div className="flex items-center gap-1.5">
-      <div className={`h-1.5 w-1.5 rounded-full ${color}`} />
-      <span className="font-mono text-[9px] uppercase text-[--color-text-muted]">
-        {label}
-      </span>
-    </div>
-  );
-}
-
-function ModeBadge({ mode }: { mode: number }) {
-  const cls =
-    mode === 0
-      ? "border-orange-900 bg-orange-950/40 text-orange-400"
-      : "border-emerald-900 bg-emerald-950/40 text-emerald-400";
-  return (
-    <span
-      className={`text-label-caps inline-block border px-1.5 py-0.5 text-[10px] ${cls}`}
-      title={mode === 0 ? "Direct OTC — bilateral 1:1" : "Vickrey RFQ auction"}
-    >
-      {mode === 0 ? "Direct" : "RFQ"}
-    </span>
-  );
-}
-
-function StatusBadge({ status }: { status: number }) {
-  const map: Record<number, string> = {
-    0: "border-emerald-900 bg-emerald-950/40 text-emerald-400",
-    1: "border-[--color-border] bg-[--color-surface-low]/40 text-[--color-text-muted]",
-    2: "border-orange-900 bg-orange-950/40 text-orange-400",
-    3: "border-[--color-border] bg-[--color-surface-low]/40 text-[--color-text-muted]",
-    4: "border-amber-700 bg-amber-950/40 text-amber-400 animate-pulse",
-  };
-  return (
-    <span
-      className={`text-label-caps border px-2 py-0.5 text-[10px] ${
-        map[status] ?? "border-[--color-border] bg-[--color-surface-low]/40 text-[--color-text-muted]"
-      }`}
-    >
-      {statusLabel(status)}
-    </span>
-  );
-}
-
-// Color-coded urgency: red <1h, orange <24h, amber <3d, neutral otherwise.
-// Hover shows the absolute deadline. Past deadlines render muted "expired".
-function RelativeTime({ ts, status }: { ts: bigint; status: number }) {
-  const seconds = Number(ts) - Math.floor(Date.now() / 1000);
-  const absolute = new Date(Number(ts) * 1000).toLocaleString();
-
-  if (status === 1 || status === 2) {
-    // Filled or Cancelled — deadline irrelevant
-    return (
-      <span
-        className="font-mono text-[11px] text-[--color-text-muted]"
-        title={`Originally expired ${absolute}`}
-      >
-        —
-      </span>
-    );
-  }
-
-  if (seconds <= 0) {
-    return (
-      <span
-        className="font-mono text-[11px] text-[--color-text-muted]"
-        title={`Expired ${absolute}`}
-      >
-        expired
-      </span>
-    );
-  }
-
-  let cls = "text-[--color-text]";
-  let unit: string;
-  if (seconds < 3600) {
-    cls = "text-rose-400 font-semibold";
-    unit = `${Math.max(1, Math.floor(seconds / 60))}m`;
-  } else if (seconds < 86400) {
-    cls = "text-orange-400";
-    unit = `${Math.floor(seconds / 3600)}h`;
-  } else if (seconds < 3 * 86400) {
-    cls = "text-amber-300";
-    unit = `${Math.floor(seconds / 86400)}d`;
-  } else {
-    cls = "text-emerald-300/80";
-    unit = `${Math.floor(seconds / 86400)}d`;
-  }
-
-  return (
-    <span
-      className={`font-mono text-xs ${cls}`}
-      title={`Closes ${absolute}`}
-    >
-      {unit}
-    </span>
-  );
-}
+function Th({ children }: { children: React.ReactNode }) { return <th className="px-4 py-3 font-medium">{children}</th>; }
+function Td({ children }: { children: React.ReactNode }) { return <td className="px-4 py-3 text-sm">{children}</td>; }
+function tokenName(token: string) { return TOKEN_NAMES[token.toLowerCase()] ?? shortAddress(token); }
+function tradeHref(row: IntentRow) { return (row.mode === 1 ? `/rfq/${row.id}` : `/intents/${row.id}`) as Route; }
+function parseValue<T extends string>(value: string | null, values: T[], fallback: T): T { return values.includes(value as T) ? (value as T) : fallback; }

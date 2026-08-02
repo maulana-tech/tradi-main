@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Icon } from "./Icon";
 
 export function PageHeader({
   icon,
@@ -14,19 +15,15 @@ export function PageHeader({
   action?: ReactNode;
 }) {
   return (
-    <header className="mb-8 flex items-end justify-between gap-4">
-      <div className="flex items-center gap-3">
-        <div className="grid h-10 w-10 place-items-center rounded-lg bg-[--color-primary]/10">
-          <span className="material-symbols-outlined text-xl text-[--color-primary]">
-            {icon}
-          </span>
-        </div>
+    <header className="mb-10 flex flex-col justify-between gap-6 border-b border-[var(--color-border)] pb-8 sm:flex-row sm:items-end">
+      <div className="flex max-w-3xl items-start gap-3">
+        <Icon name={icon} className="mt-2 size-5 shrink-0 text-[var(--color-primary-text)]" />
         <div>
-          <h1 className="text-xl font-bold text-[--color-foreground]">
+          <h1 className="font-display text-[clamp(2rem,4vw,2.375rem)] font-normal leading-tight tracking-[-0.038rem] text-balance text-[var(--color-foreground)]">
             {title}
           </h1>
           {subtitle && (
-            <p className="mt-0.5 text-sm text-[--color-text-secondary]">
+            <p className="mt-1 text-sm text-pretty text-[var(--color-text-secondary)]">
               {subtitle}
             </p>
           )}
@@ -53,11 +50,9 @@ export function SectionHeader({
 }) {
   return (
     <div className="mb-4 flex items-center justify-between">
-      <h3 className="flex items-center gap-2 text-sm font-semibold text-[--color-foreground]">
+      <h3 className="flex items-center gap-2 text-sm font-semibold text-[var(--color-foreground)]">
         {icon && (
-          <span className="material-symbols-outlined text-base text-[--color-primary]">
-            {icon}
-          </span>
+          <Icon name={icon} className="size-4 text-[var(--color-primary-text)]" />
         )}
         {title}
       </h3>

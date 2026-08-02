@@ -1,4 +1,12 @@
 import type { Metadata } from "next";
+import { Lato } from "next/font/google";
+
+const lato = Lato({
+  subsets: ["latin"],
+  variable: "--font-lato",
+  display: "swap",
+  weight: ["300", "400", "700", "900"],
+});
 
 export const metadata: Metadata = {
   title: "Tradi-Nox — Pitch Deck",
@@ -17,6 +25,12 @@ export default function SlidesLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="fixed inset-0 z-40 bg-[--color-bg]">{children}</div>
+    <div className={`${lato.variable} slides-theme fixed inset-0 z-40 bg-[--color-bg]`}>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
+      />
+      {children}
+    </div>
   );
 }

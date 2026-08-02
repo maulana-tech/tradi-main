@@ -113,8 +113,8 @@ export function useAnalytics() {
           dayMap.set(date, (dayMap.get(date) ?? 0) + 1);
           if (log.args.maker) makers.add(log.args.maker.toLowerCase());
 
-          const sellAddr = (log as any).sellToken ?? "";
-          const buyAddr = (log as any).buyToken ?? "";
+          const sellAddr = log.args.sellToken ?? "";
+          const buyAddr = log.args.buyToken ?? "";
           const pairKey = `${tokenName(sellAddr)}→${tokenName(buyAddr)}`;
           pairs.set(pairKey, (pairs.get(pairKey) ?? 0) + 1);
         }

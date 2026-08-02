@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { CopyButton } from "./CopyButton";
-import { CornerBrackets } from "./CornerBrackets";
+import { Icon } from "./Icon";
 import { useReceiptMint } from "@/lib/hooks/useReceiptMint";
 import { useExistingReceipt } from "@/lib/hooks/useExistingReceipt";
 import { TRADI_NOX_RECEIPT_ADDRESS } from "@/lib/wagmi";
@@ -128,16 +128,14 @@ export function NftReceipt(props: NftReceiptProps) {
   const showButton = !existing.alreadyMinted && state.kind !== "ok";
 
   return (
-    <div className="rounded-lg border border-[--color-border] bg-[--color-surface] p-4">
+    <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
       <div className="flex items-center justify-between">
         <div>
-          <p className="flex items-center gap-1.5 text-sm font-semibold text-[--color-primary]">
-            <span className="material-symbols-outlined text-base">
-              token
-            </span>
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-[var(--color-primary)]">
+            <Icon name="token" className="size-4" />
             NFT Receipt
           </p>
-          <p className="mt-0.5 text-xs text-[--color-text-muted]">
+          <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
             Procedural SVG + ERC-721
           </p>
         </div>
@@ -147,11 +145,9 @@ export function NftReceipt(props: NftReceiptProps) {
             href={`https://sepolia.arbiscan.io/token/${TRADI_NOX_RECEIPT_ADDRESS}?a=${onchainTokenId.toString()}`}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1.5 rounded-md border border-[--color-primary]/20 bg-[--color-primary]/5 px-2.5 py-1 text-xs font-medium text-[--color-primary] hover:bg-[--color-primary]/10"
+            className="flex items-center gap-1.5 rounded-md border border-[var(--color-primary)]/20 bg-[var(--color-primary)]/5 px-2.5 py-1 text-xs font-medium text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10"
           >
-            <span className="material-symbols-outlined text-sm">
-              check_circle
-            </span>
+            <Icon name="check_circle" className="size-4" />
             Minted #{onchainTokenId.toString()}
           </a>
         )}
@@ -171,16 +167,16 @@ export function NftReceipt(props: NftReceiptProps) {
       </div>
 
       {existing.alreadyMinted && state.kind !== "ok" && (
-        <p className="mt-3 font-mono text-[11px] text-[--color-text-muted]">
+        <p className="mt-3 font-mono text-xs text-[var(--color-text-muted)]">
           You already minted Receipt #{onchainTokenId?.toString()} for this
           trade. View on Arbiscan or in your wallet — duplicates are blocked.
         </p>
       )}
 
       {state.kind === "ok" && (
-        <div className="mt-4 space-y-3 border-t border-[--color-border] pt-4">
+        <div className="mt-4 space-y-3 border-t border-[var(--color-border)] pt-4">
           {/* Image with overlays */}
-          <div className="relative overflow-hidden rounded-lg border border-[--color-border]">
+          <div className="relative overflow-hidden rounded-lg border border-[var(--color-border)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={state.dataUrl}
@@ -189,22 +185,22 @@ export function NftReceipt(props: NftReceiptProps) {
             />
 
             {/* Top-left: fingerprint */}
-            <div className="absolute left-3 top-3 rounded bg-white/90 px-2 py-1 text-xs font-medium text-[--color-primary]">
+            <div className="absolute left-3 top-3 rounded bg-white/90 px-2 py-1 text-xs font-medium text-[var(--color-primary)]">
               {state.fingerprint}
             </div>
 
             {/* Top-right: mode badge */}
-            <div className="absolute right-3 top-3 rounded bg-white/90 px-2 py-1 text-xs font-medium text-[--color-primary]">
+            <div className="absolute right-3 top-3 rounded bg-white/90 px-2 py-1 text-xs font-medium text-[var(--color-primary)]">
               {props.mode === "RFQ" ? "RFQ" : "Direct"}
             </div>
 
             {/* Bottom-left: pair */}
-            <div className="absolute bottom-3 left-3 rounded bg-white/90 px-2 py-1 text-xs font-medium text-[--color-primary]">
+            <div className="absolute bottom-3 left-3 rounded bg-white/90 px-2 py-1 text-xs font-medium text-[var(--color-primary)]">
               {props.pair}
             </div>
 
             {/* Bottom-right: NOX_TEE */}
-            <div className="absolute bottom-3 right-3 rounded bg-white/90 px-2 py-1 text-xs font-medium text-[--color-primary]">
+            <div className="absolute bottom-3 right-3 rounded bg-white/90 px-2 py-1 text-xs font-medium text-[var(--color-primary)]">
               Nox TEE
             </div>
           </div>
@@ -216,7 +212,7 @@ export function NftReceipt(props: NftReceiptProps) {
           />
 
           {/* Metadata grid */}
-          <div className="grid grid-cols-2 gap-3 rounded-lg border border-[--color-border] bg-[--color-surface-low] p-3">
+          <div className="grid grid-cols-2 gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-low)] p-3">
             <MetadataRow label="Fingerprint" value={state.fingerprint} mono />
             <MetadataRow
               label="Mode"
@@ -269,26 +265,24 @@ export function NftReceipt(props: NftReceiptProps) {
               onClick={download}
               className="tradi-nox-btn-secondary flex flex-1 items-center justify-center gap-1.5 text-xs"
             >
-              <span className="material-symbols-outlined text-base">
-                download
-              </span>
+              <Icon name="download" className="size-4" />
               DOWNLOAD JPG
             </button>
             <button
               onClick={shareTwitter}
-              className="text-label-caps flex items-center gap-1.5 border border-[--color-border] px-3 py-2 transition-all hover:border-[--color-primary] hover:text-[--color-primary]"
+              className="text-label-caps flex items-center gap-1.5 border border-[var(--color-border)] px-3 py-2 transition-all hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
               title="Share to X / Twitter"
             >
-              <span className="material-symbols-outlined text-base">share</span>
+              <Icon name="share" className="size-4" />
               SHARE
             </button>
           </div>
 
-          <details className="border border-[--color-border] bg-[--color-bg]/40 p-3">
-            <summary className="text-label-caps cursor-pointer text-[--color-text-muted] hover:text-[--color-primary]">
+          <details className="border border-[var(--color-border)] bg-[var(--color-bg)]/40 p-3">
+            <summary className="text-label-caps cursor-pointer text-[var(--color-text-muted)] hover:text-[var(--color-primary)]">
               <span className="ml-2">SVG source</span>
             </summary>
-            <pre className="mt-2 overflow-x-auto whitespace-pre-wrap font-mono text-[10px] leading-relaxed text-[--color-text-secondary]">
+            <pre className="mt-2 overflow-x-auto whitespace-pre-wrap font-mono text-xs leading-relaxed text-[var(--color-text-secondary)]">
               {`Procedural SVG generated client-side.\nFingerprint: ${state.fingerprint}\nNo external API calls.`}
             </pre>
           </details>
@@ -296,8 +290,8 @@ export function NftReceipt(props: NftReceiptProps) {
       )}
 
       {state.kind === "error" && !isMinting && (
-        <p className="mt-3 flex items-center gap-1 font-mono text-[11px] text-amber-400">
-          <span className="material-symbols-outlined text-xs">info</span>
+        <p className="mt-3 flex items-center gap-1 text-sm text-[var(--color-warning-text)]">
+          <Icon name="info" className="size-4" />
           {state.message}
         </p>
       )}
@@ -315,24 +309,22 @@ function OnchainStatus({
   const tokenId = mint.tokenId ?? existingTokenId;
   if (mint.step === "signing") {
     return (
-      <p className="font-mono text-[10px] text-amber-300">
+      <p className="text-sm text-[var(--color-warning-text)]">
         → confirm transaction in wallet to commit on-chain receipt…
       </p>
     );
   }
   if (mint.step === "confirming") {
     return (
-      <p className="flex items-center gap-2 font-mono text-[10px] text-amber-300">
-        <span className="material-symbols-outlined animate-spin text-xs">
-          sync
-        </span>
+      <p className="flex items-center gap-2 text-sm text-[var(--color-warning-text)]">
+        <Icon name="sync" className="size-4 animate-spin" />
         Minting on-chain — Ethereum Sepolia confirming…
         {mint.txHash && (
           <a
             href={`https://sepolia.arbiscan.io/tx/${mint.txHash}`}
             target="_blank"
             rel="noreferrer"
-            className="text-[--color-primary] underline"
+            className="text-[var(--color-primary)] underline"
           >
             tx →
           </a>
@@ -342,14 +334,14 @@ function OnchainStatus({
   }
   if (mint.step === "done" && tokenId !== null) {
     return (
-      <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] text-[--color-primary]">
-        <span className="material-symbols-outlined text-xs">verified</span>
+      <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--color-success-text)]">
+        <Icon name="verified" className="size-4" />
         Minted Receipt NFT
         <a
           href={`https://sepolia.arbiscan.io/token/${TRADI_NOX_RECEIPT_ADDRESS}?a=${tokenId.toString()}`}
           target="_blank"
           rel="noreferrer"
-          className="underline hover:text-[--color-primary]/80"
+          className="underline hover:text-[var(--color-primary)]/80"
         >
           #{tokenId.toString()} on Arbiscan
         </a>
@@ -358,7 +350,7 @@ function OnchainStatus({
             href={`https://sepolia.arbiscan.io/tx/${mint.txHash}`}
             target="_blank"
             rel="noreferrer"
-            className="underline hover:text-[--color-primary]/80"
+            className="underline hover:text-[var(--color-primary)]/80"
           >
             tx
           </a>
@@ -368,7 +360,7 @@ function OnchainStatus({
   }
   if (mint.step === "error") {
     return (
-      <p className="font-mono text-[10px] text-[--color-danger]">
+      <p className="text-sm text-[var(--color-danger-text)]">
         On-chain mint failed: {mint.error}
       </p>
     );
@@ -389,9 +381,9 @@ function MetadataRow({
 }) {
   return (
     <div>
-      <p className="text-label-caps text-[--color-text-muted]">{label}</p>
+      <p className="text-label-caps text-[var(--color-text-muted)]">{label}</p>
       <div
-        className={`mt-0.5 flex items-center gap-1.5 ${mono ? "font-mono" : ""} text-xs text-[--color-text]`}
+        className={`mt-0.5 flex items-center gap-1.5 ${mono ? "font-mono" : ""} text-xs text-[var(--color-text)]`}
       >
         <span>{value}</span>
         {copyValue && <CopyButton value={copyValue} size="sm" />}
