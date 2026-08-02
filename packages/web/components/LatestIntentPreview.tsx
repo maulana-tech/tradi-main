@@ -4,8 +4,7 @@ import { useReadContract, useReadContracts } from "wagmi";
 import { privateOtcAbi } from "@/lib/abi/privateOtc";
 import { cn } from "@/lib/utils";
 
-const PRIVATE_OTC_ADDRESS = (process.env.NEXT_PUBLIC_PRIVATE_OTC_ADDRESS ??
-  "0x0") as `0x${string}`;
+import { PRIVATE_OTC_ADDRESS } from "@/lib/wagmi";
 
 /**
  * Hero "preview card" body — pulls the LATEST on-chain intent from
