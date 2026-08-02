@@ -19,6 +19,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "viem": "^2.21.55",
+    "ethers": "^6.13.0",
     "@iexec-nox/handle": "latest",
     "zod": "^3.24.1",
     "dotenv": "^16.4.7"
