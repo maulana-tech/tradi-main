@@ -16,6 +16,7 @@
 import { publicClient, walletClient, PRIVATE_OTC_ADDRESS } from "../config.js";
 import { privateOtcAbi } from "../abi.js";
 import { decideFinalize, scanWindow, type IntentTuple } from "./logic.js";
+import { executeViaKeeperHub } from "../keeperhub-executor.js";
 
 const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
 const SCAN_DEPTH = 50; // last 50 intents
@@ -74,13 +75,13 @@ async function sweep() {
       if (decision.kind === "skip") continue;
 
       console.log(`[rfq-sweeper] finalizing RFQ #${id} (${bidCount} bids)`);
-      const txHash = await walletClient.writeContract({
+      const { txHash, audit } = await executeViaKeeperHub({
         address: PRIVATE_OTC_ADDRESS,
         abi: privateOtcAbi,
         functionName: "finalizeRFQ",
         args: [id],
       });
-      console.log(`[rfq-sweeper] tx=${txHash}`);
+      console.log(`[rfq-sweeper] tx=${txHash} (routed via ${audit.routedVia}, sponsored=${audit.sponsored})`);
     } catch (err) {
       // Continue with next intent on per-id failure
       console.error(`[rfq-sweeper] id=${id} failed`, err instanceof Error ? err.message : err);
