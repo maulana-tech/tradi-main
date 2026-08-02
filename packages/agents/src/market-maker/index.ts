@@ -13,6 +13,7 @@ import { createViemHandleClient } from "@iexec-nox/handle";
 import { publicClient, walletClient, PRIVATE_OTC_ADDRESS } from "../config.js";
 import { privateOtcAbi } from "../abi.js";
 import { decideBid, type Strategy, type IntentEventArgs } from "./logic.js";
+import { executeViaKeeperHub } from "../keeperhub-executor.js";
 
 const DEFAULT_STRATEGY: Strategy = {
   pairs: {
@@ -73,7 +74,7 @@ async function handleIntent(
   );
 
   // Submit
-  const txHash = await walletClient.writeContract({
+  const { txHash, audit } = await executeViaKeeperHub({
     address: PRIVATE_OTC_ADDRESS,
     abi: privateOtcAbi,
     functionName: "submitBid",
@@ -85,6 +86,6 @@ async function handleIntent(
   });
 
   console.log(
-    `[market-maker] bid submitted on RFQ #${decision.intentId}: tx=${txHash} pair=${decision.pairName} (encrypted amount, refPrice=$${decision.refPriceUsd})`,
+    `[market-maker] bid submitted on RFQ #${decision.intentId}: tx=${txHash} pair=${decision.pairName} (routed via ${audit.routedVia}, sponsored=${audit.sponsored})`,
   );
 }

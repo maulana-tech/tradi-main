@@ -21,6 +21,9 @@ const EnvSchema = z.object({
     .string()
     .regex(/^0x[a-fA-F0-9]{40}$/, "PRIVATE_OTC_ADDRESS must be 0x + 40 hex"),
   AGENT_NOTIFICATION_WEBHOOK: z.string().url().optional(),
+  KEEPERHUB_RELAYER_URL: z.string().url().optional(),
+  KEEPERHUB_GAS_SPONSORSHIP: z.string().optional().transform((val) => val !== "false"),
+  KEEPERHUB_ENABLED: z.string().optional().transform((val) => val !== "false"),
 });
 
 const validEnv = {
