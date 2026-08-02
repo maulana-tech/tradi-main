@@ -1,54 +1,47 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { Tooltip as BaseTooltip } from "@base-ui/react/tooltip";
+import type { ReactElement } from "react";
+import { Icon } from "./Icon";
 
-/**
- * Minimal tooltip — appears on hover/focus, keyboard-accessible.
- * No portal (fits within parent z-stack).
- */
 export function Tooltip({
   content,
   children,
   side = "top",
 }: {
   content: string;
-  children: ReactNode;
+  children: ReactElement;
   side?: "top" | "bottom";
 }) {
-  const [open, setOpen] = useState(false);
-
   return (
-    <span
-      className="relative inline-flex"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      onFocus={() => setOpen(true)}
-      onBlur={() => setOpen(false)}
-    >
-      {children}
-      {open && (
-        <span
-          role="tooltip"
-          className={`pointer-events-none absolute left-1/2 z-50 w-max max-w-xs -translate-x-1/2 border border-[--color-border] bg-white px-3 py-2 text-[11px] leading-relaxed text-[--color-text] shadow-md ${
-            side === "top" ? "bottom-full mb-2" : "top-full mt-2"
-          }`}
-        >
-          {content}
-        </span>
-      )}
-    </span>
+    <BaseTooltip.Provider delay={300}>
+      <BaseTooltip.Root>
+        <BaseTooltip.Trigger render={children} />
+        <BaseTooltip.Portal>
+          <BaseTooltip.Positioner side={side} sideOffset={8} className="z-50">
+            <BaseTooltip.Popup
+              role="tooltip"
+              className="max-w-xs rounded-xl border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] px-3 py-2 text-sm leading-5 text-pretty text-white shadow-lg transition-opacity duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 motion-reduce:transition-none"
+            >
+              {content}
+            </BaseTooltip.Popup>
+          </BaseTooltip.Positioner>
+        </BaseTooltip.Portal>
+      </BaseTooltip.Root>
+    </BaseTooltip.Provider>
   );
 }
 
-/**
- * Help icon with tooltip. Use anywhere a term needs explanation.
- */
 export function HelpHint({ content }: { content: string }) {
   return (
     <Tooltip content={content}>
-      <span className="material-symbols-outlined text-sm text-[--color-text-muted] transition-colors hover:text-[--color-primary]">
-        help
-      </span>
+      <button
+        type="button"
+        aria-label={content}
+        className="inline-grid size-11 place-items-center rounded-full text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-raised)] hover:text-white"
+      >
+        <Icon name="help" className="size-4" />
+      </button>
     </Tooltip>
   );
 }

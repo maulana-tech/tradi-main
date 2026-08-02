@@ -2,7 +2,7 @@
 
 import "@rainbow-me/rainbowkit/styles.css";
 
-import { lightTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { darkTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { WagmiProvider } from "wagmi";
@@ -28,10 +28,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
           modalSize="compact"
-          theme={lightTheme({
-            accentColor: "#124d1c",
-            accentColorForeground: "#ffeed6",
-            borderRadius: "medium",
+          theme={darkTheme({
+            accentColor: "#482bff",
+            accentColorForeground: "#ffffff",
+            borderRadius: "large",
             fontStack: "system",
           })}
         >

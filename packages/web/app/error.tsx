@@ -1,88 +1,24 @@
 "use client";
 
 import { useEffect } from "react";
+import { Icon } from "@/components/Icon";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 
-/**
- * Next.js App Router error boundary — replaces white-screen crashes with a
- * styled fallback that matches the rest of the dApp. The `reset()` callback
- * re-renders the segment without a full-page reload (cheaper than F5 because
- * RainbowKit/Wagmi state survives).
- */
-export default function GlobalError({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
-  // Surface to console for dev debugging — Next.js also reports via telemetry.
-  useEffect(() => {
-    console.error("[tradi-nox] unhandled error:", error);
-  }, [error]);
-
+export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  useEffect(() => { console.error("[tradi-nox] unhandled error:", error); }, [error]);
   return (
-    <main className="grid min-h-screen place-items-center bg-[--color-bg] px-6 text-center">
-      <div className="pointer-events-none absolute inset-0 -z-10 opacity-10" />
-
-      <div className="max-w-md space-y-6 border border-[--color-danger]/40 bg-[--color-bg]/80 p-8 backdrop-blur-sm">
-        <div className="mx-auto grid h-16 w-16 place-items-center border border-[--color-danger]/40 bg-[--color-danger]/10">
-          <span
-            className="material-symbols-outlined text-[--color-danger]"
-            style={{ fontSize: "2rem", fontVariationSettings: "'FILL' 1" }}
-            aria-hidden
-          >
-            error
-          </span>
-        </div>
-
-        <div className="space-y-2">
-          <p className="text-label-caps text-[--color-danger]">
-            System fault
-          </p>
-          <h1 className="text-lg text-[--color-text]">
-            Something went wrong
-          </h1>
-          <p className="text-[11px] leading-relaxed text-[--color-text-muted]">
-            A client component threw before render. Your wallet session and
-            on-chain state are unaffected — the contract is still live and your
-            balances are safe.
-          </p>
-        </div>
-
-        <details className="border border-[--color-border] bg-[--color-bg]/60 p-3 text-left">
-          <summary className="text-label-caps cursor-pointer text-[--color-text-muted] hover:text-[--color-danger]">
-            <span className="ml-2">Error details</span>
-          </summary>
-          <p className="mt-2 break-all font-mono text-[10px] leading-relaxed text-[--color-text-secondary]">
-            {error.message}
-            {error.digest && (
-              <>
-                <br />
-                <span className="text-[--color-text-muted]">digest: {error.digest}</span>
-              </>
-            )}
-          </p>
+    <main className="grid min-h-dvh place-items-center bg-[var(--color-bg)] px-4 py-12 sm:px-6">
+      <Card className="w-full max-w-lg p-6 sm:p-8">
+        <span className="grid size-14 place-items-center rounded-2xl bg-[var(--color-danger-soft)] text-[var(--color-danger-text)]"><Icon name="error" className="size-7" /></span>
+        <h1 className="mt-6 font-display text-3xl font-medium text-balance text-white">Something interrupted this view.</h1>
+        <p className="mt-4 text-base leading-7 text-pretty text-[var(--color-text-secondary)]">Your wallet session and on-chain state are unchanged. Retry this section, or return home and continue from another route.</p>
+        <details className="mt-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-low)] p-4">
+          <summary className="min-h-11 content-center text-sm font-semibold text-white">Technical details</summary>
+          <p className="mt-2 break-all font-mono text-xs leading-5 text-[var(--color-text-secondary)]">{error.message}{error.digest ? ` · digest: ${error.digest}` : ""}</p>
         </details>
-
-        <div className="flex gap-2">
-          <button
-            onClick={reset}
-            className="tradi-nox-btn-primary flex flex-1 items-center justify-center gap-2 py-3 text-sm"
-          >
-            <span className="material-symbols-outlined text-base">
-              restart_alt
-            </span>
-            Retry segment
-          </button>
-          <a
-            href="/"
-            className="text-label-caps flex items-center gap-2 border border-[--color-border] px-4 py-3 transition hover:border-[--color-primary] hover:text-[--color-primary]"
-          >
-            <span className="material-symbols-outlined text-base">home</span>
-            Home
-          </a>
-        </div>
-      </div>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row"><Button className="flex-1" onClick={reset}><Icon name="restart_alt" className="size-4" />Retry</Button><ButtonLink href="/" tone="secondary" className="flex-1"><Icon name="home" className="size-4" />Home</ButtonLink></div>
+      </Card>
     </main>
   );
 }

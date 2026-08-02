@@ -2,6 +2,7 @@
 
 import { useReadContract, useReadContracts } from "wagmi";
 import { privateOtcAbi } from "@/lib/abi/privateOtc";
+import { cn } from "@/lib/utils";
 
 const PRIVATE_OTC_ADDRESS = (process.env.NEXT_PUBLIC_PRIVATE_OTC_ADDRESS ??
   "0x0") as `0x${string}`;
@@ -57,7 +58,7 @@ export function LatestIntentPreview() {
   const sellHandle = intent?.[3];
 
   return (
-    <div className="grid grid-cols-1 gap-8 p-8 md:grid-cols-3">
+    <dl className="grid grid-cols-1 gap-6 p-5 sm:grid-cols-3 sm:p-6">
       <Field
         label="Order Origin"
         value={maker ? `${maker.slice(0, 6)}…${maker.slice(-4)}` : "—"}
@@ -70,7 +71,7 @@ export function LatestIntentPreview() {
           sellHandle ? `${sellHandle.slice(0, 18)}…[NOX]` : "0x[encrypted]"
         }
       />
-    </div>
+    </dl>
   );
 }
 
@@ -86,29 +87,23 @@ function Field({
   tone?: "primary";
 }) {
   return (
-    <div className="space-y-2 text-left">
-      <div className="text-label-caps text-[--color-text-muted]">{label}</div>
-      <div className="flex h-10 items-center bg-[--color-primary]/5 px-4">
+    <div className="min-w-0 text-left">
+      <dt className="text-xs text-[var(--color-text-muted)]">{label}</dt>
+      <dd className="mt-3 flex min-h-8 items-center border-t border-[var(--color-border-strong)] pt-3">
         {sealed ? (
-          <div className="flex gap-1" aria-label="encrypted amount">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-5 w-3 bg-[--color-primary]/20"
-              />
-            ))}
-          </div>
+          <span className="font-mono text-sm text-[var(--color-primary-text)]" aria-label="encrypted amount">••••••</span>
         ) : (
           <span
-            className={`truncate font-mono text-xs ${
-              tone === "primary" ? "text-[--color-primary]" : "text-[--color-text]"
-            }`}
+            className={cn(
+              "truncate font-mono text-xs",
+              tone === "primary" ? "text-[var(--color-primary-text)]" : "text-[var(--color-text)]",
+            )}
             title={value}
           >
             {value ?? "—"}
           </span>
         )}
-      </div>
+      </dd>
     </div>
   );
 }

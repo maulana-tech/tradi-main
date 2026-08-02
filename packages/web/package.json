@@ -15,6 +15,7 @@
     "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
+    "@base-ui/react": "^1.6.0",
     "@ai-sdk/react": "^2.0.0",
     "@iexec-nox/handle": "latest",
     "@next/bundle-analyzer": "^16.0.0",

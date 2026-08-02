@@ -81,14 +81,16 @@ pnpm lint                   # next lint
 
 ## Design System
 
-- **Theme:** Terminal/matrix — stark dark surfaces with neon-green accents
-- **Primary:** `--color-primary` `#00ff41` (matrix green) — matches the favicon `app/icon.svg`
-- **Primary FG:** `--color-primary-fg` `#002203` (dark green for text on primary fill)
-- **Bg:** `--color-bg` `#0a0a0f` (near-black)
-- **Surface:** `--color-surface` `#12121a`
-- **Font:** Inter (UI) + JetBrains Mono (numbers, hashes, labels)
-- **Tone:** institutional confident, terminal/cyberpunk — bukan playful crypto
-- **Hero copy:** "Your trade. Their guess. Nobody knows."
+- **Source of truth:** `../../design-system/tradi-nox/MASTER.md`
+- **Theme:** flat black institutional canvas with a single violet product accent
+- **Primary:** `--color-primary` `#482BFF`; green is reserved for success status
+- **Backgrounds:** `#000000` canvas, `#101012` surface, `#17171B` raised surface
+- **Text:** `#F7F7F8` foreground and `#A1A1AA` secondary; maintain WCAG AA contrast
+- **Fonts:** Space Grotesk (display), Inter (UI), JetBrains Mono (amounts, hashes, addresses, tables)
+- **Shape:** pill actions and chips; 16–20px cards, fields, dialogs, and transaction panels
+- **Motion:** feedback only, transform/opacity at 200ms maximum, with reduced-motion support
+- **Icons:** Lucide for product UI. Material Symbols remain scoped to `/slides` only.
+- **Exception:** `/slides` intentionally keeps its presentation-specific legacy theme.
 
 ## Don't
 

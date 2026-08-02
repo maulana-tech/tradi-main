@@ -3,72 +3,97 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Route } from "next";
-import { useAccount } from "wagmi";
 import { Header } from "./Header";
 import { NetworkGuard } from "./NetworkGuard";
 import { BalanceWidget } from "./BalanceWidget";
 import { BottomNav } from "./BottomNav";
-import { shortAddress } from "@/lib/utils";
+import { Icon } from "./Icon";
+import { cn } from "@/lib/utils";
 
 type NavItem = { href: Route; label: string; icon: string };
+type NavGroup = { label: string; items: NavItem[] };
 
-const NAV: NavItem[] = [
-  { href: "/intents", label: "Order Book", icon: "grid_view" },
-  { href: "/create", label: "New Order", icon: "add_circle" },
-  { href: "/history" as Route, label: "History", icon: "history" },
-  { href: "/analytics" as Route, label: "Analytics", icon: "analytics" },
-  { href: "/prices" as Route, label: "Prices", icon: "candlestick_chart" },
-  { href: "/portfolio", label: "Portfolio", icon: "account_balance_wallet" },
-  { href: "/faucet", label: "Faucet", icon: "water_drop" },
+const NAV_GROUPS: NavGroup[] = [
+  {
+    label: "Trading",
+    items: [
+      { href: "/intents", label: "Marketplace", icon: "grid_view" },
+      { href: "/create", label: "Create Trade", icon: "add_circle" },
+    ],
+  },
+  {
+    label: "Account",
+    items: [
+      { href: "/portfolio", label: "Portfolio", icon: "account_balance_wallet" },
+      { href: "/history" as Route, label: "Activity", icon: "history" },
+    ],
+  },
+  {
+    label: "Insights",
+    items: [
+      { href: "/prices" as Route, label: "Prices", icon: "candlestick_chart" },
+      { href: "/analytics" as Route, label: "Analytics", icon: "analytics" },
+    ],
+  },
+  {
+    label: "Testnet",
+    items: [{ href: "/faucet", label: "Faucet", icon: "water_drop" }],
+  },
 ];
+
+function isActive(pathname: string, href: string) {
+  if (href === "/intents") {
+    return pathname.startsWith("/intents") || pathname.startsWith("/rfq");
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { address, isConnected } = useAccount();
 
   return (
     <>
       <Header />
 
-      <aside className="fixed left-0 top-14 z-40 hidden h-[calc(100vh-3.5rem)] w-56 flex-col bg-[--color-surface] pb-4 lg:flex">
-        <nav className="flex flex-1 flex-col gap-0.5 px-2.5 pt-3">
-          {NAV.map(({ href, label, icon }) => {
-            const active =
-              href === "/intents"
-                ? pathname.startsWith("/intents") ||
-                  pathname.startsWith("/rfq")
-                : pathname.startsWith(href);
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  active
-                    ? "bg-[--color-primary]/10 text-[--color-primary]"
-                    : "text-[--color-text-secondary] hover:bg-[--color-surface-low] hover:text-[--color-foreground]"
-                }`}
-              >
-                <span className="material-symbols-outlined text-lg">
-                  {icon}
-                </span>
-                {label}
-              </Link>
-            );
-          })}
+      <aside className="fixed bottom-0 left-0 top-20 z-30 hidden w-72 border-r border-[var(--color-border)] bg-[var(--color-bg)] lg:flex lg:flex-col">
+        <nav aria-label="Product navigation" className="flex-1 space-y-10 overflow-y-auto px-5 py-10">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.label}>
+              <p className="mb-3 px-4 text-xs font-medium text-[var(--color-text-muted)]">
+                {group.label}
+              </p>
+              <div className="space-y-1">
+                {group.items.map(({ href, label, icon }) => {
+                  const active = isActive(pathname, href);
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "flex min-h-11 items-center gap-3 rounded-full px-4 text-sm font-medium transition-colors duration-150 active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] motion-reduce:transition-none",
+                        active
+                          ? "bg-[var(--color-primary-soft)] text-white"
+                          : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)] hover:text-white",
+                      )}
+                    >
+                      <Icon name={icon} className="size-[18px]" />
+                      {label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
-        <div className="mt-auto space-y-3 px-2.5">
-          <Link href={"/create" as Route} className="block">
-            <button className="w-full tradi-nox-btn-primary text-sm">
-              New Intent
-            </button>
-          </Link>
-          <div className="flex justify-between px-1">
+        <div className="border-t border-[var(--color-border)] p-4">
+          <div className="flex gap-4 px-3 text-sm text-[var(--color-text-secondary)]">
             <a
               href="https://docs.iex.ec/nox-protocol/getting-started/welcome"
               target="_blank"
               rel="noreferrer"
-              className="text-xs text-[--color-text-muted] hover:text-[--color-primary]"
+              className="flex min-h-11 items-center hover:text-white"
             >
               Docs
             </a>
@@ -76,26 +101,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               href="https://github.com/maulana-tech/tradi-main"
               target="_blank"
               rel="noreferrer"
-              className="text-xs text-[--color-text-muted] hover:text-[--color-primary]"
+              className="flex min-h-11 items-center hover:text-white"
             >
               Source
             </a>
           </div>
-          {isConnected && address && (
-            <div className="border-t border-[--color-border] pt-3 font-mono text-xs text-[--color-text-muted]">
-              {shortAddress(address, 6)}
-            </div>
-          )}
         </div>
       </aside>
 
-      <div className="pt-14">
+      <div className="pt-20 lg:pl-72">
         <NetworkGuard />
+        <main id="main-content" tabIndex={-1} className="min-h-[calc(100dvh-80px)] w-full pb-[calc(6rem+env(safe-area-inset-bottom))] pt-10 outline-none md:pb-16 lg:pb-20">
+          <div className="mx-auto w-full max-w-7xl px-5 sm:px-10">
+            {children}
+          </div>
+        </main>
       </div>
-
-      <main className="w-full pb-20 pt-4 md:pb-16 lg:ml-56">
-        <div className="mx-auto max-w-[960px] px-4 sm:px-6">{children}</div>
-      </main>
 
       <BottomNav />
       <BalanceWidget />

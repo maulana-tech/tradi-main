@@ -9,6 +9,10 @@ import { AppShell } from "@/components/AppShell";
 import { PageHeader, SectionHeader } from "@/components/PageHeader";
 import { TokenIcon } from "@/components/TokenIcon";
 import { NftReceipt } from "@/components/NftReceipt";
+import { Icon } from "@/components/Icon";
+import { ConfirmationDialog } from "@/components/ui/ConfirmationDialog";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
 import { SkeletonCard } from "@/components/Skeleton";
 import { useToast } from "@/components/Toast";
 import { OperatorAuth } from "@/components/OperatorAuth";
@@ -102,10 +106,8 @@ export default function IntentDetailPage({
   if (intentQuery.isLoading) {
     return (
       <AppShell>
-        <p className="text-label-caps mb-6 flex items-center gap-2 text-[--color-text-muted]">
-          <span className="material-symbols-outlined animate-spin text-base text-[--color-primary]">
-            sync
-          </span>
+        <p className="text-label-caps mb-6 flex items-center gap-2 text-[var(--color-text-muted)]">
+          <Icon name="sync" className="size-4 animate-spin text-[var(--color-primary-text)]" />
           Loading intent #{id}
         </p>
         <div className="grid grid-cols-12 gap-6">
@@ -123,7 +125,7 @@ export default function IntentDetailPage({
   if (!intentQuery.data) {
     return (
       <AppShell>
-        <p className="text-sm text-[--color-danger]">
+        <p className="text-sm text-[var(--color-danger)]">
           Intent not found
         </p>
       </AppShell>
@@ -167,11 +169,11 @@ export default function IntentDetailPage({
   if (intent.mode === 1) {
     return (
       <AppShell>
-        <p className="text-sm text-[--color-text-muted]">
+        <p className="text-sm text-[var(--color-text-muted)]">
           This is an RFQ auction.{" "}
           <Link
             href={`/rfq/${id}` as Route}
-            className="text-[--color-primary] underline"
+            className="text-[var(--color-primary)] underline"
           >
             Open RFQ view →
           </Link>
@@ -194,11 +196,9 @@ export default function IntentDetailPage({
     <AppShell>
       <Link
         href={"/intents" as Route}
-        className="text-label-caps mb-6 inline-flex items-center gap-1.5 text-[--color-text-muted] hover:text-[--color-primary]"
+        className="text-label-caps mb-6 inline-flex items-center gap-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
       >
-        <span className="material-symbols-outlined text-base">
-          arrow_back
-        </span>
+        <Icon name="arrow_back" className="size-4" />
         All Intents
       </Link>
 
@@ -207,8 +207,8 @@ export default function IntentDetailPage({
         title={`Intent #${id.padStart(4, "0")}`}
         subtitle="Direct OTC · bilateral settlement"
         badge={
-            <span className="text-label-caps flex items-center gap-1.5 border border-orange-200 bg-orange-50 px-3 py-1 text-orange-700">
-            <span className="material-symbols-outlined text-base">person</span>
+            <span className="inline-flex min-h-7 items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-low)] px-3 text-xs font-medium text-[var(--color-text-secondary)]">
+            <Icon name="person" className="size-4" />
             {modeLabel(intent.mode)}
           </span>
         }
@@ -218,7 +218,7 @@ export default function IntentDetailPage({
       <div className="grid grid-cols-12 gap-6">
         {/* Detail panel */}
         <section className="col-span-12 lg:col-span-7">
-          <div className="glass-card p-6">
+          <div className="surface-card p-6">
             <SectionHeader icon="article" title="Intent Details" />
 
             <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -286,16 +286,14 @@ export default function IntentDetailPage({
               />
             </dl>
 
-            <div className="mt-6 flex items-center justify-center gap-3 border-t border-[--color-border] pt-6">
+            <div className="mt-6 flex items-center justify-center gap-3 border-t border-[var(--color-border)] pt-6">
               <TokenIcon
                 symbol={
                   TOKEN_NAMES[intent.sellToken.toLowerCase()]?.symbol ?? "?"
                 }
                 size="lg"
               />
-              <span className="material-symbols-outlined text-2xl text-[--color-primary]">
-                arrow_forward
-              </span>
+              <Icon name="arrow_forward" className="size-6 text-[var(--color-primary-text)]" />
               <TokenIcon
                 symbol={
                   TOKEN_NAMES[intent.buyToken.toLowerCase()]?.symbol ?? "?"
@@ -309,29 +307,31 @@ export default function IntentDetailPage({
         {/* Action panel */}
         <aside className="col-span-12 space-y-4 lg:col-span-5">
           {isMaker && isOpen && (
-            <div className="glass-card border-l-2 border-l-orange-400 p-6">
-              <p className="text-label-caps mb-2 text-orange-600">
+            <div className="surface-card p-6">
+              <p className="mb-2 text-sm font-semibold text-white">
                 Maker Actions
               </p>
-              <p className="mb-4 text-[11px] text-[--color-text-muted]">
+              <p className="mb-4 text-sm text-[var(--color-text-muted)]">
                 You created this intent
               </p>
-              <button
-                onClick={onCancel}
-                disabled={
-                  cancel.step === "signing" || cancel.step === "confirming"
+              <ConfirmationDialog
+                title="Cancel this intent?"
+                description="This permanently closes the trade on-chain. Counterparties will no longer be able to accept it."
+                confirmLabel="Cancel intent"
+                onConfirm={onCancel}
+                trigger={
+                  <Button
+                    tone="danger"
+                    className="w-full"
+                    loading={cancel.step === "signing" || cancel.step === "confirming"}
+                    loadingLabel={cancel.step === "signing" ? "Confirm in wallet…" : "Cancelling…"}
+                  >
+                    Cancel intent
+                  </Button>
                 }
-                className="text-label-caps w-full border border-orange-200 bg-orange-50 px-4 py-3 text-orange-700 transition-all hover:bg-orange-100 disabled:opacity-50"
-              >
-                {cancel.step === "signing" && "SIGNING…"}
-                {cancel.step === "confirming" && "CONFIRMING…"}
-                {(cancel.step === "idle" ||
-                  cancel.step === "error" ||
-                  cancel.step === "done") &&
-                  "CANCEL INTENT"}
-              </button>
+              />
               {cancel.error && (
-                <p className="mt-2 font-mono text-[10px] text-[--color-danger]">
+                <p role="alert" className="mt-2 text-sm text-[var(--color-danger-text)]">
                   {cancel.error}
                 </p>
               )}
@@ -340,11 +340,9 @@ export default function IntentDetailPage({
                   href={`https://sepolia.arbiscan.io/tx/${cancel.txHash}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-2 flex items-center gap-1 font-mono text-[10px] text-amber-400 underline hover:text-amber-300"
+                  className="mt-2 flex min-h-11 items-center gap-1 text-sm text-[var(--color-warning-text)] underline"
                 >
-                  <span className="material-symbols-outlined text-xs">
-                    open_in_new
-                  </span>
+                  <Icon name="open_in_new" className="size-3.5" />
                   Tx broadcast — view on Arbiscan
                 </a>
               )}
@@ -366,54 +364,46 @@ export default function IntentDetailPage({
                 role="maker"
               />
 
-              <form onSubmit={onAccept} className="glass-card space-y-4 p-6">
-                <p className="text-label-caps flex items-center gap-2 text-[--color-primary]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[--color-primary]" />
+              <form onSubmit={onAccept} className="surface-card space-y-5 p-6">
+                <p className="text-label-caps flex items-center gap-2 text-[var(--color-primary)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-primary)]" />
                   Accept + Settle
                 </p>
-                <p className="text-[11px] leading-relaxed text-[--color-text-muted]">
+                <p className="text-sm leading-relaxed text-[var(--color-text-muted)]">
                   Submit your buy amount. Encrypted via Nox. If below the maker's
                   hidden minimum, trade settles as a no-op.
                 </p>
 
-              <div className="space-y-2">
-                <label className="text-label-caps text-[--color-text-muted]">
-                  Your Bid
-                </label>
-                <div className="flex border border-[--color-border] bg-[--color-bg] focus-within:border-[--color-primary]">
-                  <input
-                    type="number"
-                    step="any"
-                    min="0"
-                    value={bidAmount}
-                    onChange={(e) => setBidAmount(e.target.value)}
-                    placeholder="0.00"
-                    className="flex-1 bg-transparent px-3 py-2 font-mono text-sm focus:outline-none"
-                    data-numeric
-                  />
-                  <span className="grid place-items-center px-3 text-label-caps text-[--color-text-muted]">
-                    {buyTok?.symbol ?? ""}
-                  </span>
-                </div>
-              </div>
+              <Field
+                label="Your bid"
+                type="number"
+                step="any"
+                min="0"
+                required
+                value={bidAmount}
+                onChange={(event) => setBidAmount(event.target.value)}
+                placeholder="0.00"
+                inputMode="decimal"
+                suffix={buyTok?.symbol ?? ""}
+                hint="Your bid is encrypted before it is submitted."
+                className="font-mono tabular-nums"
+              />
 
               {accept.error && (
-                <div className="border border-[--color-danger] bg-[--color-danger]/10 p-3 text-sm text-[--color-danger]">
-                  {accept.error}
+                <div role="alert" className="rounded-2xl border border-[var(--color-danger)]/40 bg-[var(--color-danger-soft)] p-4 text-sm text-[var(--color-danger-text)]">
+                  {accept.error} Check the permissions above, then retry.
                 </div>
               )}
 
               {/* Tx broadcasting — show link as soon as we have a hash so
                   user has an escape hatch if the receipt watch hangs */}
               {accept.step === "confirming" && accept.txHash && (
-                <div className="border border-amber-200 bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-800">
-                  <div className="flex items-center gap-2 text-amber-600">
-                    <span className="material-symbols-outlined animate-spin text-sm">
-                      sync
-                    </span>
+                <div className="rounded-2xl border border-[var(--color-warning)]/40 bg-[var(--color-warning-soft)] p-4 text-sm leading-relaxed text-[var(--color-warning-text)]">
+                  <div className="flex items-center gap-2 text-[var(--color-warning-text)]">
+                    <Icon name="sync" className="size-4 animate-spin" />
                     <span className="text-label-caps">Settling on-chain</span>
                   </div>
-                  <p className="mt-1 text-[--color-text-secondary]">
+                  <p className="mt-1 text-[var(--color-text-secondary)]">
                     Tx broadcasted. Status updates after Ethereum confirms.
                   </p>
                   <a
@@ -422,17 +412,15 @@ export default function IntentDetailPage({
                     rel="noreferrer"
                     className="mt-2 inline-flex items-center gap-1 break-all text-amber-400 underline hover:text-amber-300"
                   >
-                    <span className="material-symbols-outlined text-xs">
-                      open_in_new
-                    </span>
+                    <Icon name="open_in_new" className="size-3.5" />
                     {accept.txHash}
                   </a>
                 </div>
               )}
 
               {accept.step === "done" && (
-                <div className="border border-[--color-primary] bg-[--color-primary]/10 p-3 text-sm">
-                  <span className="text-[--color-primary]">SETTLED.</span>{" "}
+                <div role="status" className="rounded-2xl border border-[var(--color-success)]/40 bg-[var(--color-success-soft)] p-4 text-sm text-[var(--color-success-text)]">
+                  <span className="font-semibold">Trade settled.</span>{" "}
                   <a
                     href={`https://sepolia.arbiscan.io/tx/${accept.txHash}`}
                     target="_blank"
@@ -451,12 +439,12 @@ export default function IntentDetailPage({
                 </div>
               )}
 
-              <button
+              <Button
                 type="submit"
+                className="w-full"
+                loading={accept.step === "encrypting" || accept.step === "signing" || accept.step === "confirming"}
+                loadingLabel={accept.step === "encrypting" ? "Encrypting bid…" : accept.step === "signing" ? "Confirm in wallet…" : "Settling on-chain…"}
                 disabled={
-                  accept.step === "encrypting" ||
-                  accept.step === "signing" ||
-                  accept.step === "confirming" ||
                   accept.step === "done" ||
                   !settleReady
                 }
@@ -469,11 +457,7 @@ export default function IntentDetailPage({
                         ? `Maker hasn't authorized ${sellTok?.symbol ?? "sell token"} — settlement will revert`
                         : undefined
                 }
-                className="tradi-nox-btn-primary w-full py-4 text-sm"
               >
-                {accept.step === "encrypting" && "Encrypting bid…"}
-                {accept.step === "signing" && "Confirm in wallet…"}
-                {accept.step === "confirming" && "Settling on-chain…"}
                 {(accept.step === "idle" || accept.step === "error") &&
                   (!takerBuyAuth.isOperator
                     ? `Authorize ${buyTok?.symbol ?? "buy token"} first`
@@ -481,14 +465,14 @@ export default function IntentDetailPage({
                       ? "Maker not authorized"
                       : "Accept + Settle")}
                 {accept.step === "done" && "Settled"}
-              </button>
+              </Button>
               </form>
             </>
           )}
 
           {!isOpen && (
-            <div className="glass-card p-6">
-              <p className="text-sm text-[--color-text-muted]">
+            <div className="surface-card p-6">
+              <p className="text-sm text-[var(--color-text-muted)]">
                 Intent {statusLabel(intent.status).toLowerCase()}
               </p>
             </div>
@@ -517,14 +501,12 @@ export default function IntentDetailPage({
               );
             }
             return (
-              <div className="border border-[--color-border] bg-[--color-surface-low]/30 p-4">
-                <p className="text-label-caps flex items-center gap-2 text-[--color-text-muted]">
-                  <span className="material-symbols-outlined text-base">
-                    visibility
-                  </span>
+              <div className="border border-[var(--color-border)] bg-[var(--color-surface-low)]/30 p-4">
+                <p className="text-label-caps flex items-center gap-2 text-[var(--color-text-muted)]">
+                  <Icon name="visibility" className="size-4" />
                   Read-only view
                 </p>
-                <p className="mt-2 font-mono text-[11px] text-[--color-text-muted]">
+                <p className="mt-2 text-sm text-[var(--color-text-muted)]">
                   This trade has settled. Only the maker or the taker who
                   filled it can mint the on-chain receipt — other observers
                   see the audit trail but not the keepsake.
@@ -554,16 +536,14 @@ function DetailField({
   return (
     <div className="flex items-start gap-3">
       {icon && (
-        <span className="material-symbols-outlined mt-0.5 text-base text-[--color-primary]/60">
-          {icon}
-        </span>
+        <Icon name={icon} className="mt-0.5 size-4 text-[var(--color-primary-text)]" />
       )}
       <div className="flex-1">
-        <dt className="text-label-caps text-[--color-text-muted]">{label}</dt>
+        <dt className="text-label-caps text-[var(--color-text-muted)]">{label}</dt>
         <dd
           className={`mt-1 ${mono ? "font-mono" : ""} ${
             small ? "text-xs" : "text-sm"
-          } text-[--color-text]`}
+          } text-[var(--color-text)]`}
         >
           {value}
         </dd>

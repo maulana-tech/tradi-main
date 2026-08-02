@@ -93,9 +93,9 @@ export function useTradeHistory() {
             createdEntries.push({
               id: log.args.id,
               maker: log.args.maker,
-              sellToken: (log as any).sellToken ?? "",
-              buyToken: (log as any).buyToken ?? "",
-              mode: (log.args as any).mode ?? 0,
+              sellToken: log.args.sellToken ?? "",
+              buyToken: log.args.buyToken ?? "",
+              mode: log.args.mode ?? 0,
               timestamp: Number(block.timestamp),
             });
           }

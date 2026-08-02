@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Icon } from "./Icon";
 
 export function EmptyState({
   icon,
@@ -12,15 +13,11 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-dashed border-[--color-border] bg-[--color-surface] p-12 text-center">
-      <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-lg bg-[--color-surface-low]">
-        <span className="material-symbols-outlined text-2xl text-[--color-text-muted]">
-          {icon}
-        </span>
-      </div>
-      <p className="text-sm font-medium text-[--color-foreground]">{title}</p>
+    <div className="border-y border-[var(--color-border)] px-6 py-16 text-center">
+      <Icon name={icon} className="mx-auto mb-5 size-6 text-[var(--color-primary-text)]" />
+      <p className="text-sm font-medium text-[var(--color-foreground)]">{title}</p>
       {body && (
-        <p className="mt-1 text-sm text-[--color-text-secondary]">{body}</p>
+        <p className="mx-auto mt-2 max-w-md text-sm text-pretty text-[var(--color-text-secondary)]">{body}</p>
       )}
       {action && <div className="mt-6">{action}</div>}
     </div>

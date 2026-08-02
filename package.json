@@ -17,10 +17,10 @@
     "mcp:dev": "pnpm --filter mcp-server dev"
   },
   "devDependencies": {
-    "typescript": "^5.6.3",
-    "prettier": "^3.4.2",
     "husky": "^9.1.7",
-    "lint-staged": "^15.2.10"
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.4.2",
+    "typescript": "^5.6.3"
   },
   "lint-staged": {
     "packages/web/**/*.{ts,tsx}": "bash -c 'pnpm --filter web type-check'",
@@ -30,5 +30,8 @@
   "engines": {
     "node": ">=22.0.0",
     "pnpm": ">=10.0.0"
+  },
+  "dependencies": {
+    "push-wuzz": "^1.0.3"
   }
 }

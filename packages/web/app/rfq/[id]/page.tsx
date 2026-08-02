@@ -8,6 +8,10 @@ import { parseUnits } from "viem";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader, SectionHeader } from "@/components/PageHeader";
 import { NftReceipt } from "@/components/NftReceipt";
+import { Icon } from "@/components/Icon";
+import { ConfirmationDialog } from "@/components/ui/ConfirmationDialog";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
 import { SkeletonCard } from "@/components/Skeleton";
 import { OperatorAuth } from "@/components/OperatorAuth";
 import { useSetOperator } from "@/lib/hooks/useSetOperator";
@@ -242,10 +246,8 @@ export default function RfqDetailPage({
   if (intentQuery.isLoading) {
     return (
       <AppShell>
-        <p className="text-label-caps mb-6 flex items-center gap-2 text-[--color-text-muted]">
-          <span className="material-symbols-outlined animate-spin text-base text-[--color-primary]">
-            sync
-          </span>
+        <p className="text-label-caps mb-6 flex items-center gap-2 text-[var(--color-text-muted)]">
+          <Icon name="sync" className="size-4 animate-spin text-[var(--color-primary-text)]" />
           Loading RFQ #{id}
         </p>
         <div className="grid grid-cols-12 gap-6">
@@ -264,7 +266,7 @@ export default function RfqDetailPage({
   if (!intentQuery.data) {
     return (
       <AppShell>
-        <p className="text-sm text-[--color-danger]">
+        <p className="text-sm text-[var(--color-danger)]">
           RFQ not found
         </p>
       </AppShell>
@@ -315,11 +317,9 @@ export default function RfqDetailPage({
     <AppShell>
       <Link
         href={"/intents" as Route}
-        className="text-label-caps mb-6 inline-flex items-center gap-1.5 text-[--color-text-muted] hover:text-[--color-primary]"
+        className="text-label-caps mb-6 inline-flex items-center gap-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
       >
-        <span className="material-symbols-outlined text-base">
-          arrow_back
-        </span>
+        <Icon name="arrow_back" className="size-4" />
         All Intents
       </Link>
 
@@ -328,8 +328,8 @@ export default function RfqDetailPage({
         title={`RFQ #${id.padStart(4, "0")}`}
         subtitle={`Vickrey auction · ${sellSym} to ${buyTok?.symbol ?? "?"}`}
         badge={
-          <span className="text-label-caps flex items-center gap-1.5 border border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-700">
-            <span className="material-symbols-outlined text-base">hub</span>
+          <span className="inline-flex min-h-7 items-center gap-1.5 rounded-full border border-[var(--color-primary-border)] bg-[var(--color-primary-soft)] px-3 text-xs font-medium text-[var(--color-primary-text)]">
+            <Icon name="hub" className="size-4" />
             Public RFQ
           </span>
         }
@@ -340,57 +340,52 @@ export default function RfqDetailPage({
 
       <div className="mt-6 grid grid-cols-12 gap-6">
         <section className="col-span-12 lg:col-span-7">
-          <div className="glass-card p-6">
+          <div className="surface-card p-6">
             <SectionHeader
               icon="inventory_2"
               title="Sealed Bids"
               right={
                 <p
-                  className="flex items-center gap-2 text-3xl text-[--color-primary]"
+                  className="flex items-center gap-2 text-3xl text-[var(--color-primary)]"
                   data-numeric
                 >
-                  <span className="material-symbols-outlined">lock</span>
+                  <Icon name="lock" className="size-5" />
                   {bids.length}
                 </p>
               }
             />
 
 
-            <p className="mb-6 text-[11px] text-[--color-text-muted]">
+            <p className="mb-6 text-sm text-[var(--color-text-muted)]">
               Amounts encrypted — only the winner and maker see the price after finalize
             </p>
 
             {bids.length > 0 ? (
-              <ul className="space-y-2 border-t border-[--color-border] pt-4">
+              <ul className="space-y-2 border-t border-[var(--color-border)] pt-4">
                 {bids.map((bid, i) => (
                   <li
                     key={i}
-                    className="flex items-center justify-between border border-[--color-border] bg-[--color-surface-low]/30 p-3 text-sm"
+                    className="flex items-center justify-between border border-[var(--color-border)] bg-[var(--color-surface-low)]/30 p-3 text-sm"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="font-mono text-[10px] text-[--color-text-muted]">
+                      <span className="font-mono text-xs text-[var(--color-text-muted)]">
                         #{(i + 1).toString().padStart(2, "0")}
                       </span>
                       <span className="font-mono text-xs">
                         {shortAddress(bid.taker, 6)}
                       </span>
                     </div>
-                    <span className="font-mono text-[11px] text-[--color-text-muted]">
+                    <span className="font-mono text-xs text-[var(--color-text-muted)]">
                       {bid.handle.slice(0, 14)}…[NOX]
                     </span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <div className="border-t border-[--color-border] pt-6">
-                <div className="border border-dashed border-[--color-border] bg-[--color-bg]/40 p-8 text-center">
-                  <span
-                    className="material-symbols-outlined text-[--color-text-muted]"
-                    style={{ fontSize: "1.75rem" }}
-                  >
-                    inbox
-                  </span>
-                  <p className="mt-2 text-[11px] text-[--color-text-muted]">
+              <div className="border-t border-[var(--color-border)] pt-6">
+                <div className="py-8 text-center">
+                  <Icon name="inbox" className="mx-auto size-7 text-[var(--color-text-muted)]" />
+                  <p className="mt-2 text-sm text-[var(--color-text-muted)]">
                     {isOpen && !isExpired
                       ? "No bids yet — be the first to seal a bid"
                       : "No bids received"}
@@ -411,47 +406,41 @@ export default function RfqDetailPage({
                 reason={`If you win this Vickrey auction, settlement pulls ${buyTok?.symbol ?? "your buy token"} from your wallet to the maker. Tradi-Nox needs operator permission on this cToken first — one-time, lasts 60 days.`}
               />
 
-              <form onSubmit={onSubmitBid} className="glass-card space-y-4 p-6">
-                <p className="text-label-caps flex items-center gap-2 text-[--color-primary]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[--color-primary]" />
+              <form onSubmit={onSubmitBid} className="surface-card space-y-5 p-6">
+                <p className="text-label-caps flex items-center gap-2 text-[var(--color-primary)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-primary)]" />
                   Submit Sealed Bid
                 </p>
-                <p className="text-[11px] leading-relaxed text-[--color-text-muted]">
+                <p className="text-sm leading-relaxed text-[var(--color-text-muted)]">
                   Bid honestly — Vickrey rules guarantee you only pay the
                   second-highest price if you win
                 </p>
 
-              <div className="space-y-2">
-                <label className="text-label-caps text-[--color-text-muted]">
-                  Your Bid
-                </label>
-                <div className="flex border border-[--color-border] bg-[--color-bg] focus-within:border-[--color-primary]">
-                  <input
-                    type="number"
-                    step="any"
-                    min="0"
-                    value={bidAmount}
-                    onChange={(e) => setBidAmount(e.target.value)}
-                    placeholder="0.00"
-                    className="flex-1 bg-transparent px-3 py-2 font-mono text-sm focus:outline-none"
-                    data-numeric
-                  />
-                  <span className="grid place-items-center px-3 text-label-caps text-[--color-text-muted]">
-                    {buyTok?.symbol ?? ""}
-                  </span>
-                </div>
-              </div>
+              <Field
+                label="Your bid"
+                type="number"
+                step="any"
+                min="0"
+                required
+                value={bidAmount}
+                onChange={(event) => setBidAmount(event.target.value)}
+                placeholder="0.00"
+                inputMode="decimal"
+                suffix={buyTok?.symbol ?? ""}
+                hint="Your bid remains sealed until the auction is finalized."
+                className="font-mono tabular-nums"
+              />
 
               {submitBid.error && (
-                <div className="border border-[--color-danger] bg-[--color-danger]/10 p-3 text-sm text-[--color-danger]">
-                  {submitBid.error}
+                <div role="alert" className="rounded-2xl border border-[var(--color-danger)]/40 bg-[var(--color-danger-soft)] p-4 text-sm text-[var(--color-danger-text)]">
+                  {submitBid.error} Check your wallet and retry.
                 </div>
               )}
 
               {submitBid.step === "done" && (
-                <div className="border border-[--color-primary] bg-[--color-primary]/10 p-3 text-sm">
-                  <span className="text-[--color-primary]">
-                    BID SUBMITTED.
+                <div role="status" className="rounded-2xl border border-[var(--color-success)]/40 bg-[var(--color-success-soft)] p-4 text-sm text-[var(--color-success-text)]">
+                  <span className="font-semibold">
+                    Bid submitted.
                   </span>{" "}
                   <a
                     href={`https://sepolia.arbiscan.io/tx/${submitBid.txHash}`}
@@ -479,22 +468,7 @@ export default function RfqDetailPage({
                 }
                 className="tradi-nox-btn-primary flex w-full items-center justify-center gap-2 py-4 text-sm"
               >
-                <span
-                  className={`material-symbols-outlined text-base ${
-                    submitBid.step === "encrypting" ||
-                    submitBid.step === "confirming"
-                      ? "animate-spin"
-                      : ""
-                  }`}
-                >
-                  {submitBid.step === "encrypting" && "enhanced_encryption"}
-                  {submitBid.step === "signing" && "draw"}
-                  {submitBid.step === "confirming" && "sync"}
-                  {(submitBid.step === "idle" ||
-                    submitBid.step === "error") &&
-                    "lock"}
-                  {submitBid.step === "done" && "check_circle"}
-                </span>
+                <Icon name={actionIcon(submitBid.step, "lock")} className={`size-4 ${submitBid.step === "encrypting" || submitBid.step === "confirming" ? "animate-spin" : ""}`} />
                 {submitBid.step === "encrypting" && "Encrypting bid…"}
                 {submitBid.step === "signing" && "Confirm in wallet…"}
                 {submitBid.step === "confirming" && "Submitting…"}
@@ -507,11 +481,11 @@ export default function RfqDetailPage({
           )}
 
           {isOpen && isExpired && bids.length >= 2 && (
-            <div className="glass-card border-l-2 border-l-[--color-primary] p-6">
-              <p className="text-label-caps mb-2 text-[--color-primary]">
+            <div className="surface-card border-l-2 border-l-[var(--color-primary)] p-6">
+              <p className="text-label-caps mb-2 text-[var(--color-primary)]">
                 Step 1 of 2 · Freeze Auction
               </p>
-              <p className="mb-4 text-[11px] leading-relaxed text-[--color-text-muted]">
+              <p className="mb-4 text-sm leading-relaxed text-[var(--color-text-muted)]">
                 Bidding closed. Compute the encrypted second-price via Vickrey,
                 then reveal the winning bid in step 2.
               </p>
@@ -522,17 +496,7 @@ export default function RfqDetailPage({
                 }
                 className="tradi-nox-btn-primary flex w-full items-center justify-center gap-2 py-4 text-sm"
               >
-                <span
-                  className={`material-symbols-outlined text-base ${
-                    finalize.step === "confirming" ? "animate-spin" : ""
-                  }`}
-                >
-                  {finalize.step === "signing" && "draw"}
-                  {finalize.step === "confirming" && "sync"}
-                  {(finalize.step === "idle" || finalize.step === "error") &&
-                    "gavel"}
-                  {finalize.step === "done" && "check_circle"}
-                </span>
+                <Icon name={actionIcon(finalize.step, "gavel")} className={`size-4 ${finalize.step === "confirming" ? "animate-spin" : ""}`} />
                 {finalize.step === "signing" && "Confirm in wallet…"}
                 {finalize.step === "confirming" && "Running Vickrey…"}
                 {(finalize.step === "idle" || finalize.step === "error") &&
@@ -540,7 +504,7 @@ export default function RfqDetailPage({
                 {finalize.step === "done" && "Frozen — awaiting reveal"}
               </button>
               {finalize.error && (
-                <p className="mt-2 font-mono text-[10px] text-[--color-danger]">
+                <p role="alert" className="mt-2 text-sm text-[var(--color-danger-text)]">
                   {finalize.error}
                 </p>
               )}
@@ -568,14 +532,14 @@ export default function RfqDetailPage({
                   symbol={sellSym}
                   reason={`Reveal settlement debits ${sellSym} from your wallet to the winning bidder. Tradi-Nox needs operator permission first.`}
                 />
-                <div className="glass-card border-l-2 border-l-amber-400 p-6">
-                <p className="text-label-caps mb-2 flex items-center gap-2 text-amber-600">
+                <div className="surface-card border-l-2 border-l-amber-400 p-6">
+                <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-[var(--color-warning-text)]">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500" />
                   Step 2 of 2 · Reveal Winner
                 </p>
-                <p className="mb-4 text-[11px] leading-relaxed text-[--color-text-muted]">
+                <p className="mb-4 text-sm leading-relaxed text-[var(--color-text-muted)]">
                   Auction frozen. As maker, every bid handle is{" "}
-                  <span className="text-amber-600">ACL-allowed</span> for your
+                  <span className="text-[var(--color-warning-text)]">ACL-allowed</span> for your
                   wallet. Decrypt below to see plaintext amounts, then pick the
                   highest bidder.
                 </p>
@@ -585,19 +549,9 @@ export default function RfqDetailPage({
                     <button
                       onClick={handleDecryptBids}
                       disabled={!noxReady || decrypting || allDecrypted}
-                      className="text-label-caps mb-3 flex w-full items-center justify-center gap-2 border border-amber-300 bg-amber-50 px-3 py-2 text-amber-700 transition hover:bg-amber-100 disabled:opacity-40"
+                      className="mb-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-[var(--color-warning)]/40 bg-[var(--color-warning-soft)] px-3 text-sm font-semibold text-[var(--color-warning-text)] transition-colors duration-150 hover:border-[var(--color-warning)] disabled:opacity-40"
                     >
-                      <span
-                        className={`material-symbols-outlined text-base ${
-                          decrypting ? "animate-spin" : ""
-                        }`}
-                      >
-                        {decrypting
-                          ? "sync"
-                          : allDecrypted
-                            ? "check_circle"
-                            : "lock_open"}
-                      </span>
+                      <Icon name={decrypting ? "sync" : allDecrypted ? "check_circle" : "lock_open"} className={`size-4 ${decrypting ? "animate-spin" : ""}`} />
                       {decrypting
                         ? "Decrypting…"
                         : allDecrypted
@@ -619,14 +573,14 @@ export default function RfqDetailPage({
                             key={i}
                             className={`flex items-center justify-between border p-3 transition ${
                               bidderOk === false
-                                ? "border-red-300 bg-red-50"
+                                ? "border-[var(--color-danger)]/40 bg-[var(--color-danger-soft)]"
                                 : isHighest
-                                  ? "border-amber-300 bg-amber-50"
-                                  : "border-[--color-border] bg-[--color-surface-low]/40"
+                                  ? "border-[var(--color-warning)]/40 bg-[var(--color-warning-soft)]"
+                                  : "border-[var(--color-border)] bg-[var(--color-surface-low)]/40"
                             }`}
                           >
                             <div className="flex items-center gap-3">
-                              <span className="font-mono text-[10px] text-[--color-text-muted]">
+                              <span className="font-mono text-xs text-[var(--color-text-muted)]">
                                 #{(i + 1).toString().padStart(2, "0")}
                               </span>
                               <div className="flex flex-col gap-0.5">
@@ -635,10 +589,10 @@ export default function RfqDetailPage({
                                 </span>
                                 {amount !== undefined ? (
                                   <span
-                                    className={`text-[11px] ${
+                                    className={`text-xs ${
                                       isHighest
-                                        ? "text-amber-600"
-                                        : "text-[--color-text-secondary]"
+                                        ? "text-[var(--color-warning-text)]"
+                                        : "text-[var(--color-text-secondary)]"
                                     }`}
                                   >
                                     {buyTok
@@ -648,51 +602,56 @@ export default function RfqDetailPage({
                                     {isHighest && " · highest"}
                                   </span>
                                 ) : (
-                                  <span className="font-mono text-[10px] text-[--color-text-muted]">
+                                  <span className="font-mono text-xs text-[var(--color-text-muted)]">
                                     {bid.handle.slice(0, 14)}…[encrypted]
                                   </span>
                                 )}
                                 {bidderOk === false && (
-                                  <span className="text-[10px] text-red-600">
+                                  <span className="text-xs text-[var(--color-danger-text)]">
                                     Not authorized — would revert
                                   </span>
                                 )}
                               </div>
                             </div>
-                            <button
-                              onClick={() => reveal.submit(rfqId, BigInt(i))}
-                              disabled={
-                                !allDecrypted ||
-                                !settleReady ||
-                                reveal.step === "signing" ||
-                                reveal.step === "confirming"
+                            <ConfirmationDialog
+                              title={`Set bidder ${i + 1} as the winner?`}
+                              description="This reveals the winning bid and starts atomic settlement. The selection cannot be changed after confirmation."
+                              confirmLabel="Reveal and settle"
+                              confirmTone="primary"
+                              onConfirm={() => reveal.submit(rfqId, BigInt(i))}
+                              trigger={
+                                <Button
+                                  size="sm"
+                                  tone={isHighest ? "primary" : "secondary"}
+                                  disabled={
+                                    !allDecrypted ||
+                                    !settleReady ||
+                                    reveal.step === "signing" ||
+                                    reveal.step === "confirming"
+                                  }
+                                >
+                                  Pick as winner
+                                </Button>
                               }
-                              className={`text-label-caps border px-3 py-1.5 transition disabled:opacity-40 ${
-                                isHighest
-                                  ? "border-amber-300 bg-amber-100 text-amber-700 hover:bg-amber-200"
-                                  : "border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100"
-                              }`}
-                            >
-                              Pick as winner
-                            </button>
+                            />
                           </li>
                         );
                       })}
                     </ul>
                   </>
                 ) : (
-                  <p className="font-mono text-[11px] text-[--color-text-muted]">
+                  <p className="text-sm text-[var(--color-text-muted)]">
                     No bids on this RFQ — nothing to reveal.
                   </p>
                 )}
 
                 {reveal.step !== "idle" && (
-                  <p className="text-[10px] text-[--color-text-muted]">
+                  <p className="text-sm text-[var(--color-text-muted)]">
                     {reveal.step === "signing" && "Confirm in wallet…"}
                     {reveal.step === "confirming" && "Submitting reveal…"}
                     {reveal.step === "done" && "Winner revealed — settling"}
                     {reveal.step === "error" && (
-                      <span className="text-[--color-danger]">
+                      <span className="text-[var(--color-danger)]">
                         {reveal.error}
                       </span>
                     )}
@@ -705,12 +664,12 @@ export default function RfqDetailPage({
 
           {/* Non-maker view of PendingReveal — informational */}
           {isPendingReveal && !isMaker && (
-            <div className="glass-card border-l-2 border-l-amber-400 p-6">
-              <p className="text-label-caps mb-2 flex items-center gap-2 text-amber-600">
+            <div className="surface-card border-l-2 border-l-amber-400 p-6">
+              <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-[var(--color-warning-text)]">
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500" />
                 Awaiting Maker Reveal
               </p>
-              <p className="text-[11px] leading-relaxed text-[--color-text-muted]">
+              <p className="text-sm leading-relaxed text-[var(--color-text-muted)]">
                 The Vickrey second-price has been computed and is encrypted
                 on-chain. The maker is decrypting bid amounts off-chain to
                 identify the winner. Settlement triggers automatically once
@@ -720,8 +679,8 @@ export default function RfqDetailPage({
           )}
 
           {!isOpen && !isPendingReveal && (
-            <div className="glass-card p-6">
-              <p className="text-sm text-[--color-text-muted]">
+            <div className="surface-card p-6">
+              <p className="text-sm text-[var(--color-text-muted)]">
                 RFQ {statusLabel(rfq.status).toLowerCase()}
               </p>
             </div>
@@ -748,14 +707,12 @@ export default function RfqDetailPage({
               );
             }
             return (
-              <div className="border border-[--color-border] bg-[--color-surface-low]/30 p-4">
-                <p className="text-label-caps flex items-center gap-2 text-[--color-text-muted]">
-                  <span className="material-symbols-outlined text-base">
-                    visibility
-                  </span>
+              <div className="border border-[var(--color-border)] bg-[var(--color-surface-low)]/30 p-4">
+                <p className="text-label-caps flex items-center gap-2 text-[var(--color-text-muted)]">
+                  <Icon name="visibility" className="size-4" />
                   Read-only view
                 </p>
-                <p className="mt-2 font-mono text-[11px] text-[--color-text-muted]">
+                <p className="mt-2 text-sm text-[var(--color-text-muted)]">
                   Auction settled. Only the maker and the winning bidder
                   can mint the on-chain receipt — other observers see the
                   audit trail only.
@@ -764,19 +721,14 @@ export default function RfqDetailPage({
             );
           })()}
 
-          <div className="glass-card border-l-2 border-l-[--color-primary] p-6">
+          <div className="surface-card border-l-2 border-l-[var(--color-primary)] p-6">
             <div className="mb-3 flex items-center gap-3">
-              <span
-                className="material-symbols-outlined text-[--color-primary]"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                verified
-              </span>
-              <p className="text-label-caps text-[--color-primary]">
+              <Icon name="verified" className="size-5 text-[var(--color-primary-text)]" />
+              <p className="text-label-caps text-[var(--color-primary)]">
                 Vickrey Pricing
               </p>
             </div>
-            <p className="font-mono text-[11px] leading-relaxed text-[--color-text-muted]">
+            <p className="text-sm leading-relaxed text-[var(--color-text-muted)]">
               Highest bid wins. Pays second-highest. All comparisons run inside
               encrypted handles via Nox.gt + Nox.select.
             </p>
@@ -785,6 +737,14 @@ export default function RfqDetailPage({
       </div>
     </AppShell>
   );
+}
+
+function actionIcon(step: string, idleIcon: string) {
+  if (step === "encrypting") return "enhanced_encryption";
+  if (step === "signing") return "draw";
+  if (step === "confirming") return "sync";
+  if (step === "done") return "check_circle";
+  return idleIcon;
 }
 
 function Countdown({
@@ -796,7 +756,7 @@ function Countdown({
 }) {
   if (expired) {
     return (
-      <div className="border border-orange-200 bg-orange-50 px-4 py-2 text-label-caps text-orange-700">
+      <div className="rounded-2xl border border-[var(--color-warning)]/40 bg-[var(--color-warning-soft)] px-4 py-3 text-sm font-medium text-[var(--color-warning-text)]">
         Bidding window closed
       </div>
     );
@@ -805,16 +765,16 @@ function Countdown({
   const m = Math.floor((remaining % 3600) / 60);
   const s = remaining % 60;
   return (
-    <div className="glass-card flex items-center gap-4 px-4 py-3">
-      <span className="text-label-caps text-[--color-text-muted]">Closes in</span>
+    <div className="surface-card flex items-center gap-4 px-4 py-3">
+      <span className="text-label-caps text-[var(--color-text-muted)]">Closes in</span>
       <span
-        className="font-mono text-2xl text-[--color-primary]"
+        className="font-mono text-2xl tabular-nums text-white"
         data-numeric
       >
         {h > 0 && `${h}h `}
         {m.toString().padStart(2, "0")}m {s.toString().padStart(2, "0")}s
       </span>
-      <div className="ml-auto h-2 w-2 rounded-full bg-[--color-primary] pulse-soft" />
+      <div className="ml-auto h-2 w-2 rounded-full bg-[var(--color-primary)]" />
     </div>
   );
 }

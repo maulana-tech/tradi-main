@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useToast } from "./Toast";
+import { Icon } from "./Icon";
 
 export function CopyButton({
   value,
@@ -28,19 +29,19 @@ export function CopyButton({
     }
   }
 
-  const iconSize = size === "sm" ? "text-sm" : "text-base";
+  const iconSize = size === "sm" ? "size-4" : "size-[18px]";
 
   return (
     <button
+      type="button"
       onClick={handleCopy}
+      aria-label={`Copy ${label ?? value.slice(0, 14)}`}
       title={`Copy ${label ?? value.slice(0, 14)}…`}
-      className={`inline-flex items-center gap-1 text-[--color-text-muted] transition-colors hover:text-[--color-primary] ${
-        copied ? "text-[--color-primary]" : ""
+      className={`inline-flex min-h-11 items-center gap-2 rounded-full px-2 text-[var(--color-text-muted)] transition-colors duration-150 hover:bg-[var(--color-surface-raised)] hover:text-white ${
+        copied ? "text-[var(--color-success-text)]" : ""
       }`}
     >
-      <span className={`material-symbols-outlined ${iconSize}`}>
-        {copied ? "check_circle" : "content_copy"}
-      </span>
+      <Icon name={copied ? "check_circle" : "content_copy"} className={iconSize} />
       {label && (
         <span className="text-xs">{copied ? "Copied" : label}</span>
       )}

@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480">
   <rect width="480" height="480" fill="#fafaf7"/>
   <!-- Top row: two circles -->
-  <circle cx="160" cy="140" r="90" fill="#124d1c"/>
-  <circle cx="320" cy="140" r="90" fill="#124d1c"/>
+  <circle cx="160" cy="140" r="90" fill="#482bff"/>
+  <circle cx="320" cy="140" r="90" fill="#482bff"/>
   <!-- Bottom row: three overlapping circles -->
-  <circle cx="120" cy="360" r="140" fill="#124d1c"/>
-  <circle cx="240" cy="360" r="140" fill="#124d1c"/>
-  <circle cx="360" cy="360" r="140" fill="#124d1c"/>
+  <circle cx="120" cy="360" r="140" fill="#482bff"/>
+  <circle cx="240" cy="360" r="140" fill="#482bff"/>
+  <circle cx="360" cy="360" r="140" fill="#482bff"/>
 </svg>

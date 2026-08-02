@@ -4,144 +4,83 @@ import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
-import { SkeletonRow } from "@/components/Skeleton";
+import { Skeleton, SkeletonRow } from "@/components/Skeleton";
+import { Card } from "@/components/ui/Card";
+import { Badge, Status } from "@/components/ui/Badge";
 import { useTradeHistory, tokenName, type TradeRow } from "@/lib/hooks/useTradeHistory";
 import { shortAddress } from "@/lib/utils";
 
 type StatusFilter = "all" | "open" | "filled" | "cancelled";
 type PairFilter = "all" | "ceth-cusdc" | "cusdc-ceth";
 
-const STATUS_LABELS: Record<number, { label: string; color: string }> = {
-  0: { label: "Open", color: "text-[--color-primary]" },
-  1: { label: "Filled", color: "text-[--color-text-muted]" },
-  2: { label: "Cancelled", color: "text-[--color-danger]" },
-  3: { label: "Expired", color: "text-[--color-text-muted]" },
-  4: { label: "Pending", color: "text-[--color-warning]" },
-};
-
 export default function HistoryPage() {
   const { rows, isLoading } = useTradeHistory();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [pairFilter, setPairFilter] = useState<PairFilter>("all");
-
-  const filtered = rows.filter((r) => {
-    if (statusFilter !== "all") {
-      const map: Record<StatusFilter, number> = { all: -1, open: 0, filled: 1, cancelled: 2 };
-      if (r.status !== map[statusFilter]) return false;
-    }
-    if (pairFilter !== "all") {
-      const pair = `${tokenName(r.sellToken)}→${tokenName(r.buyToken)}`;
-      if (pairFilter === "ceth-cusdc" && !pair.includes("cETH")) return false;
-      if (pairFilter === "cusdc-ceth" && !pair.includes("cUSDC")) return false;
-    }
-    return true;
+  const filtered = rows.filter((row) => {
+    const targetStatus = { all: -1, open: 0, filled: 1, cancelled: 2 }[statusFilter];
+    if (targetStatus >= 0 && row.status !== targetStatus) return false;
+    const rowPair = `${tokenName(row.sellToken)}-${tokenName(row.buyToken)}`.toLowerCase();
+    return pairFilter === "all" || rowPair === pairFilter;
   });
 
   return (
     <AppShell>
-      <PageHeader
-        icon="history"
-        title="Trade History"
-        subtitle="All on-chain intents with timestamps"
-      />
+      <PageHeader icon="history" title="Activity" subtitle="Follow every intent from creation through settlement." />
+      <Card className="mb-5 p-4">
+        <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+          <Filter label="Status" value={statusFilter} onChange={(value) => setStatusFilter(value as StatusFilter)} options={[['all','All statuses'],['open','Open'],['filled','Filled'],['cancelled','Cancelled']]} />
+          <Filter label="Pair" value={pairFilter} onChange={(value) => setPairFilter(value as PairFilter)} options={[['all','All pairs'],['ceth-cusdc','cETH → cUSDC'],['cusdc-ceth','cUSDC → cETH']]} />
+          <p className="min-h-11 content-center text-sm text-[var(--color-text-muted)]" aria-live="polite">{filtered.length} trade{filtered.length === 1 ? "" : "s"}</p>
+        </div>
+      </Card>
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-          className="tradi-nox-input w-auto text-xs"
-        >
-          <option value="all">All Status</option>
-          <option value="open">Open</option>
-          <option value="filled">Filled</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-        <select
-          value={pairFilter}
-          onChange={(e) => setPairFilter(e.target.value as PairFilter)}
-          className="tradi-nox-input w-auto text-xs"
-        >
-          <option value="all">All Pairs</option>
-          <option value="ceth-cusdc">cETH → cUSDC</option>
-          <option value="cusdc-ceth">cUSDC → cETH</option>
-        </select>
-        <span className="ml-auto self-center text-xs text-[--color-text-muted]">
-          {filtered.length} trades
-        </span>
-      </div>
-
-      <div className="glass-card overflow-hidden">
-        {isLoading ? (
-          <table className="w-full">
-            <tbody className="divide-y divide-[--color-border]/50">
-              <SkeletonRow />
-              <SkeletonRow />
-              <SkeletonRow />
-            </tbody>
-          </table>
-        ) : filtered.length === 0 ? (
-          <EmptyState
-            icon="history"
-            title="No trades yet"
-            body="Trades will appear here once intents are settled on-chain."
-          />
-        ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[--color-border] bg-[--color-surface-low]/30 text-left text-xs text-[--color-text-muted]">
-                <th className="px-4 py-2.5 font-medium">ID</th>
-                <th className="px-4 py-2.5 font-medium">Pair</th>
-                <th className="px-4 py-2.5 font-medium">Mode</th>
-                <th className="px-4 py-2.5 font-medium">Status</th>
-                <th className="px-4 py-2.5 font-medium">Maker</th>
-                <th className="px-4 py-2.5 font-medium">Taker</th>
-                <th className="px-4 py-2.5 font-medium">Created</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[--color-border]/50">
-              {filtered.map((row) => (
-                <HistoryRow key={row.id.toString()} row={row} />
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      {isLoading ? <HistorySkeleton /> : filtered.length === 0 ? (
+        <EmptyState icon="history" title="No activity yet" body="Trades appear here as soon as intents are created on-chain." />
+      ) : (
+        <Card className="overflow-hidden">
+          <div className="hidden overflow-x-auto md:block">
+            <table className="w-full min-w-[760px] text-left">
+              <thead className="border-b border-[var(--color-border)] bg-[var(--color-surface-low)] text-xs text-[var(--color-text-muted)]"><tr><Th>ID</Th><Th>Pair</Th><Th>Mode</Th><Th>Status</Th><Th>Maker</Th><Th>Taker</Th><Th>Created</Th></tr></thead>
+              <tbody className="divide-y divide-[var(--color-border)]">{filtered.map((row) => <HistoryRow key={row.id.toString()} row={row} />)}</tbody>
+            </table>
+          </div>
+          <ul className="divide-y divide-[var(--color-border)] md:hidden">{filtered.map((row) => <HistoryCard key={row.id.toString()} row={row} />)}</ul>
+        </Card>
+      )}
     </AppShell>
   );
 }
 
 function HistoryRow({ row }: { row: TradeRow }) {
-  const status = STATUS_LABELS[row.status] ?? STATUS_LABELS[0];
-  const pair = `${tokenName(row.sellToken)}→${tokenName(row.buyToken)}`;
-  const mode = row.mode === 0 ? "Limit" : "RFQ";
-
   return (
-    <tr className="text-sm transition-colors hover:bg-[--color-surface-low]/30">
-      <td className="px-4 py-2.5 font-mono text-xs text-[--color-text-muted]">
-        #{row.id.toString().padStart(4, "0")}
-      </td>
-      <td className="px-4 py-2.5 font-medium text-[--color-foreground]">{pair}</td>
-      <td className="px-4 py-2.5">
-        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-          row.mode === 0
-            ? "bg-orange-50 text-orange-700"
-            : "bg-[--color-primary]/10 text-[--color-primary]"
-        }`}>
-          {mode}
-        </span>
-      </td>
-      <td className="px-4 py-2.5">
-        <span className={`text-xs font-medium ${status.color}`}>{status.label}</span>
-      </td>
-      <td className="px-4 py-2.5 font-mono text-xs text-[--color-text-secondary]">
-        {shortAddress(row.maker, 4)}
-      </td>
-      <td className="px-4 py-2.5 font-mono text-xs text-[--color-text-secondary]">
-        {row.taker === "—" ? "—" : shortAddress(row.taker, 4)}
-      </td>
-      <td className="px-4 py-2.5 text-xs text-[--color-text-muted]">
-        {row.createdAt > 0 ? new Date(row.createdAt * 1000).toLocaleDateString() : "—"}
-      </td>
+    <tr className="transition-colors duration-150 hover:bg-[var(--color-surface-low)]">
+      <Td mono>#{row.id.toString()}</Td><Td>{pairLabel(row)}</Td><Td><Badge tone={row.mode === 1 ? "primary" : "neutral"}>{row.mode === 1 ? "Sealed RFQ" : "Direct"}</Badge></Td><Td><RowStatus status={row.status} /></Td><Td mono>{shortAddress(row.maker)}</Td><Td mono>{row.taker === "—" ? "—" : shortAddress(row.taker)}</Td><Td>{formatDate(row.createdAt)}</Td>
     </tr>
   );
 }
+
+function HistoryCard({ row }: { row: TradeRow }) {
+  return (
+    <li className="p-5">
+      <div className="flex items-center justify-between gap-3"><span className="font-mono text-xs tabular-nums text-[var(--color-text-muted)]">Intent #{row.id.toString()}</span><RowStatus status={row.status} /></div>
+      <p className="mt-5 font-display text-xl font-medium text-white">{pairLabel(row)}</p>
+      <div className="mt-4 flex items-center justify-between gap-3"><Badge tone={row.mode === 1 ? "primary" : "neutral"}>{row.mode === 1 ? "Sealed RFQ" : "Direct"}</Badge><span className="text-xs text-[var(--color-text-muted)]">{formatDate(row.createdAt)}</span></div>
+      <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-[var(--color-border)] pt-4"><Address label="Maker" value={row.maker} /><Address label="Taker" value={row.taker} /></dl>
+    </li>
+  );
+}
+
+function RowStatus({ status }: { status: number }) {
+  const label = status === 0 ? "Open" : status === 1 ? "Filled" : status === 2 ? "Cancelled" : status === 4 ? "Pending" : "Expired";
+  const tone = status === 0 ? "success" : status === 2 ? "danger" : status === 4 ? "warning" : "neutral";
+  return <Status label={label} tone={tone} />;
+}
+
+function Address({ label, value }: { label: string; value: string }) { return <div><dt className="text-xs text-[var(--color-text-muted)]">{label}</dt><dd className="mt-1 font-mono text-xs text-[var(--color-text-secondary)]">{value === "—" ? "—" : shortAddress(value)}</dd></div>; }
+function Filter({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: [string,string][] }) { return <label className="text-sm font-medium text-white">{label}<select className="tradi-nox-input mt-2 min-h-11 py-2 text-sm" value={value} onChange={(event) => onChange(event.target.value)}>{options.map(([optionValue, optionLabel]) => <option key={optionValue} value={optionValue}>{optionLabel}</option>)}</select></label>; }
+function Th({ children }: { children: React.ReactNode }) { return <th className="px-4 py-3 font-medium">{children}</th>; }
+function Td({ children, mono = false }: { children: React.ReactNode; mono?: boolean }) { return <td className={`px-4 py-3 text-sm text-[var(--color-text-secondary)] ${mono ? "font-mono text-xs" : ""}`}>{children}</td>; }
+function pairLabel(row: TradeRow) { return `${tokenName(row.sellToken)} → ${tokenName(row.buyToken)}`; }
+function formatDate(timestamp: number) { return timestamp > 0 ? new Date(timestamp * 1000).toLocaleDateString() : "—"; }
+function HistorySkeleton() { return <Card className="overflow-hidden"><div className="space-y-4 p-5 md:hidden"><Skeleton className="h-5 w-24" /><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></div><table className="hidden w-full md:table"><tbody><SkeletonRow /><SkeletonRow /><SkeletonRow /></tbody></table></Card>; }

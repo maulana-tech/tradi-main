@@ -8,6 +8,8 @@ import {
   useMemo,
   useState,
 } from "react";
+import { Icon } from "./Icon";
+import { cn } from "@/lib/utils";
 
 type ToastVariant = "success" | "error" | "info";
 
@@ -75,7 +77,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         role="region"
         aria-label="Notifications"
         aria-live="polite"
-        className="pointer-events-none fixed bottom-4 right-4 z-50 flex w-full max-w-sm flex-col gap-2"
+        className="pointer-events-none fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-4 z-50 flex w-[calc(100%-2rem)] max-w-sm flex-col gap-2 md:bottom-4"
       >
         {toasts.map((t) => (
           <ToastCard key={t.id} toast={t} onDismiss={() => dismiss(t.id)} />
@@ -93,9 +95,9 @@ function ToastCard({
   onDismiss: () => void;
 }) {
   const variantStyles: Record<ToastVariant, string> = {
-    success: "border-l-[--color-primary] bg-[--color-surface]",
-    error: "border-l-[--color-danger] bg-[--color-surface]",
-    info: "border-l-[--color-border] bg-[--color-surface]",
+    success: "border-l-[var(--color-success)] bg-[var(--color-surface)]",
+    error: "border-l-[var(--color-danger)] bg-[var(--color-surface)]",
+    info: "border-l-[var(--color-border)] bg-[var(--color-surface)]",
   };
   const variantIcons: Record<ToastVariant, string> = {
     success: "check_circle",
@@ -103,45 +105,40 @@ function ToastCard({
     info: "info",
   };
   const variantIconColor: Record<ToastVariant, string> = {
-    success: "text-[--color-primary]",
-    error: "text-[--color-danger]",
-    info: "text-[--color-text-muted]",
+    success: "text-[var(--color-success-text)]",
+    error: "text-[var(--color-danger)]",
+    info: "text-[var(--color-text-muted)]",
   };
 
   const body = (
     <div
-      className={`pointer-events-auto flex items-start gap-3 rounded-lg border border-[--color-border] border-l-2 p-3 shadow-md ${variantStyles[toast.variant]}`}
+      className={cn("pointer-events-auto flex items-start gap-3 rounded-2xl border border-[var(--color-border)] border-l-2 p-4 shadow-lg", variantStyles[toast.variant])}
     >
-      <span
-        className={`material-symbols-outlined text-lg ${variantIconColor[toast.variant]}`}
-      >
-        {variantIcons[toast.variant]}
-      </span>
-      <p className="flex-1 text-sm leading-snug text-[--color-text]">
+      <Icon name={variantIcons[toast.variant]} className={cn("mt-0.5 size-[18px]", variantIconColor[toast.variant])} />
+      <p className="flex-1 text-sm leading-snug text-[var(--color-text)]">
         {toast.message}
       </p>
+      {toast.href ? (
+        <a
+          href={toast.href}
+          target="_blank"
+          rel="noreferrer"
+          className="min-h-11 shrink-0 content-center text-sm font-semibold text-[var(--color-primary-text)] hover:text-white"
+        >
+          View
+        </a>
+      ) : null}
       <button
+        type="button"
         onClick={onDismiss}
         aria-label="Dismiss"
-        className="text-[--color-text-muted] transition hover:text-[--color-text]"
+        className="grid size-11 shrink-0 place-items-center rounded-full text-[var(--color-text-muted)] transition-colors duration-150 hover:bg-[var(--color-surface-raised)] hover:text-white"
       >
-        <span className="material-symbols-outlined text-base">close</span>
+        <Icon name="close" className="size-4" />
       </button>
     </div>
   );
 
-  if (toast.href) {
-    return (
-      <a
-        href={toast.href}
-        target="_blank"
-        rel="noreferrer"
-        className="block transition hover:brightness-105"
-      >
-        {body}
-      </a>
-    );
-  }
   return body;
 }
 
