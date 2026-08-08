@@ -110,17 +110,18 @@ flowchart TB
 ## Project Structure
 
 ```
-tradi-nox/
+tradi-main/
 ├── packages/
-│   ├── contracts/        # Solidity + Foundry (PrivateOTC.sol on-chain)
+│   ├── contracts/        # Solidity + Foundry
 │   ├── web/              # Next.js frontend
-│   ├── agents/           # Compound Engineering autonomous agents
-│   └── mcp-server/       # MCP server exposing OTC as AI-native tools
-├── .claude-plugin/       # Claude Code plugin companion (/otc-* slash commands)
-├── feedback.md           # Builder feedback for the iExec Nox team
-├── DEMO-SCRIPT.md        # 4-minute demo video storyboard
-├── X-POST.md             # Submission post drafts
-└── README.md             # This file
+│   ├── agents/           # Autonomous viem agents
+│   └── mcp-server/       # PrivateOTC MCP tools
+├── docs/
+│   ├── migrasi.md        # Hermes + KeeperHub migration source of truth
+│   └── hermes.md         # Hermes setup and operating runbook
+├── design-system/        # UI design guidance
+├── AGENTS.md             # Repository instructions
+└── README.md             # Project overview
 ```
 
 ---
@@ -283,17 +284,22 @@ Per hackathon brief: *"using mock data leads to disqualification"*. Honest audit
 - `TradiNoxCToken.sol` — Tradi-Nox's full ERC-7984 implementation (~180 LOC) using real `Nox.transfer` / `Nox.mint` primitives. We deployed it because the [`cdefi.iex.ec`](https://cdefi.iex.ec) faucet does not publicly expose token addresses. Implements **all 8 ERC-7984 transfer functions** (4 plain + 4 transfer-and-call), `IERC7984Receiver` callback verification, and the operator pattern with `uint48` timestamp expiry. **Full spec compliance** per EIP-7984 — no partial.
 - `TradiNoxReceipt.sol` — ERC-721 trade receipt with fully onchain Base64-encoded SVG `tokenURI`. ~200 LOC, no IPFS dependency.
 
-There is **no fake data** anywhere. Every encrypted handle is a real reference to TEE-encrypted state.
+The core Nox contract state and encrypted handles are real. The current KeeperHub audit UI still contains synthetic migration data and must not be used as transaction evidence; see [the migration plan](docs/migrasi.md).
+
+---
+
+## Hermes + KeeperHub Migration
+
+Tradi-Nox is migrating its agent write path from a custom relay/direct Viem fallback to Hermes decision-making and KeeperHub's official MCP execution flow. The current code is still transitional; synthetic audit data and fallback writes are not accepted as production evidence.
+
+The final architecture is: **Hermes decides, Nox encrypts, KeeperHub executes, `PrivateOTC` settles, and the web displays persisted transaction evidence.**
 
 ---
 
 ## Documentation
 
-- [ANALYSIS.md](ANALYSIS.md) — strategic analysis and decision rationale
-- [PROJECT-SPEC.md](PROJECT-SPEC.md) — full implementation specification
-- [feedback.md](feedback.md) — builder feedback for the iExec Nox team
-- [DEMO-SCRIPT.md](DEMO-SCRIPT.md) — 4-minute demo video storyboard
-- [X-POST.md](X-POST.md) — submission post drafts
+- [Migration plan](docs/migrasi.md) — current gaps, implementation order, verification, and definition of done
+- [Hermes runbook](docs/hermes.md) — MCP configuration, RFQ policy, execution flow, evidence, and troubleshooting
 
 ---
 
