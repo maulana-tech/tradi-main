@@ -1,7 +1,7 @@
 /**
  * Pure decision logic for the market-maker agent.
  *
- * The runtime in ./index.ts wires viem subscriptions and Nox SDK calls; the
+ * The runtime in ./index.ts wires viem subscriptions and handle client SDK calls; the
  * decision functions here are isolated for unit testing under London-school
  * strict — every dep is a parameter.
  */
