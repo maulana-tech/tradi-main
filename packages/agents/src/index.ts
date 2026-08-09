@@ -2,7 +2,7 @@
  * Agents entry point — orchestrates all autonomous agents.
  *
  * Compound Engineering: each agent runs continuously and compounds
- * trader's edge while preserving privacy via Nox.
+ * trader's edge while preserving privacy via encrypted handles.
  */
 
 import "dotenv/config";
