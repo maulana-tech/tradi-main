@@ -1,12 +1,12 @@
-# Tradi-Nox
+# Tradi
 
 [![Tests](https://github.com/maulana-tech/tradi-main/actions/workflows/test.yml/badge.svg)](https://github.com/maulana-tech/tradi-main/actions/workflows/test.yml)
 
 > **Your trade. Their guess. Nobody knows.**
 
-Tradi-Nox — a confidential OTC desk where amounts stay hidden, bids stay sealed, and trades stay quiet.
+Tradi — a confidential OTC desk where amounts stay hidden, bids stay sealed, and trades stay quiet.
 
-On-chain OTC desk with hidden amounts and Vickrey-fair price discovery, built on the iExec Nox confidential computing protocol.
+On-chain OTC desk with hidden amounts and Vickrey-fair price discovery, built on the confidential computing protocol.
 
 Submission for the [iExec Vibe Coding Challenge](https://dorahacks.io/hackathon/vibe-coding-iexec) (April–May 2026).
 
@@ -17,11 +17,11 @@ Submission for the [iExec Vibe Coding Challenge](https://dorahacks.io/hackathon/
 | 🐦 **Twitter post** | https://x.com/BangDropID/status/2050295042296984047 |
 | 📦 **Source** | https://github.com/maulana-tech/tradi-main |
 | 📡 **Network** | Arbitrum Sepolia (chain id `421614`) |
-| 🔑 **Stack** | Next.js 16 · Solidity 0.8.27 · iExec Nox · MCP |
+| 🔑 **Stack** | Next.js 16 · Solidity 0.8.27 · TEE · MCP |
 
 ---
 
-## Why Tradi-Nox exists
+## Why Tradi exists
 
 When a whale wants to swap 1,000 ETH for USDC on-chain today, they hit two walls:
 
@@ -30,12 +30,12 @@ When a whale wants to swap 1,000 ETH for USDC on-chain today, they hit two walls
 
 **$30B+ flows through OTC desks every month.** All of it via Telegram, in 2026.
 
-Tradi-Nox is the third option: **on-chain OTC where amounts are encrypted end-to-end**.
+Tradi is the third option: **on-chain OTC where amounts are encrypted end-to-end**.
 
 - ✅ Settlement on-chain via ERC-7984 confidential tokens
 - ✅ Direct OTC (1 maker ↔ 1 taker) **or** RFQ Mode (1 maker ↔ N takers, Vickrey pricing)
 - ✅ Atomic settlement, no trusted intermediary
-- ✅ Composable with any ERC-20 through the Nox Confidential Token wrapper
+- ✅ Composable with any ERC-20 through the confidential token wrapper
 - ✅ Auditable via selective ACL disclosure — regulators can decrypt logs through key sharing
 
 ---
@@ -71,9 +71,9 @@ flowchart TB
     end
 
     subgraph "🌐 External Services"
-        Nox[iExec Nox<br/><i>NoxCompute TEE precompile</i>]
+        Nox[TEE<br/><i>TEE precompile</i>]
         CGT[Procedural SVG<br/><i>receipt image</i>]
-        ContractsAPI <-->|encrypted ops<br/>Nox.gt · Nox.select<br/>Nox.transfer| Nox
+        ContractsAPI <-->|encrypted ops<br/>Nox.gt · select<br/>Nox.transfer| Nox
         Web -.-> CGT
         SC -.-> CGT
     end
@@ -96,7 +96,7 @@ flowchart TB
 | Layer | Tech |
 |---|---|
 | Smart Contracts | Solidity 0.8.27 · Foundry · [`@iexec-nox/nox-protocol-contracts@0.2.2`](https://www.npmjs.com/package/@iexec-nox/nox-protocol-contracts) · OpenZeppelin ERC-721 |
-| Confidential primitives | iExec Nox (TEE-based) · NoxCompute proxy on Arbitrum Sepolia |
+| Confidential primitives | TEE (TEE-based) · TEE proxy on Arbitrum Sepolia |
 | Encryption | [`@iexec-nox/handle@0.1.0-beta.10`](https://www.npmjs.com/package/@iexec-nox/handle) — Viem v2 client |
 | Frontend | Next.js 16 (App Router · Turbopack) · wagmi v2 · RainbowKit · Tailwind v4 |
 | AI | Procedural SVG receipt generation (client-side) |
@@ -179,8 +179,8 @@ pnpm mcp:dev                 # stdio transport, ready for Claude Code / Cursor
 
 1. Visit [https://private-otc.vercel.app](https://private-otc.vercel.app)
 2. Connect a wallet on **Arbitrum Sepolia**
-3. Go to **Faucet** → mint 10,000 cUSDC and 10 cETH (encrypted via Nox).
-   Each token row shows an **Authorize Tradi-Nox** banner — click it once per
+3. Go to **Faucet** → mint 10,000 cUSDC and 10 cETH (encrypted).
+   Each token row shows an **Authorize Tradi** banner — click it once per
    token to approve the OTC contract as operator (60-day expiry).
 4. Go to **Portfolio** → click **Decrypt** to confirm the JS SDK can read your hidden balance
 5. **Create Intent** → Direct OTC: sell 1 cETH for at least 3,500 cUSDC.
@@ -210,14 +210,14 @@ onchain SVG metadata that survives any image host going dark.
 
 | Contract | Address |
 |---|---|
-| `PrivateOTC` (the Tradi-Nox orchestrator) | [`0x5b2C0c83e41bF9ef072d742096C49DFDB814CEB4`](https://sepolia.arbiscan.io/address/0x5b2C0c83e41bF9ef072d742096C49DFDB814CEB4) |
+| `PrivateOTC` (the Tradi orchestrator) | [`0x5b2C0c83e41bF9ef072d742096C49DFDB814CEB4`](https://sepolia.arbiscan.io/address/0x5b2C0c83e41bF9ef072d742096C49DFDB814CEB4) |
 | `TradiNoxCToken` cUSDC | [`0x57736B816F6cb53c6B2c742D3A162E89Db162ADE`](https://sepolia.arbiscan.io/address/0x57736B816F6cb53c6B2c742D3A162E89Db162ADE) |
 | `TradiNoxCToken` cETH | [`0xCdD84bA9415DFE3Dd5c0c05077B1FE194Bcf695d`](https://sepolia.arbiscan.io/address/0xCdD84bA9415DFE3Dd5c0c05077B1FE194Bcf695d) |
 | `TradiNoxReceipt` (ERC-721 keepsake) | [`0xE011E57ff89a9b1450551A7cE402b75c5Bd27B85`](https://sepolia.arbiscan.io/address/0xE011E57ff89a9b1450551A7cE402b75c5Bd27B85) |
 
-**NoxCompute proxy** (provided by iExec): [`0xd464B198f06756a1d00be223634b85E0a731c229`](https://sepolia.arbiscan.io/address/0xd464B198f06756a1d00be223634b85E0a731c229)
+**TEE proxy** (provided by iExec): [`0xd464B198f06756a1d00be223634b85E0a731c229`](https://sepolia.arbiscan.io/address/0xd464B198f06756a1d00be223634b85E0a731c229)
 
-> The on-chain contract name remains `PrivateOTC` (immutable). "Tradi-Nox" is the user-facing brand and product name.
+> The on-chain contract name remains `PrivateOTC` (immutable). "Tradi" is the user-facing brand and product name.
 
 ---
 
@@ -227,14 +227,14 @@ When a taker bid falls below the maker's hidden minimum, naive contracts either:
 - ❌ Revert (leaks "bid too low" via the failed transaction), or
 - ❌ Trust the client to validate (defeats the purpose of confidentiality)
 
-Tradi-Nox uses **`Nox.safeSub` + `Nox.select`** to make the trade an atomic no-op when the bid is insufficient:
+Tradi uses **`Nox.safeSub` + `select`** to make the trade an atomic no-op when the bid is insufficient:
 
 ```solidity
 (ebool sufficient, ) = Nox.safeSub(buyAmount, intent.minBuyAmount);
 
 euint256 zero = Nox.toEuint256(0);
-euint256 effectiveSell = Nox.select(sufficient, intent.sellAmount, zero);
-euint256 effectiveBuy  = Nox.select(sufficient, buyAmount,        zero);
+euint256 effectiveSell = select(sufficient, intent.sellAmount, zero);
+euint256 effectiveBuy  = select(sufficient, buyAmount,        zero);
 
 // Always settle. Whether amounts are real or zero stays encrypted.
 intent.sellToken.confidentialTransferFrom(maker, taker, euint256.unwrap(effectiveSell));
@@ -265,7 +265,7 @@ participant's wallet. Both image and metadata are stored fully onchain:
 
 | Token | What's onchain |
 |---|---|
-| Tradi-Nox Receipt #N | name, description, SVG image, attributes (Mode, Pair, Intent ID, Settled At) |
+| Tradi Receipt #N | name, description, SVG image, attributes (Mode, Pair, Intent ID, Settled At) |
 
 ---
 
@@ -275,24 +275,24 @@ Per hackathon brief: *"using mock data leads to disqualification"*. Honest audit
 
 ✅ **Real (verified on-chain)**
 - All three contracts deployed and responding to read calls
-- `cUSDC.confidentialTotalSupply()` returns a real Nox handle (NoxCompute proxy actually responded during constructor)
+- `cUSDC.confidentialTotalSupply()` returns a real encrypted handle (TEE proxy actually responded during constructor)
 - `@iexec-nox/handle` and `@iexec-nox/nox-protocol-contracts` are the real iExec packages from npm
-- Vickrey logic compiles against the real Nox library
+- Vickrey logic compiles against the real confidential library
 - Frontend lives at https://private-otc.vercel.app, returns HTTP 200 on every route
 
 🛠️ **Self-deployed (real, but written by us)**
-- `TradiNoxCToken.sol` — Tradi-Nox's full ERC-7984 implementation (~180 LOC) using real `Nox.transfer` / `Nox.mint` primitives. We deployed it because the [`cdefi.iex.ec`](https://cdefi.iex.ec) faucet does not publicly expose token addresses. Implements **all 8 ERC-7984 transfer functions** (4 plain + 4 transfer-and-call), `IERC7984Receiver` callback verification, and the operator pattern with `uint48` timestamp expiry. **Full spec compliance** per EIP-7984 — no partial.
+- `TradiNoxCToken.sol` — Tradi's full ERC-7984 implementation (~180 LOC) using real `Nox.transfer` / `Nox.mint` primitives. We deployed it because the [`cdefi.iex.ec`](https://cdefi.iex.ec) faucet does not publicly expose token addresses. Implements **all 8 ERC-7984 transfer functions** (4 plain + 4 transfer-and-call), `IERC7984Receiver` callback verification, and the operator pattern with `uint48` timestamp expiry. **Full spec compliance** per EIP-7984 — no partial.
 - `TradiNoxReceipt.sol` — ERC-721 trade receipt with fully onchain Base64-encoded SVG `tokenURI`. ~200 LOC, no IPFS dependency.
 
-The core Nox contract state and encrypted handles are real. The current KeeperHub audit UI still contains synthetic migration data and must not be used as transaction evidence; see [the migration plan](docs/migrasi.md).
+The core encrypted contract state and encrypted handles are real. The current KeeperHub audit UI still contains synthetic migration data and must not be used as transaction evidence; see [the migration plan](docs/migrasi.md).
 
 ---
 
 ## Hermes + KeeperHub Migration
 
-Tradi-Nox is migrating its agent write path from a custom relay/direct Viem fallback to Hermes decision-making and KeeperHub's official MCP execution flow. The current code is still transitional; synthetic audit data and fallback writes are not accepted as production evidence.
+Tradi is migrating its agent write path from a custom relay/direct Viem fallback to Hermes decision-making and KeeperHub's official MCP execution flow. The current code is still transitional; synthetic audit data and fallback writes are not accepted as production evidence.
 
-The final architecture is: **Hermes decides, Nox encrypts, KeeperHub executes, `PrivateOTC` settles, and the web displays persisted transaction evidence.**
+The final architecture is: **Hermes decides, encrypts, KeeperHub executes, `PrivateOTC` settles, and the web displays persisted transaction evidence.**
 
 ---
 
