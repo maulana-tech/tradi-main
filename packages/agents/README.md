@@ -1,6 +1,6 @@
-# Tradi-Nox — Autonomous Agents
+# Tradi — Autonomous Agents
 
-Compound Engineering layer for the Tradi-Nox Confidential OTC desk. Each agent runs
+Compound Engineering layer for the Tradi Confidential OTC desk. Each agent runs
 independently and can be deployed as a long-running worker (Vercel Cron, a
 self-hosted process, etc.).
 
