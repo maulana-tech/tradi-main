@@ -1,10 +1,10 @@
-# Tradi-Nox — DoraHacks BUIDL Submission
+# Tradi — DoraHacks BUIDL Submission
 
 > **Your trade. Their guess. Nobody knows.**
 >
-> Confidential on-chain OTC desk built on iExec Nox.
+> Confidential on-chain OTC desk built on TEE.
 
-This file mirrors the [DoraHacks BUIDL page](https://dorahacks.io/hackathon/vibe-coding-iexec) submitted for the iExec Vibe Coding Challenge. Keep this in sync whenever DoraHacks content changes.
+This file mirrors the [DoraHacks BUIDL page](https://dorahacks.io/hackathon/vibe-coding-iexec) submitted for the KeeperHub hackathon. Keep this in sync whenever DoraHacks content changes.
 
 > ⚠️ **Demo video URL**: this file uses `https://youtu.be/_tMBT32r_kQ` (the canonical/active video). If the DoraHacks page still shows the older URL, edit it there to match.
 
@@ -39,18 +39,18 @@ Existing "private DeFi" either leaks data via revert messages or breaks composab
 
 ## 💡 The Solution
 
-Tradi-Nox is the third option: **on-chain OTC where amounts are encrypted end-to-end** via the iExec Nox confidential computing protocol and ERC-7984 confidential tokens.
+Tradi is the third option: **on-chain OTC where amounts are encrypted end-to-end** via the TEE confidential computing protocol and ERC-7984 confidential tokens.
 
 - ✅ **Direct OTC mode** — 1 maker ↔ 1 taker, atomic encrypted swap
 - ✅ **RFQ mode** — 1 maker ↔ N takers, sealed-bid Vickrey auction (best price wins, second price pays)
 - ✅ **Atomic settlement** via `Nox.safeSub` + `Nox.select` — when a bid is too low, the trade settles as an encrypted no-op. On-chain status is always `Filled` — observers cannot distinguish a successful trade from a rejected bid. **Privacy preserved on rejection.**
-- ✅ **Composable with any ERC-20** through Tradi-Nox's full ERC-7984 cToken implementation (cUSDC, cETH)
+- ✅ **Composable with any ERC-20** through Tradi's full ERC-7984 cToken implementation (cUSDC, cETH)
 - ✅ **Auditable** via selective ACL disclosure — regulators can decrypt logs through key sharing
 
 ## 🏗️ Three-Layer Architecture
 
 ### 1. Core Protocol
-`PrivateOTC.sol` + `TradiNoxCToken` on Arbitrum Sepolia. Solidity 0.8.27 + iExec Nox primitives.
+`PrivateOTC.sol` + `TradiNoxCToken` on Arbitrum Sepolia. Solidity 0.8.27 + TEE primitives.
 
 ### 2. Compound Engineering Layer
 Four autonomous agents on Vercel Cron + Functions:
@@ -61,14 +61,14 @@ Four autonomous agents on Vercel Cron + Functions:
 - **Strategy Coach** — daily post-trade analysis
 
 ### 3. MCP Plugin Layer
-Tradi-Nox exposes itself as AI-native tools. Any LLM (Claude, Cursor) can browse intents, create trades, and decrypt balances through a single MCP server. Ships with a Claude Code plugin (`/otc-*` slash commands).
+Tradi exposes itself as AI-native tools. Any LLM (Claude, Cursor) can browse intents, create trades, and decrypt balances through a single MCP server. Ships with a Claude Code plugin (`/otc-*` slash commands).
 
 ## 🛠️ Tech Stack
 
 | Layer | Tech |
 |---|---|
 | Smart Contracts | Solidity 0.8.27 · Foundry · `@iexec-nox/nox-protocol-contracts@0.2.2` |
-| Confidential primitives | iExec Nox (TEE-based) · NoxCompute proxy on Arbitrum Sepolia |
+| Confidential primitives | TEE (TEE-based) · NoxCompute proxy on Arbitrum Sepolia |
 | Encryption SDK | `@iexec-nox/handle@0.1.0-beta.10` (Viem v2) |
 | Frontend | Next.js 16 (App Router · Turbopack) · wagmi v2 · RainbowKit · Tailwind v4 |
 | AI | Procedural SVG receipt (client-side) |
@@ -89,7 +89,7 @@ Tradi-Nox exposes itself as AI-native tools. Any LLM (Claude, Cursor) can browse
 
 When a taker bid falls below the maker's hidden minimum, naive contracts either revert (leaking "bid too low" via the failed transaction) or trust the client to validate (defeating confidentiality).
 
-Tradi-Nox uses `Nox.safeSub` + `Nox.select` to make the trade an atomic no-op when the bid is insufficient:
+Tradi uses `Nox.safeSub` + `Nox.select` to make the trade an atomic no-op when the bid is insufficient:
 
 ```solidity
 (ebool sufficient, ) = Nox.safeSub(buyAmount, intent.minBuyAmount);
@@ -107,7 +107,7 @@ The branch (real vs zero) lives entirely inside encrypted handles. The on-chain 
 
 ## 🚧 Challenges Faced
 
-- **Beta SDK churn** — `@iexec-nox/handle@0.1.0-beta.10` had limited examples and shifting APIs during the hackathon. Wrote our own integration patterns and contributed `feedback.md` for the Nox team.
+- **Beta SDK churn** — `@iexec-nox/handle@0.1.0-beta.10` had limited examples and shifting APIs during the hackathon. Wrote our own integration patterns and contributed `feedback.md` for the confidential team.
 - **Privacy-preserving rejection** — a naive revert leaks the maker's hidden minimum. Solved with Strategy B (atomic conditional settlement) so the trade always finalizes, with real-or-zero amounts kept inside encrypted handles.
 - **Full ERC-7984 spec compliance** — not partial (partial = DQ). Implemented all 8 transfer functions (4 plain + 4 transfer-and-call), `IERC7984Receiver` callback verification, and the operator pattern with `uint48` expiry.
 - **End-to-end without mocks in <1 week** — real contracts, real Vercel infrastructure, real MCP server. No simulation anywhere.
@@ -126,7 +126,7 @@ The branch (real vs zero) lives entirely inside encrypted handles. The on-chain 
 - Mainnet deploy on Arbitrum
 - ERC-3643 compliant institutional version (whitelist + KYC modules)
 - Cross-chain RFQ via LayerZero
-- Liquidation protection vault on top of Tradi-Nox settlements
+- Liquidation protection vault on top of Tradi settlements
 - Open-source MCP plugin so any AI agent can route OTC flow
 
 ## 👤 Team
@@ -151,11 +151,11 @@ MIT
 | 222 | Default 256-char Vision field on most forms |
 
 ```
-125: Confidential OTC on iExec Nox. Encrypted amounts, sealed Vickrey bids, fully on-chain. Your trade. Their guess. Nobody knows.
+125: Confidential OTC on TEE. Encrypted amounts, sealed Vickrey bids, fully on-chain. Your trade. Their guess. Nobody knows.
 
-153: Tradi-Nox: confidential OTC on iExec Nox. Encrypted order amounts + sealed-bid Vickrey RFQ that hides losing bids. Institutional size privacy, fully on-chain.
+153: Tradi: confidential OTC on TEE. Encrypted order amounts + sealed-bid Vickrey RFQ that hides losing bids. Institutional size privacy, fully on-chain.
 
-222: Confidential OTC on iExec Nox. Trade amounts stay encrypted on-chain via TEE; a sealed-bid Vickrey RFQ settles without leaking losing bids. Institutional size privacy, fully on-chain. Your trade. Their guess. Nobody knows.
+222: Confidential OTC on TEE. Trade amounts stay encrypted on-chain via TEE; a sealed-bid Vickrey RFQ settles without leaking losing bids. Institutional size privacy, fully on-chain. Your trade. Their guess. Nobody knows.
 ```
 
 ### Tagline bank
@@ -163,7 +163,7 @@ MIT
 | Slot | Copy |
 |---|---|
 | Hero one-liner | "Your trade. Their guess. Nobody knows." |
-| Elevator | "Tradi-Nox is a confidential OTC desk on Arbitrum where the trade amount is encrypted on-chain via iExec Nox. Makers post sealed intents, takers fill them blind, and an encrypted Vickrey auction picks the winner without leaking losing bids." |
+| Elevator | "Tradi is a confidential OTC desk on Arbitrum where the trade amount is encrypted on-chain via TEE. Makers post sealed intents, takers fill them blind, and an encrypted Vickrey auction picks the winner without leaking losing bids." |
 | Twitter bio | "Confidential OTC on-chain. Sealed amounts, sealed bids, sealed wins. Built on @iEx_ec Nox." |
 | Demo hook | "We took the part of OTC that institutions actually care about — size privacy — and put it on Arbitrum." |
 | Sound bite | "OTC desks leak everything. We seal the trade amount on-chain. Your trade. Their guess. Nobody knows." |
