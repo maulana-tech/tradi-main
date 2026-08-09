@@ -4,7 +4,7 @@
 
 - **Framework:** Next.js 16 (App Router) + Turbopack
 - **Wallet:** wagmi v2 + RainbowKit
-- **Encryption:** `@iexec-nox/handle` (Viem v2 client)
+- **Encryption:** `@iexec-nox/handle` (Viem v2 client — wrapped via `lib/handle-client.ts`)
 - **UI:** Tailwind CSS v4 (CSS-based config in `globals.css`)
 - **AI:** Procedural SVG receipt generation
 - **Deploy:** Vercel
@@ -32,7 +32,7 @@ components/
 
 lib/
 ├── wagmi.ts                # Contract addresses (PrivateOTC, cUSDC, cETH, TradiNoxReceipt)
-├── nox-client.ts           # Encryption SDK wrapper
+├── handle-client.ts       # Encryption SDK wrapper
 ├── receipt-svg.ts           # Client-side SVG receipt generator
 ├── abi/                    # Typed contract ABIs (privateOtc, etc.)
 └── hooks/
@@ -52,7 +52,7 @@ lib/
 - **Numbers:** add `data-numeric` or `font-mono` for tabular-nums alignment.
 - **Imports:** path alias `@/*` maps to package root (e.g., `@/lib/wagmi`).
 - **Forms:** prefer Server Actions for non-wallet ops, client components for wallet sigs.
-- **Encrypted inputs:** ALWAYS encrypt off-chain via `nox-client.encryptInput()` before passing to contract write.
+- **Encrypted inputs:** ALWAYS encrypt off-chain via `handle-client.encryptInput()` before passing to contract write.
 
 ## Environment Variables
 

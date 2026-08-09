@@ -102,7 +102,7 @@ export default function RfqCreatePage() {
           <Card className="p-5 sm:p-6">
             <StepHeading number="3" title="Prepare settlement" description="Authorize the contract before bidders commit funds." />
             <div className="mt-6">
-              <OperatorAuth token={sellToken.address} account={address} symbol={sellToken.symbol} reason={`When the winning bid is revealed, atomic settlement debits ${sellToken.symbol} from your wallet. Authorize Tradi-Nox now so the winner cannot be blocked later.`} />
+              <OperatorAuth token={sellToken.address} account={address} symbol={sellToken.symbol} reason={`When the winning bid is revealed, atomic settlement debits ${sellToken.symbol} from your wallet. Authorize Tradi now so the winner cannot be blocked later.`} />
             </div>
           </Card>
 
@@ -139,7 +139,7 @@ export default function RfqCreatePage() {
             <p className="mt-3 text-sm leading-6 text-pretty text-[var(--color-text-secondary)]">The highest bidder wins but pays the second-highest bid. Bidders are encouraged to submit what the trade is really worth to them.</p>
             <details className="mt-4 border-t border-[var(--color-border)] pt-4">
               <summary className="min-h-11 content-center text-sm font-semibold text-white">How encrypted selection works</summary>
-              <p className="pb-2 text-sm leading-6 text-pretty text-[var(--color-text-secondary)]">The contract compares Nox encrypted handles without revealing individual bids. RFQs are capped at 10 bidders to keep settlement gas predictable.</p>
+              <p className="pb-2 text-sm leading-6 text-pretty text-[var(--color-text-secondary)]">The contract compares encrypted handles without revealing individual bids. RFQs are capped at 10 bidders to keep settlement gas predictable.</p>
             </details>
           </Card>
         </aside>
@@ -175,7 +175,7 @@ function buildProgress(step: string): TransactionStep[] {
     return "pending";
   };
   return [
-    { label: "Encrypt trade size", description: "Create the Nox encrypted handle.", state: stateFor(0) },
+    { label: "Encrypt trade size", description: "Create the encrypted handle.", state: stateFor(0) },
     { label: "Approve in wallet", description: "Review the RFQ transaction.", state: stateFor(1) },
     { label: "Open bidding", description: "Wait for on-chain confirmation.", state: stateFor(2) },
   ];

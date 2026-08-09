@@ -1,5 +1,5 @@
 /**
- * Seed script — populate Tradi-Nox with real on-chain intents for demo.
+ * Seed script — populate Tradi with real on-chain intents for demo.
  *
  * Run from repo root:
  *   PRIVATE_KEY=0x... pnpm --filter agents seed
@@ -23,7 +23,7 @@ import {
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { arbitrumSepolia } from "viem/chains";
-import { createViemHandleClient } from "@iexec-nox/handle";
+import { createViemHandleClient } from "../handle-client.js";
 
 // Read from env so the same script works across redeploys.
 const ADDRESSES = {

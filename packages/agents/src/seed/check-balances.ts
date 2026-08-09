@@ -16,7 +16,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import { arbitrumSepolia } from "viem/chains";
 
 const seedKey = (label: string) =>
-  keccak256(stringToBytes(`tradi-nox-demo-${label}`)) as `0x${string}`;
+  keccak256(stringToBytes(`tradi-demo-${label}`)) as `0x${string}`;
 
 async function main() {
   const rpc =

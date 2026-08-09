@@ -26,7 +26,7 @@ import {
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { arbitrumSepolia } from "viem/chains";
-import { createViemHandleClient } from "@iexec-nox/handle";
+import { createViemHandleClient } from "../handle-client.js";
 
 const ADDRESSES = {
   privateOtc: process.env.NEXT_PUBLIC_PRIVATE_OTC_ADDRESS as `0x${string}`,
@@ -50,7 +50,7 @@ const otcAbi = parseAbi([
 
 // Deterministic test wallets — derived from labels via keccak256
 const seedKey = (label: string) =>
-  keccak256(stringToBytes(`tradi-nox-demo-${label}`)) as `0x${string}`;
+  keccak256(stringToBytes(`tradi-demo-${label}`)) as `0x${string}`;
 
 interface Maker {
   name: string;
@@ -110,7 +110,7 @@ async function main() {
       console.log(`  fund tx ${fundTx}`);
     }
 
-    // 2. Set up wallet for this maker + Nox client
+    // 2. Set up wallet for this maker + handle client
     const wallet = createWalletClient({
       account: acc,
       chain: arbitrumSepolia,

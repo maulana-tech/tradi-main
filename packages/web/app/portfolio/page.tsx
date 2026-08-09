@@ -12,7 +12,7 @@ import { Icon } from "@/components/Icon";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge, Status } from "@/components/ui/Badge";
-import { useNoxClient, decryptUint256 } from "@/lib/nox-client";
+import { useHandleClient, decryptUint256 } from "@/lib/handle-client";
 import { CUSDC_ADDRESS, CETH_ADDRESS } from "@/lib/wagmi";
 import { shortAddress } from "@/lib/utils";
 
@@ -35,13 +35,13 @@ export default function PortfolioPage() {
           <Card className="mb-6 grid gap-px overflow-hidden bg-[var(--color-border)] sm:grid-cols-3">
             <StatBlock icon="badge" label="Wallet" value={shortAddress(address, 6)} />
             <StatBlock icon="hub" label="Network" value="Ethereum Sepolia" />
-            <StatBlock icon="shield" label="Privacy" value="Nox encrypted state" />
+            <StatBlock icon="shield" label="Privacy" value="Encrypted state" />
           </Card>
           <section aria-labelledby="encrypted-balances">
             <div className="mb-4 flex items-end justify-between gap-4"><div><h2 id="encrypted-balances" className="font-display text-xl font-medium text-white">Encrypted balances</h2><p className="mt-1 text-sm text-[var(--color-text-secondary)]">Each value requires a wallet-authorized local decrypt.</p></div><Status label="Wallet authorized view" tone="primary" /></div>
             <div className="space-y-4">{TOKENS.map((token) => <BalanceCard key={token.address} token={token} account={address} />)}</div>
           </section>
-          <div className="mt-6 flex items-start gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5"><Icon name="shield" className="mt-0.5 size-5 shrink-0 text-[var(--color-primary-text)]" /><div><h2 className="text-sm font-semibold text-white">Your decrypted value stays in this browser</h2><p className="mt-1 text-sm leading-6 text-pretty text-[var(--color-text-secondary)]">The 32-byte handle points to encrypted Nox state. Your wallet proves access, and the readable balance is never written back on-chain.</p></div></div>
+          <div className="mt-6 flex items-start gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5"><Icon name="shield" className="mt-0.5 size-5 shrink-0 text-[var(--color-primary-text)]" /><div><h2 className="text-sm font-semibold text-white">Your decrypted value stays in this browser</h2><p className="mt-1 text-sm leading-6 text-pretty text-[var(--color-text-secondary)]">The 32-byte handle points to encrypted state. Your wallet proves access, and the readable balance is never written back on-chain.</p></div></div>
         </>
       )}
     </AppShell>
@@ -53,7 +53,7 @@ function StatBlock({ icon, label, value }: { icon: string; label: string; value:
 }
 
 function BalanceCard({ token, account }: { token: { symbol: string; address: `0x${string}`; decimals: number }; account: `0x${string}` }) {
-  const { ready, getClient } = useNoxClient();
+  const { ready, getClient } = useHandleClient();
   const [decrypted, setDecrypted] = useState<bigint | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +72,7 @@ function BalanceCard({ token, account }: { token: { symbol: string; address: `0x
     setError(null);
     try {
       const client = await getClient();
-      if (!client) throw new Error("Nox client unavailable");
+      if (!client) throw new Error("Handle client unavailable");
       if (!handleQuery.data) throw new Error("Balance handle not loaded");
       const handle = handleQuery.data as Hex;
       const value = await decryptUint256(client, handle);

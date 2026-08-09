@@ -13,10 +13,10 @@
  * (auditor flow), which the agent doesn't have keys for.
  */
 
-import { publicClient, walletClient, PRIVATE_OTC_ADDRESS } from "../config.js";
+import { publicClient, walletClient, PRIVATE_OTC_ADDRESS, env } from "../config.js";
 import { privateOtcAbi } from "../abi.js";
 import { decideFinalize, scanWindow, type IntentTuple } from "./logic.js";
-import { executeViaKeeperHub } from "../keeperhub-executor.js";
+import { execute } from "../executor.js";
 
 const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
 const SCAN_DEPTH = 50; // last 50 intents
@@ -39,7 +39,12 @@ const RFQ_BIDS_ABI = [
 ] as const;
 
 export async function startRfqSweeper() {
-  console.log("[rfq-sweeper] starting (interval 5m)");
+  if (env.WRITER_MODE === "hermes") {
+    console.log("[rfq-sweeper] WRITER_MODE=hermes — writes disabled, Hermes is the writer");
+    return;
+  }
+
+  console.log(`[rfq-sweeper] starting (interval 5m, writer=${env.WRITER_MODE})`);
   await sweep();
   setInterval(() => sweep().catch((e) => console.error("[rfq-sweeper]", e)), SWEEP_INTERVAL_MS);
 }
@@ -75,13 +80,22 @@ async function sweep() {
       if (decision.kind === "skip") continue;
 
       console.log(`[rfq-sweeper] finalizing RFQ #${id} (${bidCount} bids)`);
-      const { txHash, audit } = await executeViaKeeperHub({
-        address: PRIVATE_OTC_ADDRESS,
-        abi: privateOtcAbi,
+
+      if (env.WRITER_MODE === "dry-run") {
+        console.log(`[rfq-sweeper] DRY RUN: would finalize RFQ #${id}`);
+        continue;
+      }
+
+      const { ok, audit } = await execute({
+        target: PRIVATE_OTC_ADDRESS,
+        calldata: "0x",
         functionName: "finalizeRFQ",
-        args: [id],
+        intentId: id.toString(),
+        action: "finalizeRFQ",
+        decision: "finalize",
+        reason: `Expired RFQ with ${bidCount} bids`,
       });
-      console.log(`[rfq-sweeper] tx=${txHash} (routed via ${audit.routedVia}, sponsored=${audit.sponsored})`);
+      console.log(`[rfq-sweeper] ${ok ? "succeeded" : "failed"}: tx=${audit.transactionHash} (routed via ${audit.routedVia}, sponsored=${audit.sponsored})`);
     } catch (err) {
       // Continue with next intent on per-id failure
       console.error(`[rfq-sweeper] id=${id} failed`, err instanceof Error ? err.message : err);

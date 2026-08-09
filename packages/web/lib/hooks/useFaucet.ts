@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { useNoxClient, encryptUint256 } from "@/lib/nox-client";
+import { useHandleClient, encryptUint256 } from "@/lib/handle-client";
 import { executeFaucet, type FaucetStep } from "./useFaucet.logic";
 
 export type { FaucetStep };
 
 export function useFaucet() {
   const { address } = useAccount();
-  const { ready, getClient } = useNoxClient();
+  const { ready, getClient } = useHandleClient();
   const { writeContractAsync } = useWriteContract();
 
   const [step, setStep] = useState<FaucetStep>("idle");
@@ -28,7 +28,7 @@ export function useFaucet() {
     return executeFaucet(
       {
         address,
-        noxReady: ready,
+        handleReady: ready,
         getClient,
         encryptAmount: encryptUint256,
         writeContractAsync: writeContractAsync as (

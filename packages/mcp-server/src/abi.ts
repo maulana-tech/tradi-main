@@ -40,6 +40,48 @@ export const privateOtcAbi = [
     outputs: [{ type: "uint256" }],
   },
   {
+    type: "function",
+    name: "submitBid",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "id", type: "uint256" },
+      { name: "bidAmountHandle", type: "bytes32" },
+      { name: "bidProof", type: "bytes" },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "finalizeRFQ",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "id", type: "uint256" }],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "revealRFQWinner",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "id", type: "uint256" },
+      { name: "winnerIdx", type: "uint256" },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "bids",
+    stateMutability: "view",
+    inputs: [
+      { name: "", type: "uint256" },
+      { name: "", type: "uint256" },
+    ],
+    outputs: [
+      { name: "taker", type: "address" },
+      { name: "offeredAmount", type: "bytes32" },
+      { name: "active", type: "bool" },
+    ],
+  },
+  {
     type: "event",
     name: "IntentCreated",
     inputs: [
@@ -49,6 +91,36 @@ export const privateOtcAbi = [
       { name: "buyToken", type: "address", indexed: false },
       { name: "mode", type: "uint8", indexed: false },
       { name: "deadline", type: "uint64", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "BidSubmitted",
+    inputs: [
+      { name: "id", type: "uint256", indexed: true },
+      { name: "taker", type: "address", indexed: true },
+    ],
+  },
+  {
+    type: "event",
+    name: "Settled",
+    inputs: [
+      { name: "id", type: "uint256", indexed: true },
+      { name: "taker", type: "address", indexed: true },
+    ],
+  },
+  {
+    type: "event",
+    name: "Cancelled",
+    inputs: [
+      { name: "id", type: "uint256", indexed: true },
+    ],
+  },
+  {
+    type: "event",
+    name: "RFQPendingReveal",
+    inputs: [
+      { name: "id", type: "uint256", indexed: true },
     ],
   },
 ] as const;

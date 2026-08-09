@@ -1,12 +1,12 @@
 /**
  * Pure async logic for the faucet flow, extracted from useFaucet for testability.
  *
- * The React hook ({@link ./useFaucet}) is a thin wrapper that wires wagmi/Nox
+ * The React hook ({@link ./useFaucet}) is a thin wrapper that wires wagmi/handle client
  * deps and React state setters into this function. Tests against this module
  * cover every branch (positive/negative/edge) without needing a React renderer.
  */
 import type { Hex } from "viem";
-import type { HandleClient } from "@iexec-nox/handle";
+import type { HandleClient } from "@/lib/handle-client";
 
 export const FAUCET_ABI = [
   {
@@ -31,7 +31,7 @@ export type FaucetStep =
 
 export type FaucetDeps = {
   address: `0x${string}` | undefined;
-  noxReady: boolean;
+  handleReady: boolean;
   getClient: () => Promise<HandleClient | null>;
   encryptAmount: (
     client: HandleClient,
@@ -53,13 +53,13 @@ export async function executeFaucet(
   cb: FaucetCallbacks,
 ): Promise<void> {
   if (!deps.address) throw new Error("Wallet not connected");
-  if (!deps.noxReady) throw new Error("Nox client not ready");
+  if (!deps.handleReady) throw new Error("Handle client not ready");
   cb.onError(null);
 
   try {
     cb.onStep("encrypting");
     const client = await deps.getClient();
-    if (!client) throw new Error("Nox client unavailable");
+    if (!client) throw new Error("Handle client unavailable");
 
     const enc = await deps.encryptAmount(client, args.amount, args.tokenAddress);
 

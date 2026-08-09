@@ -1,11 +1,9 @@
 /**
- * Nox client — encryption + decryption helpers via @iexec-nox/handle.
+ * Handle client — encryption + decryption helpers via the confidential handle SDK.
  *
  * Public API:
- *   - `useNoxClient()` — React hook returning a memoized HandleClient
+ *   - `useHandleClient()` — React hook returning a memoized HandleClient
  *   - `encryptUint256(client, value, contract)` — encrypt + format for Solidity call
- *
- * Reference: https://github.com/iExec-Nox/nox-handle-sdk
  */
 
 import {
@@ -17,20 +15,18 @@ import type { Hex } from "viem";
 import { useMemo } from "react";
 import { useWalletClient } from "wagmi";
 
-const NOX_CONFIG = {
+const HANDLE_CONFIG = {
   gatewayUrl: "https://gateway-testnets.noxprotocol.dev" as const,
   smartContractAddress: "0x24Ef36Ec5b626D7DCD09a98F3083c2758F0F77bF" as `0x${string}`,
   subgraphUrl: "https://thegraph.ethereum-sepolia-testnet.noxprotocol.io/api/subgraphs/id/9CsccKwvgYFo72zZeU4k4wj2NEBLdWhVE3EUandgmzgo" as const,
 };
 
+export type { HandleClient, Handle };
+
 /**
  * Encrypt a uint256 value off-chain. Returns the encrypted handle + proof
- * that should be passed verbatim to a Nox-enabled contract function expecting
+ * that should be passed verbatim to a contract function expecting
  * `(externalEuint256 handle, bytes proof)`.
- *
- * @param client   HandleClient (created via {@link useNoxClient})
- * @param value    Plaintext uint256 (bigint) to encrypt
- * @param contract Address of the contract that will validate the proof
  */
 export async function encryptUint256(
   client: HandleClient,
@@ -47,7 +43,7 @@ export async function encryptUint256(
 
 /**
  * Decrypt a handle returned by the contract. Caller MUST be on the handle's
- * ACL (granted via `Nox.allow(handle, msg.sender)` in Solidity).
+ * ACL (granted via handle allow in Solidity).
  */
 export async function decryptUint256(
   client: HandleClient,
@@ -59,7 +55,7 @@ export async function decryptUint256(
 
 /**
  * Decrypt a publicly-decryptable handle (no ACL required).
- * Used when a contract called `Nox.allowPublicDecryption(handle)`.
+ * Used when a contract called public decryption on the handle.
  */
 export async function publicDecryptUint256(
   client: HandleClient,
@@ -77,14 +73,9 @@ export async function publicDecryptUint256(
  *
  * Returns `undefined` until wallet is connected. Call sites should guard
  * with `if (!client) return;` before invoking encrypt/decrypt.
- *
- * Note: `createViemHandleClient` is async; we resolve lazily on first use.
- *
- * Coverage: this hook can't run under our Vitest setup because of the React 19
- * + pnpm + Windows two-React-copies issue documented elsewhere. Excluded.
  */
 /* v8 ignore start */
-export function useNoxClient(): {
+export function useHandleClient(): {
   ready: boolean;
   getClient: () => Promise<HandleClient | null>;
 } {
@@ -95,7 +86,7 @@ export function useNoxClient(): {
     return async () => {
       if (!walletClient) return null;
       if (!cached) {
-        cached = createViemHandleClient(walletClient, NOX_CONFIG);
+        cached = createViemHandleClient(walletClient, HANDLE_CONFIG);
       }
       return cached;
     };

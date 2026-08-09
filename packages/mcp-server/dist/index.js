@@ -1,25 +1,19 @@
 /**
  * PrivateOTC MCP Server.
  *
- * Exposes the OTC desk as MCP tools so AI agents (Claude, Cursor,
- * etc.) can trade on user's behalf — privately.
+ * Exposes the OTC desk as MCP tools so AI agents (Hermes, Claude, Cursor)
+ * can trade on user's behalf — privately.
  *
- * Tools:
- *   - private_otc_create_intent
- *   - private_otc_browse_intents
- *   - private_otc_submit_bid
- *   - private_otc_decrypt_balance
- *   - private_otc_audit_trade
- *   - private_otc_analyze_market
+ * Read/Prepare tools (for Hermes + KeeperHub flow):
+ *   - private_otc_browse_intents      — list open intents
+ *   - private_otc_read_rfq_state      — read full RFQ state + bid count
+ *   - private_otc_get_price_reference — get fair-value price for a pair
+ *   - private_otc_prepare_encrypted_bid — encrypt bid + return calldata
+ *   - private_otc_explain_execution   — explain KeeperHub execution outcome
  *
- * Resources:
- *   - privateotc://intents/open
- *   - privateotc://rfq/active
- *   - privateotc://history/mine
- *
- * Prompts:
- *   - trade-suggest
- *   - risk-check
+ * Write tools (direct — use only when KeeperHub is unavailable):
+ *   - private_otc_create_intent       — create Direct OTC intent
+ *   - private_otc_decrypt_balance     — decrypt confidential balance
  */
 import "dotenv/config";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -28,10 +22,13 @@ import { CallToolRequestSchema, ListToolsRequestSchema, } from "@modelcontextpro
 import { createIntentTool } from "./tools/createIntent.js";
 import { browseIntentsTool } from "./tools/browseIntents.js";
 import { decryptBalanceTool } from "./tools/decryptBalance.js";
-import { keeperhubRelayTool } from "./tools/keeperhubRelay.js";
+import { readRfqStateTool } from "./tools/readRfqState.js";
+import { getPriceReferenceTool } from "./tools/getPriceReference.js";
+import { prepareEncryptedBidTool } from "./tools/prepareEncryptedBid.js";
+import { explainExecutionTool } from "./tools/explainExecution.js";
 const server = new Server({
     name: "private-otc",
-    version: "0.1.0",
+    version: "0.2.0",
 }, {
     capabilities: {
         tools: {},
@@ -40,10 +37,13 @@ const server = new Server({
     },
 });
 const tools = [
-    createIntentTool,
     browseIntentsTool,
+    readRfqStateTool,
+    getPriceReferenceTool,
+    prepareEncryptedBidTool,
+    explainExecutionTool,
+    createIntentTool,
     decryptBalanceTool,
-    keeperhubRelayTool,
 ];
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: tools.map((t) => ({

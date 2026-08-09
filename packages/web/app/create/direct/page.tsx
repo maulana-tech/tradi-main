@@ -200,7 +200,7 @@ function buildProgress(step: string): TransactionStep[] {
     return "pending";
   };
   return [
-    { label: "Encrypt private terms", description: "Prepared locally through the Nox gateway.", state: stateFor(0) },
+    { label: "Encrypt private terms", description: "Prepared locally through the encryption gateway.", state: stateFor(0) },
     { label: "Approve in wallet", description: "Review the exact contract interaction.", state: stateFor(1) },
     { label: "Confirm on-chain", description: "Wait for the intent event.", state: stateFor(2) },
   ];

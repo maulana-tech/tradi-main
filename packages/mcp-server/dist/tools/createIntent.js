@@ -12,7 +12,7 @@ const ArgsSchema = z.object({
 });
 export const createIntentTool = {
     name: "private_otc_create_intent",
-    description: "Create a new Direct OTC intent. Encrypts sellAmount and minBuyAmount via Nox, submits to PrivateOTC contract on Arbitrum Sepolia. Returns intentId + txHash.",
+    description: "Create a new Direct OTC intent. Encrypts sellAmount and minBuyAmount off-chain, submits to PrivateOTC contract on Arbitrum Sepolia. Returns intentId + txHash.",
     inputSchema: {
         type: "object",
         properties: {

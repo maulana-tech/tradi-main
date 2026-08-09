@@ -24,7 +24,7 @@ function makeEncryptedDeps(
 ): EncryptedWriteDeps {
   return {
     address: USER,
-    noxReady: true,
+    handleReady: true,
     privateOtcAddress: OTC,
     getClient: vi.fn().mockResolvedValue({ mockClient: true }),
     encryptAmount: vi
@@ -127,14 +127,14 @@ describe("executeCreateRfq", () => {
       expect(cb.onStep).not.toHaveBeenCalled();
     });
 
-    test("throws when Nox not ready", async () => {
+    test("throws when Handle not ready", async () => {
       await expect(
         executeCreateRfq(
-          makeEncryptedDeps({ noxReady: false }),
+          makeEncryptedDeps({ handleReady: false }),
           baseInput,
           makeCb(),
         ),
-      ).rejects.toThrow("Nox client not ready");
+      ).rejects.toThrow("Handle client not ready");
     });
 
     test("captures error when getClient resolves null", async () => {
@@ -143,7 +143,7 @@ describe("executeCreateRfq", () => {
       });
       const cb = makeCb();
       await executeCreateRfq(deps, baseInput, cb);
-      expect(cb.onError).toHaveBeenLastCalledWith("Nox client unavailable");
+      expect(cb.onError).toHaveBeenLastCalledWith("Handle client unavailable");
       expect(deps.writeContractAsync).not.toHaveBeenCalled();
     });
 
@@ -232,14 +232,14 @@ describe("executeAcceptIntent", () => {
       ).rejects.toThrow("Wallet not connected");
     });
 
-    test("throws when Nox not ready", async () => {
+    test("throws when Handle not ready", async () => {
       await expect(
         executeAcceptIntent(
-          makeEncryptedDeps({ noxReady: false }),
+          makeEncryptedDeps({ handleReady: false }),
           { intentId: 0n, buyAmount: 0n },
           makeCb(),
         ),
-      ).rejects.toThrow("Nox client not ready");
+      ).rejects.toThrow("Handle client not ready");
     });
 
     test("captures error when getClient resolves null", async () => {
@@ -252,7 +252,7 @@ describe("executeAcceptIntent", () => {
         { intentId: 0n, buyAmount: 0n },
         cb,
       );
-      expect(cb.onError).toHaveBeenLastCalledWith("Nox client unavailable");
+      expect(cb.onError).toHaveBeenLastCalledWith("Handle client unavailable");
     });
 
     test("captures error from encryption", async () => {
@@ -330,14 +330,14 @@ describe("executeSubmitBid", () => {
       ).rejects.toThrow("Wallet not connected");
     });
 
-    test("throws when Nox not ready", async () => {
+    test("throws when Handle not ready", async () => {
       await expect(
         executeSubmitBid(
-          makeEncryptedDeps({ noxReady: false }),
+          makeEncryptedDeps({ handleReady: false }),
           { rfqId: 0n, bidAmount: 0n },
           makeCb(),
         ),
-      ).rejects.toThrow("Nox client not ready");
+      ).rejects.toThrow("Handle client not ready");
     });
 
     test("captures error when getClient resolves null", async () => {
@@ -346,7 +346,7 @@ describe("executeSubmitBid", () => {
       });
       const cb = makeCb();
       await executeSubmitBid(deps, { rfqId: 0n, bidAmount: 0n }, cb);
-      expect(cb.onError).toHaveBeenLastCalledWith("Nox client unavailable");
+      expect(cb.onError).toHaveBeenLastCalledWith("Handle client unavailable");
     });
 
     test("captures error from encryption", async () => {

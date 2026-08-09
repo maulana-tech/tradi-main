@@ -1,7 +1,7 @@
 /**
  * Pure analysis logic for the strategy-coach agent.
  *
- * Without auditor-key decryption (which requires Nox.addViewer setup), we
+ * Without auditor-key decryption (which requires handle client addViewer setup), we
  * can only see the *metadata* of settled trades — counts, pairs, peers.
  * That's still enough for a "you traded 12 times this week with 3 unique
  * counterparties" coach.

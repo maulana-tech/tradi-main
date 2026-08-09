@@ -1,5 +1,5 @@
 /**
- * Lazy-initialized viem clients + Nox handle client for the MCP server.
+ * Lazy-initialized viem clients + encrypted handle client for the MCP server.
  *
  * MCP server uses its own AGENT_PRIVATE_KEY (separate from web user wallets)
  * to act on behalf of AI callers. All env vars validated at first use.
@@ -8,7 +8,7 @@
 import { createWalletClient, createPublicClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { arbitrumSepolia } from "viem/chains";
-import { createViemHandleClient, type HandleClient } from "@iexec-nox/handle";
+import { createViemHandleClient, type HandleClient } from "./handle-client.js";
 
 let _walletClient: ReturnType<typeof createWalletClient> | null = null;
 let _publicClient: ReturnType<typeof createPublicClient> | null = null;

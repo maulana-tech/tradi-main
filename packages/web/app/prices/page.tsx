@@ -49,7 +49,7 @@ export default function PricesPage() {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-              <p className="mt-4 text-sm text-pretty text-[var(--color-text-secondary)]">The chart is a reference only. Tradi-Nox trade amounts and accepted prices remain encrypted until settlement.</p>
+              <p className="mt-4 text-sm text-pretty text-[var(--color-text-secondary)]">The chart is a reference only. Tradi trade amounts and accepted prices remain encrypted until settlement.</p>
             </Card>
           ) : (
             <EmptyState icon="candlestick_chart" title="No historical samples" body="The current quote is available, but historical pool reads returned no samples." action={<ButtonLink href="/intents" tone="secondary">View private trades</ButtonLink>} />

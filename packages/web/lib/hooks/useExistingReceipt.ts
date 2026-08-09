@@ -1,14 +1,14 @@
 "use client";
 
 /**
- * Check whether a given wallet has already minted a TradiNoxReceipt NFT
+ * Check whether a given wallet has already minted a TradiReceipt NFT
  * for a given intent. Used to make the mint button idempotent — once
  * a participant has minted, the button hides and we surface a "view
  * NFT" link instead of letting them mint duplicates.
  *
  * Reads `ReceiptMinted(uint256 indexed tokenId, uint256 indexed
  * intentId, address indexed minter, uint8 mode)` event log from the
- * TradiNoxReceipt contract.
+ * TradiReceipt contract.
  */
 
 import { useEffect, useState } from "react";
@@ -20,7 +20,7 @@ const RECEIPT_MINTED_EVENT = parseAbiItem(
   "event ReceiptMinted(uint256 indexed tokenId, uint256 indexed intentId, address indexed minter, uint8 mode)",
 );
 
-// Just below TradiNoxReceipt deploy block on Ethereum Sepolia. Single
+// Just below TradiReceipt deploy block on Ethereum Sepolia. Single
 // getLogs window covers all mint history; cheap because the indexed
 // topics narrow the result to at most a handful per (intentId, minter).
 const SCAN_FROM_BLOCK = 264_500_000n;

@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * Mint an on-chain TradiNoxReceipt NFT for a settled OTC trade. Wraps
- * `TradiNoxReceipt.mint(intentId, mode, settleTxHash, pair)` plus the usual
+ * Mint an on-chain TradiReceipt NFT for a settled OTC trade. Wraps
+ * `TradiReceipt.mint(intentId, mode, settleTxHash, pair)` plus the usual
  * tx lifecycle (signing → confirming → done) and exposes the resulting
  * tokenId by parsing the ReceiptMinted event.
  *
@@ -19,7 +19,7 @@ import {
 import { decodeEventLog, parseAbi, stringToHex, padHex } from "viem";
 import { TRADI_NOX_RECEIPT_ADDRESS } from "@/lib/wagmi";
 
-export const tradiNoxReceiptAbi = parseAbi([
+export const tradiReceiptAbi = parseAbi([
   "function mint(uint256 intentId, uint8 mode, bytes32 settleTxHash, bytes32 pair) returns (uint256)",
   "function tokenURI(uint256 tokenId) view returns (string)",
   "event ReceiptMinted(uint256 indexed tokenId, uint256 indexed intentId, address indexed minter, uint8 mode)",
@@ -72,7 +72,7 @@ export function useReceiptMint() {
     for (const log of receipt.data.logs) {
       try {
         const decoded = decodeEventLog({
-          abi: tradiNoxReceiptAbi,
+          abi: tradiReceiptAbi,
           data: log.data,
           topics: log.topics,
         });
@@ -99,7 +99,7 @@ export function useReceiptMint() {
   async function submit(input: MintInput) {
     if (TRADI_NOX_RECEIPT_ADDRESS === "0x0") {
       setStep("error");
-      setError("TradiNoxReceipt contract address not configured");
+      setError("TradiReceipt contract address not configured");
       return;
     }
     setStep("signing");
@@ -109,7 +109,7 @@ export function useReceiptMint() {
       const modeEnum = input.mode === "Direct" ? 0 : 1;
       const hash = await writeContractAsync({
         address: TRADI_NOX_RECEIPT_ADDRESS,
-        abi: tradiNoxReceiptAbi,
+        abi: tradiReceiptAbi,
         functionName: "mint",
         args: [
           input.intentId,

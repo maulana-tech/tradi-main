@@ -130,7 +130,7 @@ export function generateReceiptSvg(opts: ReceiptInput): ReceiptOutput {
   </g>
 
   <!-- Footer -->
-  <text x="48" y="545" fill="${TEXT_MUTED}" font-family="ui-monospace,monospace" font-size="9" letter-spacing="1">CONFIDENTIAL OTC SETTLEMENT · IEXEC NOX TEE</text>
+  <text x="48" y="545" fill="${TEXT_MUTED}" font-family="ui-monospace,monospace" font-size="9" letter-spacing="1">CONFIDENTIAL OTC SETTLEMENT · KEEPERHUB TEE</text>
   <text x="48" y="560" fill="${TEXT_MUTED}" font-family="ui-monospace,monospace" font-size="9" letter-spacing="1">AMOUNTS ENCRYPTED · SETTLEMENT VERIFIED · NO MEV</text>
 
   <!-- Bottom bar -->

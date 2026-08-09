@@ -35,7 +35,7 @@ import {
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { arbitrumSepolia } from "viem/chains";
-import { createViemHandleClient } from "@iexec-nox/handle";
+import { createViemHandleClient } from "../handle-client.js";
 
 const ADDRESSES = {
   privateOtc: (process.env.NEXT_PUBLIC_PRIVATE_OTC_ADDRESS ??
@@ -59,7 +59,7 @@ const otcAbi = parseAbi([
 ]);
 
 const seedKey = (label: string) =>
-  keccak256(stringToBytes(`tradi-nox-demo-${label}`)) as `0x${string}`;
+  keccak256(stringToBytes(`tradi-demo-${label}`)) as `0x${string}`;
 
 interface Wallet {
   name: string;
@@ -374,7 +374,7 @@ async function main() {
     console.log(`  #${s.id ?? "?"}  [${s.kind}] ${s.summary}`);
   }
   console.log("\nVisit /portfolio (per wallet) and Arbiscan to inspect the encrypted handles.");
-  console.log("All amounts encrypted on-chain; only participants can decrypt via Nox.allow ACL.\n");
+  console.log("All amounts encrypted on-chain; only participants can decrypt via handle client allow ACL.\n");
 }
 
 main().catch((err) => {

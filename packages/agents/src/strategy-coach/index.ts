@@ -4,7 +4,7 @@
  * Scans recent Settled events for the agent's address as taker. Builds a
  * coach report (counts + unique counterparties) and posts via webhook.
  * Amounts stay encrypted — full decryption breakdown requires explicit
- * auditor delegation (Nox.addViewer) which is out of scope here.
+ * auditor delegation (handle client addViewer) which is out of scope here.
  */
 
 import { publicClient, walletClient, PRIVATE_OTC_ADDRESS, env } from "../config.js";

@@ -12,7 +12,7 @@ import {
   encryptUint256,
   decryptUint256,
   publicDecryptUint256,
-} from "../nox-client";
+} from "../handle-client";
 
 const CONTRACT = "0xContract" as `0x${string}`;
 

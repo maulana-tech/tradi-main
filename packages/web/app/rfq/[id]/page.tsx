@@ -27,7 +27,7 @@ import {
 import { statusLabel } from "@/lib/hooks/useIntents";
 import { shortAddress } from "@/lib/utils";
 import { useToast } from "@/components/Toast";
-import { useNoxClient, decryptUint256 } from "@/lib/nox-client";
+import { useHandleClient, decryptUint256 } from "@/lib/handle-client";
 import { formatUnits } from "viem";
 
 const TOKEN_NAMES: Record<string, { symbol: string; decimals: number }> = {
@@ -112,9 +112,9 @@ export default function RfqDetailPage({
   const [now, setNow] = useState(Math.floor(Date.now() / 1000));
 
   // Maker-only bid decryption state. After finalizeRFQ, every bid handle is
-  // ACL-allowed for the maker via Nox.allow — we can pull plaintext amounts
+  // ACL-allowed for the maker via handle allow — we can pull plaintext amounts
   // through the same handle client used for encryption.
-  const { ready: noxReady, getClient } = useNoxClient();
+  const { ready: handleReady, getClient } = useHandleClient();
   const [decrypted, setDecrypted] = useState<Record<number, bigint>>({});
   const [decrypting, setDecrypting] = useState(false);
 
@@ -124,7 +124,7 @@ export default function RfqDetailPage({
     try {
       const client = await getClient();
       if (!client) {
-        toast.error("Nox client unavailable");
+        toast.error("Handle client unavailable");
         return;
       }
       const out: Record<number, bigint> = {};
@@ -403,7 +403,7 @@ export default function RfqDetailPage({
                 token={rfq.buyToken}
                 account={address}
                 symbol={buyTok?.symbol ?? "buy token"}
-                reason={`If you win this Vickrey auction, settlement pulls ${buyTok?.symbol ?? "your buy token"} from your wallet to the maker. Tradi-Nox needs operator permission on this cToken first — one-time, lasts 60 days.`}
+                reason={`If you win this Vickrey auction, settlement pulls ${buyTok?.symbol ?? "your buy token"} from your wallet to the maker. Tradi needs operator permission on this cToken first — one-time, lasts 60 days.`}
               />
 
               <form onSubmit={onSubmitBid} className="surface-card space-y-5 p-6">
@@ -530,7 +530,7 @@ export default function RfqDetailPage({
                   token={rfq.sellToken}
                   account={address}
                   symbol={sellSym}
-                  reason={`Reveal settlement debits ${sellSym} from your wallet to the winning bidder. Tradi-Nox needs operator permission first.`}
+                  reason={`Reveal settlement debits ${sellSym} from your wallet to the winning bidder. Tradi needs operator permission first.`}
                 />
                 <div className="surface-card border-l-2 border-l-amber-400 p-6">
                 <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-[var(--color-warning-text)]">
@@ -548,7 +548,7 @@ export default function RfqDetailPage({
                   <>
                     <button
                       onClick={handleDecryptBids}
-                      disabled={!noxReady || decrypting || allDecrypted}
+                      disabled={!handleReady || decrypting || allDecrypted}
                       className="mb-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-[var(--color-warning)]/40 bg-[var(--color-warning-soft)] px-3 text-sm font-semibold text-[var(--color-warning-text)] transition-colors duration-150 hover:border-[var(--color-warning)] disabled:opacity-40"
                     >
                       <Icon name={decrypting ? "sync" : allDecrypted ? "check_circle" : "lock_open"} className={`size-4 ${decrypting ? "animate-spin" : ""}`} />
@@ -556,9 +556,9 @@ export default function RfqDetailPage({
                         ? "Decrypting…"
                         : allDecrypted
                           ? `${decryptedCount} bids decrypted`
-                          : !noxReady
+                          : !handleReady
                             ? "Wallet not ready"
-                            : `Decrypt ${bids.length} bid${bids.length === 1 ? "" : "s"} via Nox`}
+                            : `Decrypt ${bids.length} bid${bids.length === 1 ? "" : "s"} via handle client`}
                     </button>
 
                     <ul className="mb-4 space-y-2">
@@ -730,7 +730,7 @@ export default function RfqDetailPage({
             </div>
             <p className="text-sm leading-relaxed text-[var(--color-text-muted)]">
               Highest bid wins. Pays second-highest. All comparisons run inside
-              encrypted handles via Nox.gt + Nox.select.
+              encrypted handles via confidential select.
             </p>
           </div>
         </aside>

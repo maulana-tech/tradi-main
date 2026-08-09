@@ -2,7 +2,7 @@ import { z } from "zod";
 import { getPublicClient, getHandleClient } from "../client.js";
 import { erc7984Abi } from "../abi.js";
 import type { Hex } from "viem";
-import type { Handle } from "@iexec-nox/handle";
+import type { Handle } from "../handle-client.js";
 
 const ArgsSchema = z.object({
   tokenAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/),

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useAccount, useReadContracts } from "wagmi";
 import type { Hex } from "viem";
 import { CUSDC_ADDRESS, CETH_ADDRESS } from "@/lib/wagmi";
-import { useNoxClient, decryptUint256 } from "@/lib/nox-client";
+import { useHandleClient, decryptUint256 } from "@/lib/handle-client";
 import { useToast } from "./Toast";
 import { Icon } from "./Icon";
 
@@ -29,7 +29,7 @@ const TOKENS: Token[] = [
 /**
  * Floating balance widget — collapsible bottom-left panel showing decrypted
  * cToken balances. Default state: encrypted handles (••••). Click "Reveal" →
- * Nox decrypt via wallet signature → cached plaintext for the session.
+ * Decrypt via wallet signature → cached plaintext for the session.
  *
  * Intentionally separate from /portfolio (which has the full breakdown +
  * controls). This is the "always-visible HUD" that makes the dApp feel like
@@ -37,7 +37,7 @@ const TOKENS: Token[] = [
  */
 export function BalanceWidget() {
   const { address, isConnected } = useAccount();
-  const { ready: noxReady, getClient } = useNoxClient();
+  const { ready: handleReady, getClient } = useHandleClient();
   const toast = useToast();
   const pathname = usePathname();
   // /portfolio already shows full balance breakdown — duplicating the floating
@@ -69,7 +69,7 @@ export function BalanceWidget() {
 
   async function handleReveal() {
     if (decrypting) return;
-    if (!noxReady) {
+    if (!handleReady) {
       toast.error("Wallet not ready for decryption");
       return;
     }
@@ -77,7 +77,7 @@ export function BalanceWidget() {
     try {
       const client = await getClient();
       if (!client) {
-        toast.error("Nox client unavailable");
+        toast.error("Handle client unavailable");
         return;
       }
 
@@ -189,7 +189,7 @@ export function BalanceWidget() {
         <button
           type="button"
           onClick={handleReveal}
-          disabled={decrypting || !noxReady}
+          disabled={decrypting || !handleReady}
           className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[var(--color-border)] px-3 text-xs font-semibold text-[var(--color-text-secondary)] transition-colors duration-150 hover:border-[var(--color-primary)] hover:text-white disabled:opacity-40"
         >
           <Icon name={decrypting ? "sync" : Object.keys(revealed).length > 0 ? "visibility_off" : "visibility"} className={`size-4 ${decrypting ? "animate-spin" : ""}`} />

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { decodeEventLog } from "viem";
 import { PRIVATE_OTC_ADDRESS } from "@/lib/wagmi";
-import { useNoxClient, encryptUint256 } from "@/lib/nox-client";
+import { useHandleClient, encryptUint256 } from "@/lib/handle-client";
 import {
   executeCreateRfq,
   executeAcceptIntent,
@@ -46,7 +46,7 @@ function makeStateAdapter(
 
 export function useCreateRfq() {
   const { address } = useAccount();
-  const { ready, getClient } = useNoxClient();
+  const { ready, getClient } = useHandleClient();
   const { writeContractAsync } = useWriteContract();
   const [state, setState] = useState<WriteState>(initial);
   const [intentId, setIntentId] = useState<bigint | null>(null);
@@ -59,7 +59,7 @@ export function useCreateRfq() {
     return executeCreateRfq(
       {
         address,
-        noxReady: ready,
+        handleReady: ready,
         privateOtcAddress: PRIVATE_OTC_ADDRESS,
         getClient,
         encryptAmount: encryptUint256,
@@ -109,7 +109,7 @@ export function useCreateRfq() {
 
 export function useAcceptIntent() {
   const { address } = useAccount();
-  const { ready, getClient } = useNoxClient();
+  const { ready, getClient } = useHandleClient();
   const { writeContractAsync } = useWriteContract();
   const [state, setState] = useState<WriteState>(initial);
   const receipt = useWaitForTransactionReceipt({
@@ -120,7 +120,7 @@ export function useAcceptIntent() {
     return executeAcceptIntent(
       {
         address,
-        noxReady: ready,
+        handleReady: ready,
         privateOtcAddress: PRIVATE_OTC_ADDRESS,
         getClient,
         encryptAmount: encryptUint256,
@@ -163,7 +163,7 @@ export function useAcceptIntent() {
 
 export function useSubmitBid() {
   const { address } = useAccount();
-  const { ready, getClient } = useNoxClient();
+  const { ready, getClient } = useHandleClient();
   const { writeContractAsync } = useWriteContract();
   const [state, setState] = useState<WriteState>(initial);
   const receipt = useWaitForTransactionReceipt({
@@ -174,7 +174,7 @@ export function useSubmitBid() {
     return executeSubmitBid(
       {
         address,
-        noxReady: ready,
+        handleReady: ready,
         privateOtcAddress: PRIVATE_OTC_ADDRESS,
         getClient,
         encryptAmount: encryptUint256,
@@ -263,7 +263,7 @@ export function useFinalizeRfq() {
 /* -------------------------------------------------------------------------- */
 
 /// Step 2 of the RFQ flow. Maker decrypts bid amounts off-chain (auditor
-/// flow via `Nox.allow`), determines the actual highest bidder, then calls
+/// flow via handle allow), determines the actual highest bidder, then calls
 /// this with the chosen bid index to settle.
 export function useRevealRfqWinner() {
   const { writeContractAsync } = useWriteContract();

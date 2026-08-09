@@ -35,7 +35,7 @@ import {
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { arbitrumSepolia } from "viem/chains";
-import { createViemHandleClient } from "@iexec-nox/handle";
+import { createViemHandleClient } from "../handle-client.js";
 
 const ADDRESSES = {
   privateOtc: (process.env.NEXT_PUBLIC_PRIVATE_OTC_ADDRESS ??
@@ -60,7 +60,7 @@ const otcAbi = parseAbi([
 ]);
 
 const seedKey = (label: string) =>
-  keccak256(stringToBytes(`tradi-nox-demo-${label}`)) as `0x${string}`;
+  keccak256(stringToBytes(`tradi-demo-${label}`)) as `0x${string}`;
 
 const DAY = 86400;
 const NOW = () => Math.floor(Date.now() / 1000);

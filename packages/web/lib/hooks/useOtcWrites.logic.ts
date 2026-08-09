@@ -4,7 +4,7 @@
  * thin React wrapper around the corresponding executeXxx() here.
  */
 import type { Hex } from "viem";
-import type { HandleClient } from "@iexec-nox/handle";
+import type { HandleClient } from "@/lib/handle-client";
 import { privateOtcAbi } from "@/lib/abi/privateOtc";
 
 export type WriteStep =
@@ -21,10 +21,10 @@ export type WriteCallbacks = {
   onTxHash: (hash: `0x${string}`) => void;
 };
 
-/** Deps required by hooks that need wallet + Nox + write. */
+/** Deps required by hooks that need wallet + handle client + write. */
 export type EncryptedWriteDeps = {
   address: `0x${string}` | undefined;
-  noxReady: boolean;
+  handleReady: boolean;
   privateOtcAddress: `0x${string}`;
   getClient: () => Promise<HandleClient | null>;
   encryptAmount: (
@@ -59,13 +59,13 @@ export async function executeCreateRfq(
   cb: WriteCallbacks,
 ): Promise<void> {
   if (!deps.address) throw new Error("Wallet not connected");
-  if (!deps.noxReady) throw new Error("Nox client not ready");
+  if (!deps.handleReady) throw new Error("Handle client not ready");
   cb.onError(null);
 
   try {
     cb.onStep("encrypting");
     const client = await deps.getClient();
-    if (!client) throw new Error("Nox client unavailable");
+    if (!client) throw new Error("Handle client unavailable");
 
     const sell = await deps.encryptAmount(
       client,
@@ -107,13 +107,13 @@ export async function executeAcceptIntent(
   cb: WriteCallbacks,
 ): Promise<void> {
   if (!deps.address) throw new Error("Wallet not connected");
-  if (!deps.noxReady) throw new Error("Nox client not ready");
+  if (!deps.handleReady) throw new Error("Handle client not ready");
   cb.onError(null);
 
   try {
     cb.onStep("encrypting");
     const client = await deps.getClient();
-    if (!client) throw new Error("Nox client unavailable");
+    if (!client) throw new Error("Handle client unavailable");
 
     const buy = await deps.encryptAmount(
       client,
@@ -146,13 +146,13 @@ export async function executeSubmitBid(
   cb: WriteCallbacks,
 ): Promise<void> {
   if (!deps.address) throw new Error("Wallet not connected");
-  if (!deps.noxReady) throw new Error("Nox client not ready");
+  if (!deps.handleReady) throw new Error("Handle client not ready");
   cb.onError(null);
 
   try {
     cb.onStep("encrypting");
     const client = await deps.getClient();
-    if (!client) throw new Error("Nox client unavailable");
+    if (!client) throw new Error("Handle client unavailable");
 
     const bid = await deps.encryptAmount(
       client,
@@ -206,7 +206,7 @@ export async function executeFinalizeRfq(
 /* -------------------------------------------------------------------------- */
 
 /// Step 2 of 2-step RFQ flow. Maker passes the index of the bid they
-/// determined to be the highest (via off-chain Nox decryption). Settlement
+/// determined to be the highest (via off-chain decryption). Settlement
 /// runs at the encrypted second-highest price.
 export async function executeRevealRfqWinner(
   deps: SimpleWriteDeps,

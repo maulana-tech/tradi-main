@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { decodeEventLog } from "viem";
 import { PRIVATE_OTC_ADDRESS } from "@/lib/wagmi";
-import { useNoxClient, encryptUint256 } from "@/lib/nox-client";
+import { useHandleClient, encryptUint256 } from "@/lib/handle-client";
 import {
   executeCreateIntent,
   parseIntentCreatedId,
@@ -16,7 +16,7 @@ export type { CreateIntentInput, CreateIntentStep };
 
 export function useCreateIntent() {
   const { address } = useAccount();
-  const { ready, getClient } = useNoxClient();
+  const { ready, getClient } = useHandleClient();
   const { writeContractAsync } = useWriteContract();
 
   const [step, setStep] = useState<CreateIntentStep>("idle");
@@ -30,7 +30,7 @@ export function useCreateIntent() {
     return executeCreateIntent(
       {
         address,
-        noxReady: ready,
+        handleReady: ready,
         privateOtcAddress: PRIVATE_OTC_ADDRESS,
         getClient,
         encryptAmount: encryptUint256,

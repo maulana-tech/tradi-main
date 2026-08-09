@@ -7,7 +7,7 @@ const projectId =
   process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "97aaa300062a00e51e177bc4ffc268c9";
 
 export const wagmiConfig = getDefaultConfig({
-  appName: "Tradi-Nox",
+  appName: "Tradi",
   projectId,
   chains: [sepolia, arbitrumSepolia, arbitrum],
   ssr: true,

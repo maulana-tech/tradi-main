@@ -50,10 +50,10 @@ export function AuditLogDrawer({ isOpen, onClose, audit }: AuditLogDrawerProps) 
                 </div>
               </div>
               <div>
-                <span className="text-xs text-[var(--color-text-muted)]">Simulation Status</span>
+                <span className="text-xs text-[var(--color-text-muted)]">Status</span>
                 <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
                   <span className="size-2 rounded-full bg-emerald-400" />
-                  {audit.simulationStatus}
+                  {audit.status ?? audit.simulationStatus}
                 </p>
               </div>
             </div>
@@ -81,10 +81,35 @@ export function AuditLogDrawer({ isOpen, onClose, audit }: AuditLogDrawerProps) 
 
             <div className="border-t border-[var(--color-border)] pt-4">
               <span className="text-xs text-[var(--color-text-muted)]">Transaction Hash</span>
-              <p className="mt-1 break-all font-mono text-xs text-[var(--color-primary-text)]">
-                {audit.txHash}
-              </p>
+              {audit.txLink ? (
+                <a
+                  href={audit.txLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 block break-all font-mono text-xs text-[var(--color-primary-text)] hover:underline"
+                >
+                  {audit.txHash}
+                </a>
+              ) : (
+                <p className="mt-1 break-all font-mono text-xs text-[var(--color-primary-text)]">
+                  {audit.txHash}
+                </p>
+              )}
             </div>
+
+            {audit.executionId && (
+              <div className="border-t border-[var(--color-border)] pt-4">
+                <span className="text-xs text-[var(--color-text-muted)]">Execution ID</span>
+                <p className="mt-1 font-mono text-xs text-white">{audit.executionId}</p>
+              </div>
+            )}
+
+            {audit.error && (
+              <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+                <span className="text-xs font-semibold text-red-400">Error</span>
+                <p className="mt-1 text-xs text-red-300">{audit.error}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

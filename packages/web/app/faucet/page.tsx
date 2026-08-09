@@ -102,7 +102,7 @@ function buildProgress(step: string): TransactionStep[] {
   const current = order.indexOf(step);
   const stateFor = (index: number): TransactionStep["state"] => step === "error" && index === 0 ? "error" : step === "done" || current > index ? "complete" : current === index ? "active" : "pending";
   return [
-    { label: "Encrypt amount", description: "Create a private Nox input.", state: stateFor(0) },
+    { label: "Encrypt amount", description: "Create a private encrypted input.", state: stateFor(0) },
     { label: "Approve in wallet", description: "Review the mint call.", state: stateFor(1) },
     { label: "Confirm balance", description: "Wait for testnet confirmation.", state: stateFor(2) },
   ];

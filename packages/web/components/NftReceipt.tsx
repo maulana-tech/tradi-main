@@ -108,7 +108,7 @@ export function NftReceipt(props: NftReceiptProps) {
   function shareTwitter() {
     if (state.kind !== "ok") return;
       const text = encodeURIComponent(
-      `Just executed a confidential OTC trade on @iEx_ec Nox via Tradi-Nox.
+      `Just executed a confidential OTC trade on Tradi.
 
 🔒 Receipt: ${state.fingerprint}
 📊 Pair: ${props.pair}
@@ -180,7 +180,7 @@ export function NftReceipt(props: NftReceiptProps) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={state.dataUrl}
-              alt="Tradi-Nox NFT receipt"
+              alt="Tradi NFT receipt"
               className="w-full"
             />
 
@@ -201,7 +201,7 @@ export function NftReceipt(props: NftReceiptProps) {
 
             {/* Bottom-right: NOX_TEE */}
             <div className="absolute bottom-3 right-3 rounded bg-white/90 px-2 py-1 text-xs font-medium text-[var(--color-primary)]">
-              Nox TEE
+              TEE
             </div>
           </div>
 

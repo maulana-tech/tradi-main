@@ -1,16 +1,16 @@
-type TradiNoxLogoProps = {
+type TradiLogoProps = {
   size?: number;
   className?: string;
   variant?: "full" | "compact";
   title?: string;
 };
 
-export function TradiNoxLogo({
+export function TradiLogo({
   size = 28,
   className,
   variant = "compact",
-  title = "Tradi-Nox",
-}: TradiNoxLogoProps) {
+  title = "Tradi",
+}: TradiLogoProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

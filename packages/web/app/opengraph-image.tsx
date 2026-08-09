@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Tradi-Nox — private OTC execution without public trade size";
+export const alt = "Tradi — private OTC execution without public trade size";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -18,7 +18,7 @@ export default function OpenGraphImage() {
             <rect x="298" y="232" width="62" height="16" fill="#482bff" />
           </svg>
         </div>
-        <div style={{ fontSize: 36, fontWeight: 600 }}>Tradi-Nox</div>
+        <div style={{ fontSize: 36, fontWeight: 600 }}>Tradi</div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
         <div style={{ maxWidth: "980px", fontSize: 76, fontWeight: 500, lineHeight: 1.02 }}>Private trades, without public size.</div>
@@ -26,7 +26,7 @@ export default function OpenGraphImage() {
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "16px", color: "#a1a1aa", fontSize: 22 }}>
         <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#3dd68c" }} />
-        <span>Built on iExec Nox</span><span>·</span><span>Direct OTC + sealed RFQ</span>
+        <span>Confidential OTC on TEE</span><span>·</span><span>Direct OTC + sealed RFQ</span>
       </div>
     </div>,
     size,

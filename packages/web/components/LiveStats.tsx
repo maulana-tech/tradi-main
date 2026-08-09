@@ -23,7 +23,7 @@ export function LiveStats() {
   return (
     <dl className="mt-12 grid min-w-0 max-w-2xl grid-cols-1 gap-5 border-t border-[var(--color-border)] pt-6 sm:grid-cols-3 sm:gap-6">
       <Stat label="On-chain intents" value={total.toString()} />
-      <Stat label="Privacy layer" value="Nox TEE" />
+      <Stat label="Privacy layer" value="TEE" />
       <Stat label="Network" value="Sepolia" />
     </dl>
   );

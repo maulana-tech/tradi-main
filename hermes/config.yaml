@@ -1,0 +1,38 @@
+# Hermes configuration for Tradi
+#
+# Prerequisites:
+#   1. Set AGENT_PRIVATE_KEY, ARBITRUM_SEPOLIA_RPC_URL, PRIVATE_OTC_ADDRESS
+#      in ~/.hermes/.env (for Tradi MCP read-only access)
+#   2. Run: pnpm --filter mcp-server build
+#
+# Usage:
+#   hermes chat --config hermes/config.yaml
+
+mcp_servers:
+  keeperhub:
+    url: "https://app.keeperhub.com/mcp"
+    headers:
+      Authorization: "Bearer ${KEEPERHUB_API_KEY}"
+    tools:
+      include:
+        - tools_documentation
+        - list_action_schemas
+        - get_wallet_integration
+        - execute_contract_call
+        - get_direct_execution_status
+
+  tradi_nox:
+    command: "node"
+    args:
+      - "packages/mcp-server/dist/index.js"
+    env:
+      AGENT_PRIVATE_KEY: "${AGENT_PRIVATE_KEY}"
+      ARBITRUM_SEPOLIA_RPC_URL: "${ARBITRUM_SEPOLIA_RPC_URL}"
+      NEXT_PUBLIC_PRIVATE_OTC_ADDRESS: "${PRIVATE_OTC_ADDRESS}"
+    tools:
+      include:
+        - private_otc_browse_intents
+        - private_otc_read_rfq_state
+        - private_otc_get_price_reference
+        - private_otc_prepare_encrypted_bid
+        - private_otc_explain_execution

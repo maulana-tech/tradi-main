@@ -29,7 +29,7 @@ export function OperatorAuth({
     return (
       <div role="status" className="flex items-start gap-3 rounded-2xl border border-[var(--color-success)]/40 bg-[var(--color-success-soft)] p-4">
         <Icon name="verified" className="mt-0.5 size-5 shrink-0 text-[var(--color-success-text)]" />
-        <div><Badge tone="success">Ready</Badge><p className="mt-2 text-sm text-[var(--color-success-text)]">Tradi-Nox is authorized to settle {symbol} for this wallet.</p></div>
+        <div><Badge tone="success">Ready</Badge><p className="mt-2 text-sm text-[var(--color-success-text)]">Tradi is authorized to settle {symbol} for this wallet.</p></div>
       </div>
     );
   }
@@ -41,7 +41,7 @@ export function OperatorAuth({
         <Icon name="shield_lock" className="mt-0.5 size-5 shrink-0 text-[var(--color-warning-text)]" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2"><p className="text-sm font-semibold text-white">Authorize settlement for {symbol}</p><Badge tone="warning">Action required</Badge></div>
-          {!compact ? <p className="mt-2 text-sm leading-6 text-pretty text-[var(--color-text-secondary)]">{reason ?? `Tradi-Nox needs one-time operator permission on ${symbol} to complete atomic settlement.`}</p> : null}
+          {!compact ? <p className="mt-2 text-sm leading-6 text-pretty text-[var(--color-text-secondary)]">{reason ?? `Tradi needs one-time operator permission on ${symbol} to complete atomic settlement.`}</p> : null}
           <Button type="button" tone="secondary" className="mt-4" onClick={() => void authorize()} loading={busy} loadingLabel={step === "signing" ? "Confirm in wallet…" : "Confirming permission…"}>
             Authorize {symbol} for 60 days
           </Button>

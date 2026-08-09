@@ -5,7 +5,7 @@
  * (positive/negative/edge) under London-school strict — every dep is mocked.
  */
 import type { Hex } from "viem";
-import type { HandleClient } from "@iexec-nox/handle";
+import type { HandleClient } from "@/lib/handle-client";
 import { privateOtcAbi } from "@/lib/abi/privateOtc";
 
 export type CreateIntentInput = {
@@ -27,7 +27,7 @@ export type CreateIntentStep =
 
 export type CreateIntentDeps = {
   address: `0x${string}` | undefined;
-  noxReady: boolean;
+  handleReady: boolean;
   privateOtcAddress: `0x${string}`;
   getClient: () => Promise<HandleClient | null>;
   encryptAmount: (
@@ -55,13 +55,13 @@ export async function executeCreateIntent(
   cb: CreateIntentCallbacks,
 ): Promise<void> {
   if (!deps.address) throw new Error("Wallet not connected");
-  if (!deps.noxReady) throw new Error("Nox client not ready");
+  if (!deps.handleReady) throw new Error("Handle client not ready");
   cb.onError(null);
 
   try {
     cb.onStep("encrypting");
     const client = await deps.getClient();
-    if (!client) throw new Error("Nox client unavailable");
+    if (!client) throw new Error("Handle client unavailable");
 
     const sell = await deps.encryptAmount(
       client,

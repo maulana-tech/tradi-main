@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { ConnectWallet } from "./ConnectWallet";
 import { NetworkBadge } from "./NetworkBadge";
-import { TradiNoxLogo } from "./TradiNoxLogo";
+import { TradiLogo } from "./TradiLogo";
 import { Icon } from "./Icon";
 import { usePathname } from "next/navigation";
 
@@ -23,13 +23,13 @@ export function Header() {
       <a href="#main-content" className="skip-link">Skip to main content</a>
       <Link
         href={"/" as Route}
-        aria-label="Tradi-Nox home"
+        aria-label="Tradi home"
         className="flex min-h-11 shrink-0 items-center gap-3 rounded-full text-white transition-opacity duration-150 hover:opacity-80 motion-reduce:transition-none"
       >
         <span className="grid size-10 place-items-center rounded-full bg-[var(--color-primary)] text-white">
-          <TradiNoxLogo size={20} />
+          <TradiLogo size={20} />
         </span>
-        <span className="font-display text-base font-normal">Tradi-Nox</span>
+        <span className="font-display text-base font-normal">Tradi</span>
       </Link>
 
       {isLanding ? (

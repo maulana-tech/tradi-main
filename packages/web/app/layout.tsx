@@ -22,17 +22,17 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tradi-Nox — Confidential OTC Desk",
+  title: "Tradi — Confidential OTC Desk",
   description:
-    "On-chain OTC with hidden amounts and Vickrey-fair RFQ pricing, built on iExec Nox.",
+    "On-chain OTC with hidden amounts and Vickrey-fair RFQ pricing, built on confidential computing.",
   openGraph: {
-    title: "Tradi-Nox — Confidential OTC Desk",
+    title: "Tradi — Confidential OTC Desk",
     description: "Your trade. Their guess. Nobody knows.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tradi-Nox — Confidential OTC Desk",
+    title: "Tradi — Confidential OTC Desk",
     description: "Your trade. Their guess. Nobody knows.",
   },
 };

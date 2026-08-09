@@ -38,7 +38,7 @@ const cTokenAbi = parseAbi([
 ]);
 
 const seedKey = (label: string) =>
-  keccak256(stringToBytes(`tradi-nox-demo-${label}`)) as `0x${string}`;
+  keccak256(stringToBytes(`tradi-demo-${label}`)) as `0x${string}`;
 
 const SIXTY_DAYS = 60 * 24 * 60 * 60;
 

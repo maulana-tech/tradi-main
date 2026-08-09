@@ -5,7 +5,7 @@ import { Header } from "@/components/Header";
 import { LiveStats } from "@/components/LiveStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { LatestIntentPreview } from "@/components/LatestIntentPreview";
-import { TradiNoxLogo } from "@/components/TradiNoxLogo";
+import { TradiLogo } from "@/components/TradiLogo";
 import { Icon } from "@/components/Icon";
 import { ButtonLink } from "@/components/ui/Button";
 import { PRIVATE_OTC_ADDRESS } from "@/lib/wagmi";
@@ -93,7 +93,7 @@ export function LandingPage() {
                 <div className="mt-6 flex flex-col justify-between gap-4 text-sm sm:flex-row sm:items-center">
                   <span className="flex items-center gap-2 text-white/75">
                     <Icon name="shield" className="size-4" />
-                    Encrypted state via Nox
+                    Encrypted state via TEE
                   </span>
                   <Link href="/intents" className="inline-flex min-h-11 items-center gap-2 font-semibold text-white underline decoration-white/50 underline-offset-4">
                     View live market
@@ -166,7 +166,7 @@ export function LandingPage() {
             />
             <div className="space-y-3">
               <TechDisclosure title="What keeps trade amounts private?">
-                Amounts and thresholds are encrypted off-chain and represented as Nox handles on-chain. Observers verify state transitions without reading the private values.
+                Amounts and thresholds are encrypted off-chain and represented as encrypted handles on-chain. Observers verify state transitions without reading the private values.
               </TechDisclosure>
               <TechDisclosure title="Why is operator permission required?">
                 Atomic settlement transfers assets for both participants. Each holder explicitly authorizes PrivateOTC before settlement, and the interface treats this as a visible preparation step.
@@ -202,8 +202,8 @@ export function LandingPage() {
 
       <footer className="border-t border-[var(--color-border)]">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-10 text-sm text-[var(--color-text-secondary)] sm:px-10 md:flex-row md:items-center md:justify-between">
-          <span className="flex items-center gap-2 text-white"><TradiNoxLogo size={16} className="text-[var(--color-primary-text)]" />Tradi-Nox</span>
-          <div className="flex flex-wrap gap-8"><a href="https://docs.iex.ec/nox-protocol/getting-started/welcome" target="_blank" rel="noreferrer" className="flex min-h-11 items-center hover:text-white">Nox docs</a><a href="https://github.com/maulana-tech/tradi-main" target="_blank" rel="noreferrer" className="flex min-h-11 items-center hover:text-white">Source</a><Link href="/slides" className="flex min-h-11 items-center hover:text-white">Pitch deck</Link></div>
+          <span className="flex items-center gap-2 text-white"><TradiLogo size={16} className="text-[var(--color-primary-text)]" />Tradi</span>
+          <div className="flex flex-wrap gap-8"><a href="https://docs.iex.ec/nox-protocol/getting-started/welcome" target="_blank" rel="noreferrer" className="flex min-h-11 items-center hover:text-white">Docs</a><a href="https://github.com/maulana-tech/tradi-main" target="_blank" rel="noreferrer" className="flex min-h-11 items-center hover:text-white">Source</a><Link href="/slides" className="flex min-h-11 items-center hover:text-white">Pitch deck</Link></div>
           <span>Ethereum Sepolia · 2026</span>
         </div>
       </footer>

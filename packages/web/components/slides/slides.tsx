@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { Route } from "next";
-import { TradiNoxLogo } from "@/components/TradiNoxLogo";
+import { TradiLogo } from "@/components/TradiLogo";
 
 /**
  * Pitch deck content. 7 slides for a 4-minute target (220s budget,
@@ -28,7 +28,7 @@ export const SLIDES: Slide[] = [
     budgetSec: 15,
     render: () => (
       <div className="flex flex-col items-center text-center">
-        <TradiNoxLogo
+        <TradiLogo
           size={140}
           variant="full"
           className="mb-10 text-[--color-primary] fade-up"
@@ -126,7 +126,7 @@ export const SLIDES: Slide[] = [
             {
               i: "01",
               title: "TEE encryption",
-              body: "`euint256` handles. Plaintext only inside Nox precompile — never on-chain.",
+              body: "`euint256` handles. Plaintext only inside TEE precompile — never on-chain.",
             },
             {
               i: "02",
@@ -185,7 +185,7 @@ export const SLIDES: Slide[] = [
             },
             {
               label: "mcp-server/",
-              desc: "Desk exposed as 3 AI-callable tools — Claude can trade through Tradi-Nox",
+              desc: "Desk exposed as 3 AI-callable tools — Claude can trade through Tradi",
             },
           ].map((row) => (
             <div
@@ -291,7 +291,7 @@ got                    = 100   ← BUG`}
           </pre>
           <p className="mt-3 text-[--color-text]">
             Missing middle case in `_computeSecondPrice`. Three-line fix with a
-            nested <code className="text-[--color-primary]">Nox.select</code>.
+            nested <code className="text-[--color-primary]">select</code>.
             Without that mirror, that bug ships.
           </p>
         </div>
@@ -329,7 +329,7 @@ got                    = 100   ← BUG`}
     budgetSec: 10,
     render: () => (
       <div className="flex flex-col items-center text-center">
-        <TradiNoxLogo
+        <TradiLogo
           size={96}
           variant="full"
           className="mb-8 text-[--color-primary] fade-up"

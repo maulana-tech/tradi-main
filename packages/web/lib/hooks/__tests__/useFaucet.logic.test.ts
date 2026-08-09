@@ -15,7 +15,7 @@ type DepsOverrides = Partial<FaucetDeps>;
 function makeDeps(overrides: DepsOverrides = {}): FaucetDeps {
   return {
     address: USER,
-    noxReady: true,
+    handleReady: true,
     getClient: vi.fn().mockResolvedValue({ mockClient: true }),
     encryptAmount: vi.fn().mockResolvedValue({
       handle: "0xHandle",
@@ -96,15 +96,15 @@ describe("executeFaucet", () => {
       expect(cb.onError).not.toHaveBeenCalled();
     });
 
-    test("throws when Nox client not ready (validation also bypasses catch)", async () => {
+    test("throws when Handle client not ready (validation also bypasses catch)", async () => {
       const cb = makeCb();
       await expect(
         executeFaucet(
-          makeDeps({ noxReady: false }),
+          makeDeps({ handleReady: false }),
           { tokenAddress: TOKEN, amount: 1n },
           cb,
         ),
-      ).rejects.toThrow("Nox client not ready");
+      ).rejects.toThrow("Handle client not ready");
       expect(cb.onStep).not.toHaveBeenCalled();
     });
 
@@ -116,7 +116,7 @@ describe("executeFaucet", () => {
       await executeFaucet(deps, { tokenAddress: TOKEN, amount: 1n }, cb);
 
       expect(cb.onStep).toHaveBeenCalledWith("error");
-      expect(cb.onError).toHaveBeenLastCalledWith("Nox client unavailable");
+      expect(cb.onError).toHaveBeenLastCalledWith("Handle client unavailable");
       expect(deps.encryptAmount).not.toHaveBeenCalled();
     });
 

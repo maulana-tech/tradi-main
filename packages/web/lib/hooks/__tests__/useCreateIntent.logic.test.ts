@@ -19,7 +19,7 @@ const FROZEN_NOW = 1_700_000_000;
 function makeDeps(overrides: Partial<CreateIntentDeps> = {}): CreateIntentDeps {
   return {
     address: USER,
-    noxReady: true,
+    handleReady: true,
     privateOtcAddress: OTC,
     getClient: vi.fn().mockResolvedValue({ mockClient: true }),
     encryptAmount: vi
@@ -151,15 +151,15 @@ describe("executeCreateIntent", () => {
       expect(cb.onStep).not.toHaveBeenCalled();
     });
 
-    test("throws when Nox client not ready", async () => {
+    test("throws when Handle client not ready", async () => {
       const cb = makeCb();
       await expect(
         executeCreateIntent(
-          makeDeps({ noxReady: false }),
+          makeDeps({ handleReady: false }),
           baseInput,
           cb,
         ),
-      ).rejects.toThrow("Nox client not ready");
+      ).rejects.toThrow("Handle client not ready");
     });
 
     test("transitions to error step when getClient resolves to null", async () => {
@@ -168,7 +168,7 @@ describe("executeCreateIntent", () => {
       await executeCreateIntent(deps, baseInput, cb);
 
       expect(cb.onStep).toHaveBeenLastCalledWith("error");
-      expect(cb.onError).toHaveBeenLastCalledWith("Nox client unavailable");
+      expect(cb.onError).toHaveBeenLastCalledWith("Handle client unavailable");
       expect(deps.encryptAmount).not.toHaveBeenCalled();
       expect(deps.writeContractAsync).not.toHaveBeenCalled();
     });

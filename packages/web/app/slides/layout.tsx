@@ -9,9 +9,9 @@ const lato = Lato({
 });
 
 export const metadata: Metadata = {
-  title: "Tradi-Nox — Pitch Deck",
+  title: "Tradi — Pitch Deck",
   description:
-    "Confidential OTC desk on iExec Nox. 10-slide pitch for the iExec Vibe Coding Challenge.",
+    "Confidential OTC desk on TEE. 10-slide pitch for the KeeperHub hackathon.",
 };
 
 /**

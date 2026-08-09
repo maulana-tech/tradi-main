@@ -355,7 +355,7 @@ export default function IntentDetailPage({
                 token={intent.buyToken}
                 account={address}
                 symbol={buyTok?.symbol ?? "buy token"}
-                reason={`Accept settlement pulls ${buyTok?.symbol ?? "your buy token"} from your wallet to the maker. Tradi-Nox needs operator permission on this cToken first — one-time, lasts 60 days.`}
+                reason={`Accept settlement pulls ${buyTok?.symbol ?? "your buy token"} from your wallet to the maker. Tradi needs operator permission on this cToken first — one-time, lasts 60 days.`}
               />
               <OperatorWarning
                 token={intent.sellToken}
@@ -370,7 +370,7 @@ export default function IntentDetailPage({
                   Accept + Settle
                 </p>
                 <p className="text-sm leading-relaxed text-[var(--color-text-muted)]">
-                  Submit your buy amount. Encrypted via Nox. If below the maker's
+                  Submit your buy amount. Encrypted via handle client. If below the maker's
                   hidden minimum, trade settles as a no-op.
                 </p>
 
@@ -452,7 +452,7 @@ export default function IntentDetailPage({
                   accept.step === "done"
                     ? "Trade settled — see the receipt below"
                     : !takerBuyAuth.isOperator
-                      ? `Authorize Tradi-Nox for ${buyTok?.symbol ?? "buy token"} first`
+                      ? `Authorize Tradi for ${buyTok?.symbol ?? "buy token"} first`
                       : makerSellAuth.isOperator === false
                         ? `Maker hasn't authorized ${sellTok?.symbol ?? "sell token"} — settlement will revert`
                         : undefined

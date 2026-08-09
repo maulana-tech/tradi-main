@@ -1,6 +1,6 @@
 "use client";
 
-import { TradiNoxLogo } from "@/components/TradiNoxLogo";
+import { TradiLogo } from "@/components/TradiLogo";
 
 type Props = {
   index: number;
@@ -60,7 +60,7 @@ export function SlideShell({
       </div>
 
       <div className="absolute left-8 top-6 z-20 flex items-center gap-2.5 md:left-12">
-        <TradiNoxLogo size={20} className="text-[--color-primary]" />
+        <TradiLogo size={20} className="text-[--color-primary]" />
         <span className="font-display text-sm font-bold tracking-tighter text-[--color-primary]">
           TRADI-NOX
         </span>
