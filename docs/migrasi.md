@@ -1,6 +1,6 @@
-# Migrasi Tradi-Nox ke Hermes + KeeperHub
+# Migrasi Tradi ke Hermes + KeeperHub
 
-Dokumen ini adalah sumber kebenaran untuk migrasi jalur transaksi agent Tradi-Nox. Panduan menjalankan Hermes ada di [hermes.md](hermes.md).
+Dokumen ini adalah sumber kebenaran untuk migrasi jalur transaksi agent Tradi. Panduan menjalankan Hermes ada di [hermes.md](hermes.md).
 
 ## Ringkasan
 
@@ -20,7 +20,7 @@ Fokus pertama hanya satu alur RFQ yang hidup dari awal sampai akhir. Jangan mena
 | Nox                   | Mengenkripsi amount/bid dan mengatur permission encrypted handle |
 | KeeperHub             | Preflight, eksekusi, retry, status, dan audit transaksi          |
 | `PrivateOTC`          | RFQ, escrow, operator permission, dan settlement atomik          |
-| `packages/mcp-server` | Tool domain Tradi-Nox untuk read dan prepare calldata            |
+| `packages/mcp-server` | Tool domain Tradi untuk read dan prepare calldata            |
 | Web                   | Menampilkan status dan bukti dari data persisten                 |
 
 Hermes bukan wallet atau relayer. KeeperHub tidak menentukan strategi harga. Web bukan sumber kebenaran transaksi.
@@ -100,7 +100,7 @@ Aturan error:
 - Backoff harus memiliki batas percobaan dan batas waktu.
 - Idempotency key harus stabil untuk satu intent dan action agar retry tidak mengirim transaksi ganda.
 
-### 3. Batasi MCP Tradi-Nox ke read/prepare
+### 3. Batasi MCP Tradi ke read/prepare
 
 Tool domain yang dibutuhkan:
 
