@@ -107,7 +107,7 @@ Seed wallets are authorized by: `pnpm --filter agents tsx src/seed/seed-authoriz
 
 ## What NOT to build
 
-Per project scope: no full ERC-3643, no full ERC-7540, no full lending protocol, no mainnet deploy. Contract name is `PrivateOTC` (immutable on-chain); "Tradi-Nox" is the brand/product name.
+Per project scope: no full ERC-3643, no full ERC-7540, no full lending protocol, no mainnet deploy. Contract name is `PrivateOTC` (immutable on-chain); "Tradi" is the brand/product name.
 
 ## Package-level docs
 
