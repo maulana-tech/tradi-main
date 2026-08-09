@@ -2,7 +2,7 @@
   "name": "private-otc",
   "version": "0.1.0",
   "private": true,
-  "description": "On-chain OTC desk with hidden amounts and Vickrey-fair price discovery, built on iExec Nox protocol",
+  "description": "On-chain OTC desk with hidden amounts and Vickrey-fair price discovery, built on confidential computing protocol",
   "packageManager": "pnpm@10.29.2",
   "scripts": {
     "dev": "pnpm --filter web dev",
