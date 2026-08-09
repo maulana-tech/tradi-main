@@ -16,6 +16,9 @@ export const EnvSchema = z.object({
   KEEPERHUB_RELAYER_URL: z.string().url().optional(),
   KEEPERHUB_GAS_SPONSORSHIP: z.string().optional().transform((val) => val !== "false"),
   KEEPERHUB_ENABLED: z.string().optional().transform((val) => val !== "false"),
+  KEEPERHUB_MCP_URL: z.string().url().optional(),
+  KEEPERHUB_API_KEY: z.string().optional(),
+  WRITER_MODE: z.enum(["hermes", "agent", "dry-run"]).default("agent"),
 });
 
 const privateKey =
@@ -37,6 +40,9 @@ export const env = EnvSchema.parse({
   KEEPERHUB_RELAYER_URL: process.env.KEEPERHUB_RELAYER_URL,
   KEEPERHUB_GAS_SPONSORSHIP: process.env.KEEPERHUB_GAS_SPONSORSHIP,
   KEEPERHUB_ENABLED: process.env.KEEPERHUB_ENABLED,
+  KEEPERHUB_MCP_URL: process.env.KEEPERHUB_MCP_URL,
+  KEEPERHUB_API_KEY: process.env.KEEPERHUB_API_KEY,
+  WRITER_MODE: (process.env.WRITER_MODE ?? "agent") as "hermes" | "agent" | "dry-run",
 });
 
 export const account = privateKeyToAccount(env.AGENT_PRIVATE_KEY as `0x${string}`);
