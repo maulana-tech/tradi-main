@@ -1,4 +1,4 @@
-# Menjalankan Hermes untuk Tradi-Nox
+# Menjalankan Hermes untuk Tradi
 
 Dokumen ini adalah runbook Hermes. Status pekerjaan dan urutan migrasi ada di [migrasi.md](migrasi.md).
 
@@ -21,7 +21,7 @@ Hermes tidak menyimpan private key eksekusi, tidak memanggil RPC write secara la
 - Wallet bidder memiliki test token dan sudah mengizinkan `PrivateOTC` sebagai operator.
 - Dependency repo sudah dipasang dengan `pnpm install`.
 
-Gunakan Arbitrum Sepolia (`421614`) untuk konsisten dengan deployment Tradi-Nox, tetapi tetap verifikasi dukungannya melalui `list_action_schemas` saat setup.
+Gunakan Arbitrum Sepolia (`421614`) untuk konsisten dengan deployment Tradi, tetapi tetap verifikasi dukungannya melalui `list_action_schemas` saat setup.
 
 ## 1. Hubungkan KeeperHub MCP
 
@@ -73,7 +73,7 @@ Daftar tool MCP KeeperHub yang tersedia. Jangan menjalankan write.
 
 Jika tool berubah, gunakan `tools_documentation` sebagai referensi runtime yang paling mutakhir.
 
-## 2. Hubungkan MCP Tradi-Nox
+## 2. Hubungkan MCP Tradi
 
 Build server lokal:
 
