@@ -1,10 +1,10 @@
-# Tradi-Nox Design System
+# Tradi Design System
 
 This is the source of truth for every product route except `/slides`. It reconciles the supplied Galxe extraction with WCAG 2.2 AA and the interaction needs of a transactional DeFi product.
 
 ## Direction
 
-Tradi-Nox uses Galxe's high-contrast, spacious visual rhythm without copying proprietary assets or inaccessible extracted values. The defining cues are a pure-black canvas, one vivid violet accent, light display typography, large section spacing, pill actions, flat depth, and a small number of confident surfaces.
+Tradi uses Galxe's high-contrast, spacious visual rhythm without copying proprietary assets or inaccessible extracted values. The defining cues are a pure-black canvas, one vivid violet accent, light display typography, large section spacing, pill actions, flat depth, and a small number of confident surfaces.
 
 ## Accessible foundations
 
