@@ -42,7 +42,7 @@ PRIVATE_KEY=0x... pnpm --filter agents tsx src/seed/<script>.ts
 - **Runtime:** Node 22 ESM
 - **Lang:** TypeScript strict, tsx for dev
 - **RPC:** viem v2
-- **Encryption:** `@iexec-nox/handle`
+- **Encryption:** `@iexec-nox/handle` (wrapped via `src/handle-client.ts`)
 - **State:** Vercel KV (encrypted strategy params)
 - **Validation:** zod
 - **Hosting:** Vercel Cron + Functions, or standalone
