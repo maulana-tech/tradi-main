@@ -15,6 +15,13 @@ type NavGroup = { label: string; items: NavItem[] };
 
 const NAV_GROUPS: NavGroup[] = [
   {
+    label: "Platform",
+    items: [
+      { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
+      { href: "/strategies", label: "Strategies", icon: "storefront" },
+    ],
+  },
+  {
     label: "Trading",
     items: [
       { href: "/intents", label: "Marketplace", icon: "grid_view" },
