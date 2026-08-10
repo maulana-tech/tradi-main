@@ -22,18 +22,18 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tradi — Confidential OTC Desk",
+  title: "Tradi — AI-Powered Trading Platform",
   description:
-    "On-chain OTC with hidden amounts and Vickrey-fair RFQ pricing, built on confidential computing.",
+    "Deploy AI agents that trade for you. Browse strategies, configure parameters, and let Hermes AI + KeeperHub handle execution with encrypted amounts and atomic settlement.",
   openGraph: {
-    title: "Tradi — Confidential OTC Desk",
-    description: "Your trade. Their guess. Nobody knows.",
+    title: "Tradi — AI-Powered Trading Platform",
+    description: "Automated strategies, private execution.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tradi — Confidential OTC Desk",
-    description: "Your trade. Their guess. Nobody knows.",
+    title: "Tradi — AI-Powered Trading Platform",
+    description: "Automated strategies, private execution.",
   },
 };
 
