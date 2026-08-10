@@ -4,14 +4,15 @@ import Link from "next/link";
 import type { Route } from "next";
 import { ConnectWallet } from "./ConnectWallet";
 import { NetworkBadge } from "./NetworkBadge";
+import { NotificationBell } from "./NotificationBell";
 import { TradiLogo } from "./TradiLogo";
 import { Icon } from "./Icon";
 import { usePathname } from "next/navigation";
 
 const LANDING_LINKS = [
-  { href: "#products", label: "Products" },
+  { href: "#platform", label: "Platform" },
   { href: "#how-it-works", label: "How it works" },
-  { href: "#trust", label: "Trust" },
+  { href: "#stack", label: "Stack" },
 ];
 
 export function Header() {
@@ -43,6 +44,7 @@ export function Header() {
       ) : null}
 
       <div className="flex items-center gap-2 sm:gap-3">
+        <NotificationBell />
         <NetworkBadge />
         <Link
           href={"/create" as Route}
