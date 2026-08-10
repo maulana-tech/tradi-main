@@ -14,6 +14,7 @@ export interface DeployedAgent {
   runs: number;
   errors: number;
   config: Record<string, string>;
+  keeperhubWorkflowId?: string;
 }
 
 // In-memory store (global for hot-reload persistence in dev)
@@ -56,6 +57,24 @@ if (store.size === 0) {
   for (const a of defaults) store.set(a.id, a);
 }
 
+async function pushNotification(notif: {
+  type: "success" | "error" | "warning" | "info";
+  source: "agent" | "keeperhub" | "settlement" | "system";
+  title: string;
+  message: string;
+  agentId?: string;
+}) {
+  try {
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"}/api/notifications`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(notif),
+    });
+  } catch {
+    // silent — notification is best-effort
+  }
+}
+
 export async function GET() {
   const agents = Array.from(store.values());
   return NextResponse.json({ agents, total: agents.length });
@@ -74,10 +93,12 @@ export async function POST(request: NextRequest) {
   }
 
   const id = `${body.strategyId}-${Date.now()}`;
+  const agentName = body.name ?? `Agent ${store.size + 1}`;
+
   const agent: DeployedAgent = {
     id,
     strategyId: body.strategyId,
-    name: body.name ?? `Agent ${store.size + 1}`,
+    name: agentName,
     status: "deploying",
     writerMode: body.writerMode ?? "agent",
     deployedAt: new Date().toISOString(),
@@ -89,12 +110,30 @@ export async function POST(request: NextRequest) {
 
   store.set(id, agent);
 
-  // Simulate deployment delay
-  setTimeout(() => {
+  // Push deployment notification
+  await pushNotification({
+    type: "info",
+    source: "agent",
+    title: `Deploying ${agentName}`,
+    message: `Strategy "${body.strategyId}" is being deployed on Arbitrum Sepolia.`,
+    agentId: id,
+  });
+
+  // Simulate deployment + KeeperHub workflow creation
+  setTimeout(async () => {
     const a = store.get(id);
     if (a) {
       a.status = "running";
+      a.keeperhubWorkflowId = `wf-${id}`;
       store.set(id, a);
+
+      await pushNotification({
+        type: "success",
+        source: "agent",
+        title: `${agentName} deployed`,
+        message: `Agent is running. KeeperHub workflow created.`,
+        agentId: id,
+      });
     }
   }, 2000);
 
@@ -114,14 +153,36 @@ export async function PATCH(request: NextRequest) {
 
   if (body.action === "delete") {
     store.delete(body.id);
+    await pushNotification({
+      type: "warning",
+      source: "agent",
+      title: `${agent.name} removed`,
+      message: "Agent has been deleted. KeeperHub workflow stopped.",
+      agentId: body.id,
+    });
     return NextResponse.json({ ok: true, deleted: body.id });
   }
 
   if (body.action === "start") {
     agent.status = "running";
     agent.lastRun = new Date().toISOString();
+    agent.runs += 1;
+    await pushNotification({
+      type: "success",
+      source: "agent",
+      title: `${agent.name} started`,
+      message: "Agent is now actively monitoring and executing.",
+      agentId: body.id,
+    });
   } else if (body.action === "stop") {
     agent.status = "stopped";
+    await pushNotification({
+      type: "warning",
+      source: "agent",
+      title: `${agent.name} stopped`,
+      message: "Agent has been paused. No new executions will occur.",
+      agentId: body.id,
+    });
   }
 
   store.set(body.id, agent);

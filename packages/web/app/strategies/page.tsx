@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { Badge, Status } from "@/components/ui/Badge";
 import { Icon } from "@/components/Icon";
+import { StarRating } from "@/components/StarRating";
 import { STRATEGIES, type StrategyCategory } from "@/lib/strategies";
 
 const CATEGORIES: { value: StrategyCategory | "all"; label: string }[] = [
@@ -71,6 +72,8 @@ export default function StrategiesPage() {
               <h3 className="mt-4 font-display text-lg font-semibold text-white group-hover:text-[var(--color-primary-text)]">
                 {strategy.name}
               </h3>
+
+              <StarRating strategyId={strategy.id} interactive size="sm" />
 
               <p className="mt-2 line-clamp-2 text-sm text-[var(--color-text-secondary)]">
                 {strategy.description}
