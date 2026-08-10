@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import type { Route } from "next";
-import { useAccount } from "wagmi";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader } from "@/components/PageHeader";
 import { Card } from "@/components/ui/Card";
@@ -11,7 +10,6 @@ import { Badge, Status } from "@/components/ui/Badge";
 import { Icon } from "@/components/Icon";
 import { getStrategy } from "@/lib/strategies";
 import { Button } from "@/components/ui/Button";
-import { useDashboardStats } from "@/lib/hooks/useDashboardStats";
 
 type AgentStatus = "running" | "stopped" | "error" | "deploying";
 type WriterMode = "hermes" | "agent" | "dry-run";
@@ -81,14 +79,11 @@ export default function DashboardPage() {
   const stopped = agents.filter((a) => a.status === "stopped").length;
   const errors = agents.filter((a) => a.status === "error").length;
 
-  const { address } = useAccount();
-  const chainStats = useDashboardStats(address);
-
   return (
     <AppShell>
       <PageHeader
         icon="dashboard"
-        title="Agent Dashboard"
+        title="Dashboard"
         subtitle="Monitor and manage your deployed trading agents."
         action={
           <Link
@@ -100,45 +95,6 @@ export default function DashboardPage() {
           </Link>
         }
       />
-
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="flex items-center gap-4 p-5">
-          <div className="flex size-10 items-center justify-center rounded-full bg-[var(--color-primary-soft)]">
-            <Icon name="receipt_long" className="size-5 text-[var(--color-primary-text)]" />
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-white">{chainStats.isLoading ? "—" : chainStats.totalIntents}</p>
-            <p className="text-xs text-[var(--color-text-muted)]">Total Intents</p>
-          </div>
-        </Card>
-        <Card className="flex items-center gap-4 p-5">
-          <div className="flex size-10 items-center justify-center rounded-full bg-[var(--color-success-soft)]">
-            <Icon name="lock_open" className="size-5 text-[var(--color-success-text)]" />
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-white">{chainStats.isLoading ? "—" : chainStats.openIntents}</p>
-            <p className="text-xs text-[var(--color-text-muted)]">Open Intents</p>
-          </div>
-        </Card>
-        <Card className="flex items-center gap-4 p-5">
-          <div className="flex size-10 items-center justify-center rounded-full bg-[var(--color-warning-soft)]">
-            <Icon name="account_balance_wallet" className="size-5 text-[var(--color-warning-text)]" />
-          </div>
-          <div>
-            <p className="font-mono text-lg font-bold text-white">{chainStats.isLoading ? "—" : chainStats.ethBalance}</p>
-            <p className="text-xs text-[var(--color-text-muted)]">ETH Balance</p>
-          </div>
-        </Card>
-        <Card className="flex items-center gap-4 p-5">
-          <div className="flex size-10 items-center justify-center rounded-full bg-[var(--color-surface-low)]">
-            <Icon name="smart_toy" className="size-5 text-[var(--color-text-muted)]" />
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-white">{running}</p>
-            <p className="text-xs text-[var(--color-text-muted)]">Active Agents</p>
-          </div>
-        </Card>
-      </div>
 
       <div className="mb-8 grid gap-4 sm:grid-cols-3">
         <Card className="flex items-center gap-4 p-5">

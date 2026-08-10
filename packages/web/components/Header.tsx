@@ -15,9 +15,17 @@ const LANDING_LINKS = [
   { href: "#stack", label: "Stack" },
 ];
 
+// Pages that need wallet connection
+const WALLET_PAGES = ["/intents", "/rfq", "/create", "/portfolio", "/faucet"];
+
+function needsWallet(pathname: string): boolean {
+  return WALLET_PAGES.some((p) => pathname.startsWith(p));
+}
+
 export function Header() {
   const pathname = usePathname();
   const isLanding = pathname === "/";
+  const showWallet = needsWallet(pathname);
 
   return (
     <header className="fixed inset-x-0 top-0 z-40 flex h-20 items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-bg)] px-5 sm:px-10">
@@ -46,14 +54,7 @@ export function Header() {
       <div className="flex items-center gap-2 sm:gap-3">
         <NotificationBell />
         <NetworkBadge />
-        <Link
-          href={"/create" as Route}
-          className="hidden min-h-11 items-center gap-2 rounded-full bg-[var(--color-primary)] px-5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-[var(--color-primary-hover)] active:opacity-80 sm:inline-flex motion-reduce:transition-none"
-        >
-          <Icon name="add" className="size-4" />
-          Create trade
-        </Link>
-        <ConnectWallet />
+        {showWallet && <ConnectWallet />}
       </div>
     </header>
   );

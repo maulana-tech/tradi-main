@@ -19,6 +19,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
       { href: "/strategies", label: "Strategies", icon: "storefront" },
+      { href: "/notifications", label: "Notifications", icon: "notifications" },
     ],
   },
   {
@@ -26,25 +27,16 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/intents", label: "Marketplace", icon: "grid_view" },
       { href: "/create", label: "Create Trade", icon: "add_circle" },
-    ],
-  },
-  {
-    label: "Account",
-    items: [
       { href: "/portfolio", label: "Portfolio", icon: "account_balance_wallet" },
-      { href: "/history" as Route, label: "Activity", icon: "history" },
     ],
   },
   {
-    label: "Insights",
+    label: "More",
     items: [
-      { href: "/prices" as Route, label: "Prices", icon: "candlestick_chart" },
+      { href: "/history" as Route, label: "Activity", icon: "history" },
       { href: "/analytics" as Route, label: "Analytics", icon: "analytics" },
+      { href: "/faucet", label: "Faucet", icon: "water_drop" },
     ],
-  },
-  {
-    label: "Testnet",
-    items: [{ href: "/faucet", label: "Faucet", icon: "water_drop" }],
   },
 ];
 
