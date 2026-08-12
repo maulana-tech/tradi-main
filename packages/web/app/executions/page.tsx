@@ -15,12 +15,19 @@ interface Execution {
   status: string;
   startedAt: string;
   completedAt?: string;
+  durationMs?: number;
   error?: string;
-  logs?: Array<{ timestamp: string; level: string; message: string; nodeId?: string }>;
+  errorCode?: string;
+  errorCategory?: string;
+  transactionHashes?: string[];
+  gasUsedWei?: string;
+  triggerSource?: string;
+  completedSteps?: number;
 }
 
 const STATUS_TONE: Record<string, "success" | "neutral" | "danger" | "warning"> = {
   completed: "success",
+  success: "success",
   running: "warning",
   failed: "danger",
   error: "danger",
@@ -28,41 +35,39 @@ const STATUS_TONE: Record<string, "success" | "neutral" | "danger" | "warning"> 
   deployed: "neutral",
 };
 
+function formatDuration(ms?: number): string {
+  if (!ms) return "—";
+  if (ms < 1000) return `${ms}ms`;
+  if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
+  return `${(ms / 60000).toFixed(1)}m`;
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
 export default function ExecutionsPage() {
   const [executions, setExecutions] = useState<Execution[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [selectedLogs, setSelectedLogs] = useState<string>("");
-  const [loadingLogs, setLoadingLogs] = useState(false);
+  const [selectedDetail, setSelectedDetail] = useState<string>("");
+  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const fetchExecutions = useCallback(async () => {
     try {
-      // Fetch from KeeperHub
       const khRes = await fetch("/api/keeperhub/workflows?action=executions&limit=50");
       const khData = (await khRes.json()) as { ok: boolean; data?: { runs?: Execution[] } };
-      
-      // Fetch agents to get workflow IDs
-      const agentRes = await fetch("/api/agents");
-      const agentData = (await agentRes.json()) as { agents: Array<{ id: string; name: string; keeperhubWorkflowId?: string }> };
 
       let execs: Execution[] = [];
-
-      // KeeperHub executions
       if (khData.ok && khData.data?.runs) {
         execs = khData.data.runs;
-      }
-
-      // If no KeeperHub executions, show agent deploy events
-      if (execs.length === 0 && agentData.agents) {
-        execs = agentData.agents
-          .filter((a) => a.keeperhubWorkflowId)
-          .map((a) => ({
-            id: `deploy-${a.id}`,
-            workflowId: a.keeperhubWorkflowId!,
-            workflowName: a.name,
-            status: "deployed",
-            startedAt: new Date().toISOString(),
-          }));
       }
 
       setExecutions(execs);
@@ -75,35 +80,43 @@ export default function ExecutionsPage() {
 
   useEffect(() => {
     void fetchExecutions();
-    const interval = setInterval(fetchExecutions, 15000);
+    const interval = setInterval(fetchExecutions, 10000);
     return () => clearInterval(interval);
   }, [fetchExecutions]);
 
-  async function viewLogs(executionId: string) {
+  async function viewDetail(executionId: string) {
     setSelectedId(executionId);
-    setLoadingLogs(true);
-    setSelectedLogs("");
+    setLoadingDetail(true);
+    setSelectedDetail("");
     try {
       const res = await fetch(`/api/keeperhub/workflows?action=execution&executionId=${executionId}`);
       const data = (await res.json()) as { ok: boolean; data?: Record<string, unknown> };
       if (data.ok && data.data) {
-        setSelectedLogs(JSON.stringify(data.data, null, 2));
+        setSelectedDetail(JSON.stringify(data.data, null, 2));
       } else {
-        setSelectedLogs("No logs available");
+        setSelectedDetail("No detail available");
       }
     } catch {
-      setSelectedLogs("Failed to load logs");
+      setSelectedDetail("Failed to load detail");
     } finally {
-      setLoadingLogs(false);
+      setLoadingDetail(false);
     }
   }
+
+  const filtered = statusFilter === "all"
+    ? executions
+    : executions.filter((e) => e.status === statusFilter);
+
+  const successCount = executions.filter((e) => e.status === "success").length;
+  const errorCount = executions.filter((e) => e.status === "error").length;
+  const runningCount = executions.filter((e) => e.status === "running").length;
 
   return (
     <AppShell>
       <PageHeader
         icon="terminal"
         title="Execution Logs"
-        subtitle="View KeeperHub workflow execution history and logs."
+        subtitle="View all KeeperHub workflow execution history and results."
         action={
           <Button tone="secondary" onClick={fetchExecutions}>
             <Icon name="refresh" className="size-4" />
@@ -112,76 +125,169 @@ export default function ExecutionsPage() {
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-        <div>
-          <h3 className="mb-4 text-sm font-semibold text-[var(--color-foreground)]">Recent Executions</h3>
-          {loading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => <Card key={i} className="h-20 animate-pulse p-5" />)}
-            </div>
-          ) : executions.length === 0 ? (
-            <Card className="p-8 text-center">
-              <Icon name="terminal" className="mx-auto size-8 text-[var(--color-text-muted)]" />
-              <p className="mt-3 text-sm text-[var(--color-text-secondary)]">No executions yet. Deploy an agent to start.</p>
-            </Card>
-          ) : (
-            <div className="space-y-2">
-              {executions.map((exec) => (
-                <button
-                  key={exec.id}
-                  onClick={() => viewLogs(exec.id)}
-                  className={`w-full text-left transition ${selectedId === exec.id ? "ring-1 ring-[var(--color-primary)]" : ""}`}
-                >
-                  <Card className="p-4 hover:bg-[var(--color-surface-raised)]">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Status label={exec.status} tone={STATUS_TONE[exec.status] ?? "neutral"} />
-                        <div>
-                          <p className="text-sm font-medium text-white">{exec.workflowName ?? exec.workflowId}</p>
-                          <p className="text-xs text-[var(--color-text-muted)]">
-                            {new Date(exec.startedAt).toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
-                      <Icon name="chevron_right" className="size-4 text-[var(--color-text-muted)]" />
-                    </div>
-                  </Card>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <h3 className="mb-4 text-sm font-semibold text-[var(--color-foreground)]">Execution Details</h3>
-          <Card className="min-h-[400px] p-4">
-            {selectedId === null ? (
-              <div className="flex h-64 items-center justify-center">
-                <p className="text-sm text-[var(--color-text-muted)]">Select an execution to view logs</p>
-              </div>
-            ) : loadingLogs ? (
-              <div className="flex h-64 items-center justify-center">
-                <Icon name="sync" className="size-6 animate-spin text-[var(--color-primary-text)]" />
-              </div>
-            ) : (
-              <div>
-                <div className="mb-3 flex items-center justify-between">
-                  <span className="font-mono text-xs text-[var(--color-text-muted)]">{selectedId}</span>
-                  <button
-                    onClick={() => { setSelectedId(null); setSelectedLogs(""); }}
-                    className="text-xs text-[var(--color-text-muted)] hover:text-white"
-                  >
-                    Close
-                  </button>
-                </div>
-                <pre className="max-h-[500px] overflow-auto rounded-lg bg-[var(--color-surface-low)] p-4 font-mono text-xs text-[var(--color-text-secondary)] whitespace-pre-wrap">
-                  {selectedLogs || "No log data"}
-                </pre>
-              </div>
-            )}
-          </Card>
-        </div>
+      <div className="mb-6 grid gap-4 sm:grid-cols-4">
+        <Card className="flex items-center gap-3 p-4">
+          <div className="flex size-9 items-center justify-center rounded-full bg-[var(--color-surface-low)]">
+            <Icon name="receipt_long" className="size-4 text-[var(--color-text-muted)]" />
+          </div>
+          <div>
+            <p className="text-lg font-bold text-white">{executions.length}</p>
+            <p className="text-xs text-[var(--color-text-muted)]">Total</p>
+          </div>
+        </Card>
+        <Card className="flex items-center gap-3 p-4">
+          <div className="flex size-9 items-center justify-center rounded-full bg-[var(--color-success-soft)]">
+            <Icon name="check_circle" className="size-4 text-[var(--color-success-text)]" />
+          </div>
+          <div>
+            <p className="text-lg font-bold text-white">{successCount}</p>
+            <p className="text-xs text-[var(--color-text-muted)]">Success</p>
+          </div>
+        </Card>
+        <Card className="flex items-center gap-3 p-4">
+          <div className="flex size-9 items-center justify-center rounded-full bg-[var(--color-danger-soft)]">
+            <Icon name="error" className="size-4 text-[var(--color-danger-text)]" />
+          </div>
+          <div>
+            <p className="text-lg font-bold text-white">{errorCount}</p>
+            <p className="text-xs text-[var(--color-text-muted)]">Error</p>
+          </div>
+        </Card>
+        <Card className="flex items-center gap-3 p-4">
+          <div className="flex size-9 items-center justify-center rounded-full bg-[var(--color-warning-soft)]">
+            <Icon name="sync" className="size-4 text-[var(--color-warning-text)]" />
+          </div>
+          <div>
+            <p className="text-lg font-bold text-white">{runningCount}</p>
+            <p className="text-xs text-[var(--color-text-muted)]">Running</p>
+          </div>
+        </Card>
       </div>
+
+      <div className="mb-4 flex flex-wrap gap-2">
+        {(["all", "success", "error", "running"] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+              statusFilter === s
+                ? "bg-[var(--color-primary)] text-white"
+                : "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:text-white"
+            }`}
+          >
+            {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
+            {s !== "all" && (
+              <span className="ml-1.5 text-xs opacity-70">
+                ({s === "success" ? successCount : s === "error" ? errorCount : runningCount})
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <Card className="p-8 text-center">
+          <Icon name="sync" className="mx-auto size-6 animate-spin text-[var(--color-primary-text)]" />
+          <p className="mt-3 text-sm text-[var(--color-text-muted)]">Loading executions...</p>
+        </Card>
+      ) : filtered.length === 0 ? (
+        <Card className="p-8 text-center">
+          <Icon name="terminal" className="mx-auto size-8 text-[var(--color-text-muted)]" />
+          <p className="mt-3 text-sm text-[var(--color-text-secondary)]">No executions yet. Deploy an agent to start.</p>
+        </Card>
+      ) : (
+        <Card className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[800px] text-left">
+              <thead className="border-b border-[var(--color-border)] bg-[var(--color-surface-low)] text-xs text-[var(--color-text-muted)]">
+                <tr>
+                  <th className="px-5 py-3 font-medium">Status</th>
+                  <th className="px-5 py-3 font-medium">Workflow</th>
+                  <th className="px-5 py-3 font-medium">Started At</th>
+                  <th className="px-5 py-3 font-medium">Duration</th>
+                  <th className="px-5 py-3 font-medium">Error</th>
+                  <th className="px-5 py-3 font-medium">Trigger</th>
+                  <th className="px-5 py-3 font-medium">Detail</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--color-border)]">
+                {filtered.map((exec) => (
+                  <tr
+                    key={exec.id}
+                    className={`transition-colors hover:bg-[var(--color-surface-low)] ${
+                      selectedId === exec.id ? "bg-[var(--color-surface-low)]" : ""
+                    }`}
+                  >
+                    <td className="px-5 py-3">
+                      <Status
+                        label={exec.status}
+                        tone={STATUS_TONE[exec.status] ?? "neutral"}
+                      />
+                    </td>
+                    <td className="px-5 py-3">
+                      <p className="text-sm font-medium text-white">{exec.workflowName ?? exec.workflowId}</p>
+                      <p className="font-mono text-xs text-[var(--color-text-muted)]">{exec.id}</p>
+                    </td>
+                    <td className="px-5 py-3 text-xs text-[var(--color-text-secondary)]">
+                      {formatDate(exec.startedAt)}
+                    </td>
+                    <td className="px-5 py-3 font-mono text-xs text-[var(--color-text-secondary)]">
+                      {formatDuration(exec.durationMs)}
+                    </td>
+                    <td className="px-5 py-3">
+                      {exec.error ? (
+                        <span className="text-xs text-[var(--color-danger-text)] line-clamp-2 max-w-[200px]">
+                          {exec.error}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-[var(--color-text-muted)]">—</span>
+                      )}
+                    </td>
+                    <td className="px-5 py-3">
+                      <Badge tone="neutral">{exec.triggerSource ?? "manual"}</Badge>
+                    </td>
+                    <td className="px-5 py-3">
+                      <button
+                        onClick={() => viewDetail(exec.id)}
+                        className="rounded p-1.5 text-[var(--color-text-muted)] transition hover:bg-[var(--color-surface)] hover:text-white"
+                        title="View detail"
+                      >
+                        <Icon name="visibility" className="size-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
+
+      {selectedId && (
+        <Card className="mt-6 p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold text-white">Execution Detail</h3>
+              <p className="font-mono text-xs text-[var(--color-text-muted)]">{selectedId}</p>
+            </div>
+            <button
+              onClick={() => { setSelectedId(null); setSelectedDetail(""); }}
+              className="rounded p-1.5 text-[var(--color-text-muted)] transition hover:bg-[var(--color-surface)] hover:text-white"
+            >
+              <Icon name="close" className="size-4" />
+            </button>
+          </div>
+          {loadingDetail ? (
+            <div className="flex h-32 items-center justify-center">
+              <Icon name="sync" className="size-5 animate-spin text-[var(--color-primary-text)]" />
+            </div>
+          ) : (
+            <pre className="max-h-[400px] overflow-auto rounded-lg bg-[var(--color-surface-low)] p-4 font-mono text-xs text-[var(--color-text-secondary)] whitespace-pre-wrap">
+              {selectedDetail || "No detail data"}
+            </pre>
+          )}
+        </Card>
+      )}
     </AppShell>
   );
 }
