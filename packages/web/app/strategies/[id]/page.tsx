@@ -23,11 +23,6 @@ export default function StrategyDetailPage() {
   const [deploying, setDeploying] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [writerMode, setWriterMode] = useState<"agent" | "hermes" | "dry-run">("agent");
-  const [configValues, setConfigValues] = useState<Record<string, string>>(
-    Object.fromEntries(
-      Object.entries(strategy?.config ?? {}).map(([k, v]) => [k, v.default])
-    )
-  );
 
   if (!strategy) {
     return (
@@ -52,7 +47,6 @@ export default function StrategyDetailPage() {
         body: JSON.stringify({
           strategyId: strategy!.id,
           name: agentName || `${strategy!.name} Agent`,
-          config: configValues,
           writerMode,
         }),
       });
@@ -91,9 +85,9 @@ export default function StrategyDetailPage() {
           </Card>
 
           <Card className="p-6">
-            <h3 className="mb-4 text-sm font-semibold text-[var(--color-foreground)]">MCP Tools Used</h3>
+            <h3 className="mb-4 text-sm font-semibold text-[var(--color-foreground)]">KeeperHub Actions</h3>
             <div className="flex flex-wrap gap-2">
-              {strategy.mcpTools.map((tool) => (
+              {strategy.keeperhubActions.map((tool) => (
                 <code key={tool} className="rounded bg-[var(--color-surface-low)] px-2 py-1 font-mono text-xs text-[var(--color-primary-text)]">
                   {tool}
                 </code>
@@ -102,21 +96,12 @@ export default function StrategyDetailPage() {
           </Card>
 
           <Card className="p-6">
-            <h3 className="mb-4 text-sm font-semibold text-[var(--color-foreground)]">Configuration</h3>
-            <div className="space-y-4">
-              {Object.entries(strategy.config).map(([key, field]) => (
-                <div key={key}>
-                  <label className="block text-xs font-medium text-[var(--color-text-muted)]">
-                    {field.label}
-                  </label>
-                  <p className="mb-1 text-xs text-[var(--color-text-muted)]">{field.description}</p>
-                  <input
-                    type={field.type === "number" ? "number" : "text"}
-                    value={configValues[key] ?? ""}
-                    onChange={(e) => setConfigValues((prev) => ({ ...prev, [key]: e.target.value }))}
-                    className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-low)] px-3 py-2 font-mono text-sm text-white placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary)] focus:outline-none"
-                  />
-                </div>
+            <h3 className="mb-4 text-sm font-semibold text-[var(--color-foreground)]">KeeperHub Actions</h3>
+            <div className="flex flex-wrap gap-2">
+              {strategy.keeperhubActions.map((action) => (
+                <code key={action} className="rounded bg-[var(--color-surface-low)] px-2 py-1 font-mono text-xs text-[var(--color-primary-text)]">
+                  {action}
+                </code>
               ))}
             </div>
           </Card>
