@@ -133,8 +133,20 @@ export async function POST(request: NextRequest) {
         description: body.description ?? "",
         nodes: body.nodes,
         edges: body.edges ?? [],
+        enabled: true,
         idempotency_key: `tradi-${body.name}-${Date.now()}`,
       });
+
+      // Trigger immediate first execution
+      const workflowId = (result as Record<string, unknown>)?.id as string;
+      if (workflowId) {
+        try {
+          await mcpCall("execute_workflow", { workflowId });
+        } catch {
+          // Silent — execution may fail but workflow is created
+        }
+      }
+
       return NextResponse.json({ ok: true, data: result });
     }
 
