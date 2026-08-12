@@ -25,6 +25,7 @@ interface DeployedAgent {
   runs: number;
   errors: number;
   config: Record<string, string>;
+  keeperhubWorkflowId?: string;
 }
 
 const STATUS_TONE: Record<AgentStatus, "success" | "neutral" | "danger" | "warning"> = {
@@ -166,6 +167,9 @@ export default function DashboardPage() {
                         {agent.lastRun
                           ? `Last run ${new Date(agent.lastRun).toLocaleString()}`
                           : "Never run"}
+                        {agent.keeperhubWorkflowId && (
+                          <> &middot; <span className="text-[var(--color-primary-text)]">KH: {agent.keeperhubWorkflowId.slice(0, 12)}...</span></>
+                        )}
                       </p>
                     </div>
                   </div>

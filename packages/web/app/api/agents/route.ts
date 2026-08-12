@@ -115,27 +115,81 @@ export async function POST(request: NextRequest) {
     type: "info",
     source: "agent",
     title: `Deploying ${agentName}`,
-    message: `Strategy "${body.strategyId}" is being deployed on Arbitrum Sepolia.`,
+    message: `Strategy "${body.strategyId}" is being deployed. Creating KeeperHub workflow...`,
     agentId: id,
   });
 
-  // Simulate deployment + KeeperHub workflow creation
-  setTimeout(async () => {
+  // Create real KeeperHub workflow
+  try {
+    const { getWorkflowTemplate } = await import("@/lib/keeperhub-templates");
+    const template = getWorkflowTemplate(body.strategyId, body.config ?? {});
+
+    if (template) {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+      const wfRes = await fetch(`${baseUrl}/api/keeperhub/workflows`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "create",
+          name: template.name,
+          description: template.description,
+          nodes: template.nodes,
+          edges: template.edges,
+        }),
+      });
+      const wfData = (await wfRes.json()) as { ok: boolean; data?: { id?: string } };
+
+      const a = store.get(id);
+      if (a) {
+        if (wfData.ok && wfData.data?.id) {
+          a.keeperhubWorkflowId = wfData.data.id;
+          a.status = "running";
+          store.set(id, a);
+
+          await pushNotification({
+            type: "success",
+            source: "agent",
+            title: `${agentName} deployed`,
+            message: `KeeperHub workflow created: ${wfData.data.id}. Agent is now active.`,
+            agentId: id,
+          });
+        } else {
+          a.status = "running";
+          store.set(id, a);
+
+          await pushNotification({
+            type: "warning",
+            source: "agent",
+            title: `${agentName} deployed (no workflow)`,
+            message: "Agent deployed but KeeperHub workflow creation failed. Check KeeperHub config.",
+            agentId: id,
+          });
+        }
+      }
+    } else {
+      // No template for this strategy — just mark as running
+      const a = store.get(id);
+      if (a) {
+        a.status = "running";
+        store.set(id, a);
+      }
+    }
+  } catch (err) {
+    console.error("KeeperHub workflow creation failed:", err);
     const a = store.get(id);
     if (a) {
       a.status = "running";
-      a.keeperhubWorkflowId = `wf-${id}`;
       store.set(id, a);
 
       await pushNotification({
-        type: "success",
+        type: "warning",
         source: "agent",
-        title: `${agentName} deployed`,
-        message: `Agent is running. KeeperHub workflow created.`,
+        title: `${agentName} deployed (workflow error)`,
+        message: `Agent running but workflow creation error: ${err instanceof Error ? err.message : String(err)}`,
         agentId: id,
       });
     }
-  }, 2000);
+  }
 
   return NextResponse.json({ ok: true, agent });
 }
