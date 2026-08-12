@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
           address: ((web3Wallet as Record<string, unknown>).address as string) ?? ((web3Wallet as Record<string, unknown>).label as string),
           type: "api-key",
           label: body.label ?? "KeeperHub Wallet",
-          chains: ["Arbitrum Sepolia", "Ethereum", "Base"],
+          chains: ["Sepolia", "Base Sepolia", "Ethereum", "Base", "Arbitrum", "Optimism", "Polygon"],
           createdAt: new Date().toISOString(),
         };
 
@@ -201,7 +201,7 @@ export async function POST(request: NextRequest) {
           address: ((web3Wallet as Record<string, unknown>).address as string) ?? ((web3Wallet as Record<string, unknown>).label as string),
           type: "keeperhub-managed",
           label: body.label ?? "Tradi Wallet",
-          chains: ["Arbitrum Sepolia", "Ethereum", "Base"],
+          chains: ["Sepolia", "Base Sepolia", "Ethereum", "Base", "Arbitrum", "Optimism", "Polygon"],
           createdAt: new Date().toISOString(),
         };
 
