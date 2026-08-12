@@ -24,6 +24,8 @@ const STATUS_TONE: Record<string, "success" | "neutral" | "danger" | "warning"> 
   running: "warning",
   failed: "danger",
   pending: "neutral",
+  deployed: "primary",
+  error: "danger",
 };
 
 export default function ExecutionsPage() {
@@ -35,12 +37,35 @@ export default function ExecutionsPage() {
 
   const fetchExecutions = useCallback(async () => {
     try {
-      const res = await fetch("/api/keeperhub/workflows?action=executions&limit=50");
-      const data = (await res.json()) as { ok: boolean; data?: Execution[] | { executions?: Execution[] } };
-      if (data.ok && data.data) {
-        const execs = Array.isArray(data.data) ? data.data : (data.data.executions ?? []);
-        setExecutions(execs);
+      // Fetch from KeeperHub
+      const khRes = await fetch("/api/keeperhub/workflows?action=executions&limit=50");
+      const khData = (await khRes.json()) as { ok: boolean; data?: { runs?: Execution[] } };
+      
+      // Fetch agents to get workflow IDs
+      const agentRes = await fetch("/api/agents");
+      const agentData = (await agentRes.json()) as { agents: Array<{ id: string; name: string; keeperhubWorkflowId?: string }> };
+
+      let execs: Execution[] = [];
+
+      // KeeperHub executions
+      if (khData.ok && khData.data?.runs) {
+        execs = khData.data.runs;
       }
+
+      // If no KeeperHub executions, show agent deploy events
+      if (execs.length === 0 && agentData.agents) {
+        execs = agentData.agents
+          .filter((a) => a.keeperhubWorkflowId)
+          .map((a) => ({
+            id: `deploy-${a.id}`,
+            workflowId: a.keeperhubWorkflowId!,
+            workflowName: a.name,
+            status: "deployed",
+            startedAt: new Date().toISOString(),
+          }));
+      }
+
+      setExecutions(execs);
     } catch (err) {
       console.error("Failed to fetch executions:", err);
     } finally {
@@ -60,11 +85,9 @@ export default function ExecutionsPage() {
     setSelectedLogs("");
     try {
       const res = await fetch(`/api/keeperhub/workflows?action=execution&executionId=${executionId}`);
-      const data = (await res.json()) as { ok: boolean; data?: { logs?: string | unknown[]; status?: string; error?: string } };
+      const data = (await res.json()) as { ok: boolean; data?: Record<string, unknown> };
       if (data.ok && data.data) {
-        const d = data.data;
-        const logText = typeof d.logs === "string" ? d.logs : JSON.stringify(d.logs, null, 2);
-        setSelectedLogs(logText || JSON.stringify(d, null, 2));
+        setSelectedLogs(JSON.stringify(data.data, null, 2));
       } else {
         setSelectedLogs("No logs available");
       }
