@@ -23,9 +23,9 @@ const STATUS_TONE: Record<string, "success" | "neutral" | "danger" | "warning"> 
   completed: "success",
   running: "warning",
   failed: "danger",
-  pending: "neutral",
-  deployed: "primary",
   error: "danger",
+  pending: "neutral",
+  deployed: "neutral",
 };
 
 export default function ExecutionsPage() {
