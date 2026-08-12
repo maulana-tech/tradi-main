@@ -43,6 +43,9 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 function isActive(pathname: string, href: string) {
+  if (href === "/market") {
+    return pathname.startsWith("/market") || pathname.startsWith("/prices");
+  }
   if (href === "/intents") {
     return pathname.startsWith("/intents") || pathname.startsWith("/rfq");
   }
