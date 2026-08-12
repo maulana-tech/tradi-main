@@ -9,15 +9,17 @@ import { Card } from "@/components/ui/Card";
 import { Badge, Status } from "@/components/ui/Badge";
 import { Icon } from "@/components/Icon";
 import { StarRating } from "@/components/StarRating";
-import { STRATEGIES, type StrategyCategory } from "@/lib/strategies";
+import { STRATEGIES, CATEGORIES, type StrategyCategory } from "@/lib/strategies";
 
-const CATEGORIES: { value: StrategyCategory | "all"; label: string }[] = [
+const CATEGORIES_LIST: { value: StrategyCategory | "all"; label: string }[] = [
   { value: "all", label: "All" },
-  { value: "otc", label: "OTC" },
-  { value: "market-making", label: "Market Making" },
-  { value: "arbitrage", label: "Arbitrage" },
-  { value: "liquidation", label: "Liquidation" },
+  { value: "monitoring", label: "Monitoring" },
+  { value: "yield", label: "Yield" },
   { value: "defi", label: "DeFi" },
+  { value: "otc", label: "OTC" },
+  { value: "bridge", label: "Bridge" },
+  { value: "notifications", label: "Alerts" },
+  { value: "governance", label: "Governance" },
 ];
 
 const RISK_TONE = { low: "success" as const, medium: "warning" as const, high: "danger" as const };
@@ -37,7 +39,7 @@ export default function StrategiesPage() {
       />
 
       <div className="mb-8 flex flex-wrap gap-2">
-        {CATEGORIES.map((cat) => (
+        {CATEGORIES_LIST.map((cat) => (
           <button
             key={cat.value}
             onClick={() => setCategory(cat.value)}
@@ -64,9 +66,12 @@ export default function StrategiesPage() {
                 <div className="flex size-10 items-center justify-center rounded-xl bg-[var(--color-primary-soft)]">
                   <Icon name={strategy.icon} className="size-5 text-[var(--color-primary-text)]" />
                 </div>
-                <Badge tone={RISK_TONE[strategy.risk]}>
-                  {strategy.risk} risk
-                </Badge>
+                <div className="flex gap-1.5">
+                  {strategy.isNew && <Badge tone="primary">NEW</Badge>}
+                  <Badge tone={RISK_TONE[strategy.risk]}>
+                    {strategy.risk}
+                  </Badge>
+                </div>
               </div>
 
               <h3 className="mt-4 font-display text-lg font-semibold text-white group-hover:text-[var(--color-primary-text)]">
