@@ -26,7 +26,8 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Trading",
     items: [
-      { href: "/intents", label: "Marketplace", icon: "grid_view" },
+      { href: "/market", label: "Market", icon: "candlestick_chart" },
+      { href: "/intents", label: "OTC Orders", icon: "grid_view" },
       { href: "/create", label: "Create Trade", icon: "add_circle" },
       { href: "/portfolio", label: "Portfolio", icon: "account_balance_wallet" },
     ],
