@@ -131,6 +131,42 @@ Each strategy maps to a real KeeperHub plugin action (Aave, Compound, Yearn, Lid
 
 ---
 
+## Proof of Execution
+
+### First Transaction via KeeperHub
+
+| Field | Value |
+|---|---|
+| **Execution ID** | `szpa2jb1si5jn3kn8usim` |
+| **Transaction Hash** | [`0x0c718361367cb6fe42f5f495a5d008c8e55fd076ad020ba45caaab2c4c1b64fa`](https://sepolia.etherscan.io/tx/0x0c718361367cb6fe42f5f495a5d008c8e55fd076ad020ba45caaab2c4c1b64fa) |
+| **Chain** | Ethereum Sepolia (`11155111`) |
+| **From** | `0xBAE30Afe9C9a83A3568a2c1C4cD2D7BF453bE2D2` (KeeperHub Wallet) |
+| **To** | `0xBAE30Afe9C9a83A3568a2c1C4cD2D7BF453bE2D2` (self-transfer) |
+| **Amount** | 0.001 ETH |
+| **Gas Used** | 21,000 |
+| **Status** | ✅ Completed |
+
+### Execution Flow
+
+```
+User clicks "Execute"
+  → Tradi API calls KeeperHub MCP
+  → KeeperHub simulates transaction (dry-run)
+  → KeeperHub signs via Turnkey secure enclave
+  → Transaction broadcast to Ethereum Sepolia
+  → Tx hash returned: 0x0c71836...
+  → Status: Completed
+```
+
+### What This Proves
+
+1. **Full KeeperHub integration** — Tradi → KeeperHub MCP → Turnkey → Chain
+2. **Secure signing** — Private keys never leave Turnkey secure enclave
+3. **Real on-chain execution** — Transaction confirmed on Ethereum Sepolia
+4. **API-first design** — No MetaMask, no wallet extensions, just API calls
+
+---
+
 ## Deployed Contracts (Arbitrum Sepolia)
 
 | Contract | Address |
