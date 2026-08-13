@@ -14,6 +14,25 @@ Hermes tidak menyimpan private key eksekusi, tidak memanggil RPC write secara la
 
 ## Prasyarat
 
+Untuk tes Telegram read-only pertama, cukup siapkan Hermes, repo Tradi-Nox, RPC Arbitrum Sepolia, dan alamat `PrivateOTC`. Lewati konfigurasi KeeperHub pada bagian 1 dan langsung ikuti bagian 2. KeeperHub baru dibutuhkan saat masuk ke simulasi dan write transaction.
+
+### Temukan Hermes home aktif
+
+Jalankan:
+
+```bash
+hermes doctor
+```
+
+Gunakan path yang ditampilkan pada bagian **Configuration Files**. Lokasinya bergantung pada instalasi:
+
+| Instalasi      | Hermes home yang umum   |
+| -------------- | ----------------------- |
+| Windows native | `%LOCALAPPDATA%\hermes` |
+| WSL2/Linux     | `~/.hermes`             |
+
+Jangan menganggap `~/.hermes` selalu aktif. Pada Windows native, file yang dibaca biasanya `%LOCALAPPDATA%\hermes\config.yaml` dan `%LOCALAPPDATA%\hermes\.env`.
+
 - Hermes Agent sudah terpasang.
 - Workspace KeeperHub memiliki organization API key berawalan `kh_` atau OAuth yang aktif.
 - Wallet integration KeeperHub sudah dikonfigurasi.
@@ -25,13 +44,13 @@ Gunakan Arbitrum Sepolia (`421614`) untuk konsisten dengan deployment Tradi, tet
 
 ## 1. Hubungkan KeeperHub MCP
 
-Simpan secret di `~/.hermes/.env`, bukan di repo:
+Simpan secret di `<HERMES_HOME>/.env`, bukan di repo:
 
 ```env
 KEEPERHUB_API_KEY=kh_replace_me
 ```
 
-Tambahkan server remote ke `~/.hermes/config.yaml`:
+Tambahkan server remote ke `<HERMES_HOME>/config.yaml`:
 
 ```yaml
 mcp_servers:
@@ -90,17 +109,60 @@ mcp_servers:
     args:
       - "E:/smweb/tradi-main/packages/mcp-server/dist/index.js"
     env:
-      AGENT_PRIVATE_KEY: "${TRADI_MCP_READONLY_PRIVATE_KEY}"
       ARBITRUM_SEPOLIA_RPC_URL: "${ARBITRUM_SEPOLIA_RPC_URL}"
-      NEXT_PUBLIC_PRIVATE_OTC_ADDRESS: "${PRIVATE_OTC_ADDRESS}"
+      PRIVATE_OTC_ADDRESS: "${PRIVATE_OTC_ADDRESS}"
     tools:
       include:
         - private_otc_browse_intents
 ```
 
-Path pada `args` harus diganti jika repo berada di lokasi lain. Simpan tiga nilai environment tersebut di `~/.hermes/.env`; jangan menulis nilainya langsung ke file konfigurasi atau repo.
+Path pada `args` harus diganti jika repo berada di lokasi lain. Jika Hermes Telegram berjalan di VPS, repo dan hasil build MCP juga harus tersedia di VPS tersebut.
 
-Implementasi `getEnv()` saat ini masih meminta `AGENT_PRIVATE_KEY` bahkan untuk browse. Selama masa migrasi, gunakan key khusus tanpa dana untuk proses MCP read-only—bukan key wallet user atau wallet KeeperHub. Target akhirnya adalah memisahkan konfigurasi public client agar tool baca tidak membutuhkan private key sama sekali.
+Gunakan path sesuai runtime Hermes:
+
+| Runtime Hermes | Contoh path MCP                                             |
+| -------------- | ----------------------------------------------------------- |
+| Windows native | `E:/smweb/tradi-main/packages/mcp-server/dist/index.js`     |
+| WSL2           | `/mnt/e/smweb/tradi-main/packages/mcp-server/dist/index.js` |
+| Linux/VPS      | `/opt/tradi-main/packages/mcp-server/dist/index.js`         |
+
+`node` dan file MCP harus dapat diakses dari environment yang sama dengan proses Hermes Telegram.
+
+Simpan konfigurasi koneksi di `<HERMES_HOME>/.env` pada mesin Hermes:
+
+```env
+ARBITRUM_SEPOLIA_RPC_URL=https://sepolia-rollup.arbitrum.io/rpc
+PRIVATE_OTC_ADDRESS=0x5b2C0c83e41bF9ef072d742096C49DFDB814CEB4
+```
+
+Mode read-only tidak membutuhkan `AGENT_PRIVATE_KEY`.
+
+Setelah mengubah konfigurasi, restart proses Hermes Telegram atau jalankan `/reload-mcp` dari sesi Hermes yang mendukung command tersebut.
+
+### Tes interaksi melalui Telegram
+
+Kirim prompt pertama:
+
+```text
+Sebutkan tool MCP Tradi-Nox yang tersedia. Jangan jalankan transaksi.
+```
+
+Hermes seharusnya hanya melihat `private_otc_browse_intents`. Pada inventory Hermes, namanya dapat tampil dengan prefix menjadi `mcp_tradi_nox_private_otc_browse_intents`; itu normal. Lanjutkan dengan:
+
+```text
+Cari maksimal 5 RFQ Tradi-Nox yang masih terbuka. Tampilkan ID, maker, pair token, dan deadline. Jangan jalankan transaksi.
+```
+
+Hermes harus memanggil tool dengan input berikut:
+
+```json
+{
+  "mode": "rfq",
+  "limit": 5
+}
+```
+
+Hasil kosong berarti tidak ada RFQ open pada range yang dibaca. Error RPC atau konfigurasi harus muncul sebagai error dan tidak boleh dilaporkan sebagai hasil kosong.
 
 Saat ini hanya `private_otc_browse_intents` yang aman dipakai sebagai tool baca. Jangan expose `private_otc_keeperhub_relay`, karena implementasinya belum mengeksekusi KeeperHub. Setelah migrasi, whitelist dapat ditambah dengan tool read/prepare berikut:
 

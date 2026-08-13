@@ -17,9 +17,9 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Platform",
     items: [
-      { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
-      { href: "/strategies", label: "Strategies", icon: "storefront" },
-      { href: "/notifications", label: "Notifications", icon: "notifications" },
+      { href: "/dashboard" as Route, label: "Dashboard", icon: "dashboard" },
+      { href: "/strategies" as Route, label: "Strategies", icon: "storefront" },
+      { href: "/notifications" as Route, label: "Notifications", icon: "notifications" },
     ],
   },
   {

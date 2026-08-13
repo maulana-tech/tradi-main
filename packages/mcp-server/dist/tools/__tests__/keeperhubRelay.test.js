@@ -1,4 +1,10 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
+vi.mock("../../client.js", () => ({
+    getEnv: () => ({ otc: "0x1111111111111111111111111111111111111111" }),
+    getWalletClient: () => ({
+        account: { address: "0x2222222222222222222222222222222222222222" },
+    }),
+}));
 import { keeperhubRelayTool } from "../keeperhubRelay.js";
 describe("keeperhubRelayTool", () => {
     test("returns valid JSON structure with sponsorship details", async () => {

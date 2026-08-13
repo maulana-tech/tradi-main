@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
-import { getEnv } from "../client.js";
+import { getEnv, getPublicEnv } from "../client.js";
 
 const ORIGINAL_ENV = { ...process.env };
 
@@ -18,6 +18,23 @@ afterEach(() => {
 
 const VALID_KEY = "0x" + "a".repeat(64);
 const VALID_ADDR = "0x" + "b".repeat(40);
+
+describe("getPublicEnv", () => {
+  test("returns RPC and contract configuration without a private key", () => {
+    process.env.PRIVATE_OTC_ADDRESS = VALID_ADDR;
+    process.env.ARBITRUM_SEPOLIA_RPC_URL = "https://custom-rpc.example.com";
+
+    expect(getPublicEnv()).toEqual({
+      otc: VALID_ADDR,
+      rpc: "https://custom-rpc.example.com",
+    });
+  });
+
+  test("still validates the contract address", () => {
+    process.env.PRIVATE_OTC_ADDRESS = "0xabc";
+    expect(() => getPublicEnv()).toThrow(/PRIVATE_OTC_ADDRESS/);
+  });
+});
 
 describe("getEnv", () => {
   describe("positive cases", () => {

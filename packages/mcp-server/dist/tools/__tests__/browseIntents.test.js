@@ -1,15 +1,15 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
 // Module mocks — must precede SUT import.
 vi.mock("../../client.js", () => ({
-    getEnv: vi.fn(),
+    getPublicEnv: vi.fn(),
     getPublicClient: vi.fn(),
 }));
 vi.mock("../../abi.js", () => ({
     privateOtcAbi: [],
 }));
 import { browseIntentsTool } from "../browseIntents.js";
-import { getEnv, getPublicClient } from "../../client.js";
-const mockGetEnv = vi.mocked(getEnv);
+import { getPublicEnv, getPublicClient } from "../../client.js";
+const mockGetPublicEnv = vi.mocked(getPublicEnv);
 const mockGetPublicClient = vi.mocked(getPublicClient);
 const OTC = "0xOtc";
 function makeIntent(overrides = {}) {
@@ -42,7 +42,7 @@ function setupClient(opts) {
         throw new Error(`unexpected call: ${params.functionName}`);
     });
     mockGetPublicClient.mockReturnValue({ readContract });
-    mockGetEnv.mockReturnValue({ otc: OTC, key: "0x", rpc: "" });
+    mockGetPublicEnv.mockReturnValue({ otc: OTC, rpc: "" });
     return readContract;
 }
 function parseRows(result) {

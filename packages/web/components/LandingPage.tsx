@@ -209,7 +209,7 @@ export function LandingPage() {
       <footer className="border-t border-[var(--color-border)]">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-10 text-sm text-[var(--color-text-secondary)] sm:px-10 md:flex-row md:items-center md:justify-between">
           <span className="flex items-center gap-2 text-white"><TradiLogo size={16} className="text-[var(--color-primary-text)]" />Tradi</span>
-          <div className="flex flex-wrap gap-8"><a href="https://github.com/maulana-tech/tradi-main" target="_blank" rel="noreferrer" className="flex min-h-11 items-center hover:text-white">Source</a><Link href="/slides" className="flex min-h-11 items-center hover:text-white">Pitch deck</Link><Link href="/dashboard" className="flex min-h-11 items-center hover:text-white">Dashboard</Link></div>
+          <div className="flex flex-wrap gap-8"><a href="https://github.com/maulana-tech/tradi-main" target="_blank" rel="noreferrer" className="flex min-h-11 items-center hover:text-white">Source</a><Link href={"/slides" as Route} className="flex min-h-11 items-center hover:text-white">Pitch deck</Link><Link href={"/dashboard" as Route} className="flex min-h-11 items-center hover:text-white">Dashboard</Link></div>
           <span>Ethereum Sepolia · 2026</span>
         </div>
       </footer>

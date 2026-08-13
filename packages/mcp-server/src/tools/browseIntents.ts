@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getEnv, getPublicClient } from "../client.js";
+import { getPublicEnv, getPublicClient } from "../client.js";
 import { privateOtcAbi } from "../abi.js";
 
 const ArgsSchema = z.object({
@@ -27,7 +27,7 @@ export const browseIntentsTool = {
   },
   async handler(rawArgs: Record<string, unknown>) {
     const args = ArgsSchema.parse(rawArgs);
-    const env = getEnv();
+    const env = getPublicEnv();
     const publicClient = getPublicClient();
     const limit = args.limit ?? 20;
 

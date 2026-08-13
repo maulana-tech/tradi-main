@@ -87,7 +87,7 @@ export default function DashboardPage() {
         subtitle="Monitor and manage your deployed trading agents."
         action={
           <Link
-            href="/strategies"
+            href={"/strategies" as Route}
             className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-primary)] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
           >
             <Icon name="add" className="size-4" />
@@ -137,7 +137,7 @@ export default function DashboardPage() {
           <Icon name="smart_toy" className="mx-auto size-10 text-[var(--color-text-muted)]" />
           <p className="mt-4 text-[var(--color-text-secondary)]">No agents deployed yet.</p>
           <Link
-            href="/strategies"
+            href={"/strategies" as Route}
             className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[var(--color-primary-text)] hover:underline"
           >
             Browse strategies

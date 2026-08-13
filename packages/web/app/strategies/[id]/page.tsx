@@ -35,7 +35,7 @@ export default function StrategyDetailPage() {
         <div className="py-20 text-center">
           <Icon name="error" className="mx-auto size-10 text-[var(--color-danger-text)]" />
           <p className="mt-4 text-[var(--color-text-secondary)]">Strategy not found.</p>
-          <Link href="/strategies" className="mt-4 inline-block text-sm text-[var(--color-primary-text)] hover:underline">
+          <Link href={"/strategies" as Route} className="mt-4 inline-block text-sm text-[var(--color-primary-text)] hover:underline">
             Back to marketplace
           </Link>
         </div>
