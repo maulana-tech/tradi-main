@@ -24,8 +24,10 @@ Tradi lets anyone deploy automated trading strategies with one click. The AI age
 |---|---|
 | 🚀 **Live demo** | https://tradi-main.vercel.app |
 | 📦 **Source** | https://github.com/maulana-tech/tradi-main |
-| 📡 **Network** | Arbitrum Sepolia (chain id `421614`) |
+| 🎥 **Demo video** | https://youtu.be/_tMBT32r_kQ |
+| 📡 **Network** | Arbitrum Sepolia (chain id `421614`) / Ethereum Sepolia |
 | 🔑 **Stack** | Next.js 16 · Solidity 0.8.27 · KeeperHub · MCP |
+| 🔗 **Tx Execution** | [0x0c71836...](https://sepolia.etherscan.io/tx/0x0c718361367cb6fe42f5f495a5d008c8e55fd076ad020ba45caaab2c4c1b64fa) |
 
 ---
 
